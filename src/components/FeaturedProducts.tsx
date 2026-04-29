@@ -1,18 +1,20 @@
+import { Link } from "react-router-dom";
 import { Star, Heart, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import p1 from "@/assets/product-1.jpg";
-import p2 from "@/assets/product-2.jpg";
-import p3 from "@/assets/product-3.jpg";
-import p4 from "@/assets/product-4.jpg";
-
-const products = [
-  { id: 1, img: p1, name: "Rosé Knit Cardigan", price: 68, rating: 4.9, tag: "New" },
-  { id: 2, img: p2, name: "Cream Heirloom Knit", price: 84, rating: 5.0, tag: "Bestseller" },
-  { id: 3, img: p3, name: "Petal Ruffle Dress", price: 92, rating: 4.8 },
-  { id: 4, img: p4, name: "Sky Linen Romper", price: 56, rating: 4.7, tag: "New" },
-];
+import { products } from "@/data/products";
+import { useCart } from "@/store/cart";
+import { toast } from "@/hooks/use-toast";
 
 const FeaturedProducts = () => {
+  const { add } = useCart();
+  const featured = products.slice(0, 4);
+
+  const quickAdd = (e: React.MouseEvent, productId: number, size: string, color: string, name: string) => {
+    e.preventDefault();
+    add({ productId, size, color, qty: 1 });
+    toast({ title: "Added to bag", description: name });
+  };
+
   return (
     <section className="py-24 md:py-32 bg-gradient-cream">
       <div className="container mx-auto">
@@ -23,16 +25,19 @@ const FeaturedProducts = () => {
               Featured <em className="italic font-normal">pieces</em>
             </h2>
           </div>
-          <Button variant="ghost" className="rounded-full story-link">
-            View all collection
-          </Button>
+          <Link to="/shop">
+            <Button variant="ghost" className="rounded-full story-link">
+              View all collection
+            </Button>
+          </Link>
         </div>
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
-          {products.map((p, i) => (
-            <article
+          {featured.map((p, i) => (
+            <Link
               key={p.id}
-              className="group animate-slide-up"
+              to={`/product/${p.slug}`}
+              className="group animate-slide-up block"
               style={{ animationDelay: `${i * 80}ms`, animationFillMode: "backwards" }}
             >
               <div className="relative overflow-hidden rounded-2xl bg-secondary aspect-[4/5] mb-4 hover-lift">
@@ -51,12 +56,17 @@ const FeaturedProducts = () => {
                 )}
                 <button
                   aria-label="Add to wishlist"
+                  onClick={(e) => e.preventDefault()}
                   className="absolute top-3 right-3 w-9 h-9 rounded-full glass flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500 hover:scale-110"
                 >
                   <Heart className="h-4 w-4" />
                 </button>
                 <div className="absolute inset-x-3 bottom-3 translate-y-4 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-500">
-                  <Button size="sm" className="w-full rounded-full bg-background text-foreground hover:bg-background/90 shadow-soft">
+                  <Button
+                    size="sm"
+                    className="w-full rounded-full bg-background text-foreground hover:bg-background/90 shadow-soft"
+                    onClick={(e) => quickAdd(e, p.id, p.sizes[0], p.colors[0].name, p.name)}
+                  >
                     <ShoppingBag className="h-3.5 w-3.5 mr-2" />
                     Add to bag
                   </Button>
@@ -70,7 +80,7 @@ const FeaturedProducts = () => {
                 <h3 className="font-serif text-lg leading-tight mb-1">{p.name}</h3>
                 <p className="text-sm text-muted-foreground">€{p.price}</p>
               </div>
-            </article>
+            </Link>
           ))}
         </div>
       </div>
