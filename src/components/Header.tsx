@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import { Search, ShoppingBag, User, Menu, X, Moon, Sun, Heart } from "lucide-react";
-import { useTheme } from "./ThemeProvider";
+import { Search, ShoppingBag, User, Menu, X, Heart } from "lucide-react";
 import logo from "@/assets/logo.jpg";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/store/cart";
@@ -21,7 +20,7 @@ const navItems = [
 ];
 
 const Header = () => {
-  const { theme, toggle } = useTheme();
+
   const { count } = useCart();
   const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
@@ -80,15 +79,6 @@ const Header = () => {
             <Search className="h-[18px] w-[18px]" />
           </Button>
 
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={toggle}
-            className="rounded-full hover:bg-accent/50"
-            aria-label="Toggle theme"
-          >
-            {theme === "light" ? <Moon className="h-[18px] w-[18px]" /> : <Sun className="h-[18px] w-[18px]" />}
-          </Button>
 
           <Button variant="ghost" size="icon" className="hidden md:inline-flex rounded-full hover:bg-accent/50" aria-label="Wishlist">
             <Heart className="h-[18px] w-[18px]" />
