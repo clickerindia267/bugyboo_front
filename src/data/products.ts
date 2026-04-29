@@ -19,6 +19,7 @@ export type Product = {
   sizes: string[];
   description: string;
   details: string[];
+  occasions?: string[];
 };
 
 export const products: Product[] = [
@@ -48,6 +49,7 @@ export const products: Product[] = [
       "Mother-of-pearl buttons",
       "Crafted in Portugal",
     ],
+    occasions: ["New In", "Step Out"],
   },
   {
     id: 2,
@@ -69,6 +71,7 @@ export const products: Product[] = [
     description:
       "An heirloom-worthy cable knit, made to be passed down. Buttery soft and gently structured.",
     details: ["100% Merino wool", "Hand-washed", "Made in Italy", "OEKO-TEX certified"],
+    occasions: ["Birthday", "Step Out"],
   },
   {
     id: 3,
@@ -89,6 +92,7 @@ export const products: Product[] = [
     description:
       "A romantic ruffle dress in featherlight cotton voile, perfect for spring gatherings and quiet afternoons.",
     details: ["100% organic cotton voile", "Lined bodice", "Hidden back zip", "Made in Portugal"],
+    occasions: ["Birthday", "Step Out"],
   },
   {
     id: 4,
@@ -110,6 +114,7 @@ export const products: Product[] = [
     description:
       "Breathable European linen romper with snap closures — easy on, easy off for newborn days.",
     details: ["100% European linen", "Snap closures", "Pre-washed for softness", "Made in France"],
+    occasions: ["New In", "Vacation"],
   },
   {
     id: 5,
@@ -130,6 +135,7 @@ export const products: Product[] = [
     sizes: ["2-3Y", "3-4Y", "4-5Y", "5-6Y"],
     description: "Layered tulle tutu dress with a hand-embroidered velvet bodice.",
     details: ["Silk-tulle layers", "Velvet bodice", "Hand embroidery", "Made in France"],
+    occasions: ["Birthday"],
   },
   {
     id: 6,
@@ -149,6 +155,7 @@ export const products: Product[] = [
     sizes: ["6-12M", "1-2Y", "2-3Y", "3-4Y"],
     description: "Two-piece corduroy set in warm honey — soft, cozy, and made to play in.",
     details: ["Cotton corduroy", "Elastic waist", "Machine wash cold", "Made in Portugal"],
+    occasions: ["Step Out", "Vacation"],
   },
   {
     id: 7,
@@ -166,6 +173,7 @@ export const products: Product[] = [
     sizes: ["0-3M", "3-6M", "6-12M"],
     description: "An ivory romper with delicate pearl buttons — christening-ready.",
     details: ["Organic cotton sateen", "Mother-of-pearl buttons", "Made in Italy"],
+    occasions: ["New In", "Birthday"],
   },
   {
     id: 8,
@@ -185,6 +193,7 @@ export const products: Product[] = [
     sizes: ["One size"],
     description: "A soft silk bow headband, gently elasticated for tiny heads.",
     details: ["100% silk", "Soft elastic", "Made in France"],
+    occasions: ["Birthday", "Step Out"],
   },
   {
     id: 9,
@@ -208,6 +217,7 @@ export const products: Product[] = [
     sizes: ["2-3Y", "3-4Y", "4-5Y"],
     description: "A breezy floral sundress in vibrant sunshine yellow — perfect for garden parties and beach days.",
     details: ["100% organic cotton", "Adjustable straps", "Machine washable", "Made in India"],
+    occasions: ["Vacation", "Step Out"],
   },
   {
     id: 10,
@@ -231,6 +241,7 @@ export const products: Product[] = [
     sizes: ["1-2Y", "2-3Y", "3-4Y"],
     description: "A cool linen shorts & tee set in ocean blue — lightweight and perfect for warm summer days.",
     details: ["Linen-cotton blend", "Elastic waist", "Pre-shrunk", "Made in Portugal"],
+    occasions: ["Vacation", "Step Out"],
   },
   {
     id: 11,
@@ -254,6 +265,7 @@ export const products: Product[] = [
     sizes: ["0-3M", "3-6M", "6-12M", "1-2Y"],
     description: "Playful tropical print romper in breathable muslin — ideal for tiny explorers in the summer heat.",
     details: ["100% muslin cotton", "Snap closures", "UPF 30+", "Made in India"],
+    occasions: ["New In", "Vacation"],
   },
   {
     id: 12,
@@ -278,6 +290,7 @@ export const products: Product[] = [
     sizes: ["2-3Y", "3-4Y", "4-5Y", "5-6Y"],
     description: "A charming daisy-embroidered cotton top with flutter sleeves — summer's sweetest staple.",
     details: ["100% organic cotton", "Embroidered details", "Easy wash & wear", "Made in Portugal"],
+    occasions: ["Step Out", "Vacation"],
   },
   {
     id: 13,
@@ -301,6 +314,7 @@ export const products: Product[] = [
     sizes: ["3-4Y", "4-5Y", "5-6Y"],
     description: "An adventure-ready safari set with cargo shorts and a matching button-up — explorer mode on.",
     details: ["Cotton twill", "Multiple pockets", "Adjustable waist", "Made in India"],
+    occasions: ["New In", "Vacation"],
   },
   {
     id: 14,
@@ -324,6 +338,7 @@ export const products: Product[] = [
     sizes: ["1-2Y", "2-3Y", "3-4Y", "4-5Y"],
     description: "A playful watermelon-print swimsuit with UPF 50+ sun protection — splash-ready and adorable.",
     details: ["Recycled nylon", "UPF 50+", "Quick-dry", "Chlorine resistant"],
+    occasions: ["Vacation"],
   },
   {
     id: 15,
@@ -348,6 +363,7 @@ export const products: Product[] = [
     sizes: ["S (0-1Y)", "M (1-2Y)", "L (2-4Y)"],
     description: "A wide-brim linen sun hat with chin strap — essential sun protection with effortless style.",
     details: ["100% linen", "UPF 40+", "Adjustable chin strap", "Made in Italy"],
+    occasions: ["Vacation", "Step Out"],
   },
   {
     id: 16,
@@ -371,6 +387,7 @@ export const products: Product[] = [
     sizes: ["1-2Y", "2-3Y", "3-4Y"],
     description: "A matching mango-print co-ord set in featherweight cotton — cheerful, comfy, and summer-perfect.",
     details: ["100% organic cotton", "Elastic waist", "AZO-free dyes", "Made in India"],
+    occasions: ["New In", "Vacation"],
   },
 ];
 

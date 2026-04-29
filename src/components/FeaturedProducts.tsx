@@ -7,7 +7,8 @@ import { toast } from "@/hooks/use-toast";
 
 const FeaturedProducts = () => {
   const { add } = useCart();
-  const featured = products.slice(0, 6);
+  const featuredIds = [1, 2, 3, 4, 5, 6, 9, 13]; // curated mix: Girls, Boys + extras
+  const featured = featuredIds.map((id) => products.find((p) => p.id === id)!);
 
   const quickAdd = (e: React.MouseEvent, productId: number, size: string, color: string, name: string) => {
     e.preventDefault();
@@ -20,9 +21,9 @@ const FeaturedProducts = () => {
       <div className="container mx-auto">
         <div className="flex items-end justify-between mb-12 md:mb-16 flex-wrap gap-4">
           <div>
-            <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground mb-3">Curated for you</p>
+            <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground mb-3">Best Product For You </p>
             <h2 className="font-serif text-4xl md:text-5xl text-balance max-w-md">
-              Featured <em className="italic font-normal">pieces</em>
+              Our <em className="italic font-normal">Products</em>
             </h2>
           </div>
           <Link to="/shop">

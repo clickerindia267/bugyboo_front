@@ -7,6 +7,7 @@ import { products } from "@/data/products";
 
 const categories = ["All", "Girls", "Boys", "Unisex", "Newborn", "Accessories"];
 const ages = ["All", "0-1Y", "0-2Y", "1-3Y", "2-4Y", "3-6Y", "0-3Y"];
+const occasionOptions = ["All", "New In", "Birthday", "Step Out", "Vacation"];
 const sortOptions = [
   { v: "featured", l: "Featured" },
   { v: "low", l: "Price: Low → High" },
@@ -17,8 +18,10 @@ const sortOptions = [
 const Shop = () => {
   const [params, setParams] = useSearchParams();
   const initial = params.get("category");
+  const initialOccasion = params.get("occasion");
   const [cat, setCat] = useState(initial && categories.includes(initial) ? initial : "All");
   const [age, setAge] = useState("All");
+  const [occasion, setOccasion] = useState(initialOccasion && occasionOptions.includes(initialOccasion) ? initialOccasion : "All");
   const [sort, setSort] = useState("featured");
   const [maxPrice, setMaxPrice] = useState(150);
   const [filtersOpen, setFiltersOpen] = useState(false);
@@ -28,13 +31,14 @@ const Shop = () => {
       (p) =>
         (cat === "All" || p.category === cat) &&
         (age === "All" || p.ageGroup === age) &&
+        (occasion === "All" || p.occasions?.includes(occasion)) &&
         p.price <= maxPrice,
     );
     if (sort === "low") list = [...list].sort((a, b) => a.price - b.price);
     if (sort === "high") list = [...list].sort((a, b) => b.price - a.price);
     if (sort === "rating") list = [...list].sort((a, b) => b.rating - a.rating);
     return list;
-  }, [cat, age, sort, maxPrice]);
+  }, [cat, age, occasion, sort, maxPrice]);
 
   const updateCat = (c: string) => {
     setCat(c);
@@ -90,6 +94,24 @@ const Shop = () => {
           className="w-full accent-primary"
         />
         <p className="text-sm text-muted-foreground mt-2">Up to €{maxPrice}</p>
+      </div>
+      <div>
+        <h4 className="font-serif text-lg mb-3">Occasion</h4>
+        <div className="flex flex-wrap gap-2">
+          {occasionOptions.map((o) => (
+            <button
+              key={o}
+              onClick={() => setOccasion(o)}
+              className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${
+                occasion === o
+                  ? "bg-primary text-primary-foreground border-primary"
+                  : "border-border hover:border-foreground/40"
+              }`}
+            >
+              {o}
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );
