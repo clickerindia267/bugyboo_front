@@ -8,7 +8,7 @@ const Newsletter = () => {
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
-    toast({ title: "Welcome to Petite Lune", description: "Check your inbox for your 10% off code." });
+    toast({ title: "Welcome to BugyBoo", description: "Check your inbox for your 10% off code." });
     setEmail("");
   };
 

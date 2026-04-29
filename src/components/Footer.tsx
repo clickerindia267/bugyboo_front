@@ -1,5 +1,6 @@
 import { Instagram, Facebook, Twitter } from "lucide-react";
 import { Link } from "react-router-dom";
+import logo from "@/assets/logo.jpg";
 
 const Footer = () => {
   return (
@@ -8,12 +9,10 @@ const Footer = () => {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-10 mb-16">
           {/* Brand */}
           <div className="col-span-2 max-w-sm">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-9 h-9 rounded-full bg-gradient-soft flex items-center justify-center shadow-soft">
-                <span className="font-serif text-lg italic text-primary">p</span>
-              </div>
+            <div className="flex items-center gap-2.5 mb-4">
+              <img src={logo} alt="BugyBoo Baby Shop" className="w-10 h-10 rounded-full object-cover shadow-soft" />
               <span className="font-serif text-2xl">
-                Petite <span className="italic">Lune</span>
+                Bugy<span className="italic">Boo</span>
               </span>
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed mb-6">
@@ -62,7 +61,7 @@ const Footer = () => {
         </div>
 
         <div className="pt-8 border-t border-border/50 flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
-          <p>© 2026 Petite Lune. Crafted with love in Paris.</p>
+          <p>© 2026 BugyBoo Baby Shop. Crafted with love.</p>
           <div className="flex items-center gap-5">
             <a href="#" className="hover:text-foreground transition-colors">Privacy</a>
             <a href="#" className="hover:text-foreground transition-colors">Terms</a>

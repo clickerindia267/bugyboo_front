@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 import { Link } from "react-router-dom";
 import Header from "@/components/Header";
+import logo from "@/assets/logo.jpg";
 
 const AuthLayout = ({
   title,
@@ -20,9 +21,10 @@ const AuthLayout = ({
     <main className="pt-20 md:pt-24 grid lg:grid-cols-2 min-h-screen">
       <div className="flex items-center justify-center p-6 md:p-12">
         <div className="w-full max-w-md animate-fade-in">
-          <Link to="/" className="inline-block mb-10">
+          <Link to="/" className="inline-flex items-center gap-2.5 mb-10">
+            <img src={logo} alt="BugyBoo" className="w-10 h-10 rounded-full object-cover shadow-soft" />
             <span className="font-serif text-2xl">
-              Petite <span className="italic">Lune</span>
+              Bugy<span className="italic">Boo</span>
             </span>
           </Link>
           <h1 className="font-serif text-4xl md:text-5xl mb-3">{title}</h1>

@@ -1,9 +1,9 @@
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import FeaturedProducts from "@/components/FeaturedProducts";
-import Categories from "@/components/Categories";
+import SeasonBestsellers from "@/components/SeasonBestsellers";
 import Testimonials from "@/components/Testimonials";
-import Newsletter from "@/components/Newsletter";
+import CompanyOverview from "@/components/CompanyOverview";
 import NewsletterPopup from "@/components/NewsletterPopup";
 import Footer from "@/components/Footer";
 import FloatingCart from "@/components/FloatingCart";
@@ -15,9 +15,9 @@ const Index = () => {
       <main>
         <Hero />
         <FeaturedProducts />
-        <Categories />
+        <SeasonBestsellers />
         <Testimonials />
-        <Newsletter />
+        <CompanyOverview />
       </main>
       <Footer />
       <FloatingCart />

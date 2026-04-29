@@ -13,6 +13,10 @@ export default {
       },
     },
     extend: {
+      transitionDuration: {
+        '1200': '1200ms',
+        '6000': '6000ms',
+      },
       fontFamily: {
         serif: ['"Playfair Display"', 'Georgia', 'serif'],
         sans: ['Inter', 'system-ui', 'sans-serif'],

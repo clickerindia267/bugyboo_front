@@ -30,7 +30,7 @@ const Blog = () => {
               <img
                 src={feature.img}
                 alt={feature.title}
-                className="w-full h-full object-cover transition-transform duration-[1200ms] group-hover:scale-105"
+                className="w-full h-full object-cover transition-transform duration-1200 group-hover:scale-105"
               />
             </div>
             <div>
@@ -62,7 +62,7 @@ const Blog = () => {
                   src={p.img}
                   alt={p.title}
                   loading="lazy"
-                  className="w-full h-full object-cover transition-transform duration-[1200ms] group-hover:scale-110"
+                  className="w-full h-full object-cover transition-transform duration-1200 group-hover:scale-110"
                 />
                 <span className="absolute top-3 left-3 px-3 py-1 rounded-full bg-background/80 backdrop-blur text-[10px] uppercase tracking-wider font-medium">
                   {p.category}

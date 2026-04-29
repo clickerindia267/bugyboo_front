@@ -42,7 +42,7 @@ const Categories = () => {
                 src={c.img}
                 alt={c.name}
                 loading="lazy"
-                className="absolute inset-0 w-full h-full object-cover mix-blend-luminosity opacity-90 group-hover:opacity-100 group-hover:scale-110 transition-all duration-[1200ms] ease-out"
+                className="absolute inset-0 w-full h-full object-cover mix-blend-luminosity opacity-90 group-hover:opacity-100 group-hover:scale-110 transition-all duration-1200 ease-out"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-foreground/40 via-transparent to-transparent" />
               <div className="absolute inset-0 p-5 md:p-7 flex flex-col justify-end text-background">

@@ -7,7 +7,7 @@ import { toast } from "@/hooks/use-toast";
 
 const FeaturedProducts = () => {
   const { add } = useCart();
-  const featured = products.slice(0, 4);
+  const featured = products.slice(0, 6);
 
   const quickAdd = (e: React.MouseEvent, productId: number, size: string, color: string, name: string) => {
     e.preventDefault();
@@ -40,14 +40,14 @@ const FeaturedProducts = () => {
               className="group animate-slide-up block"
               style={{ animationDelay: `${i * 80}ms`, animationFillMode: "backwards" }}
             >
-              <div className="relative overflow-hidden rounded-2xl bg-secondary aspect-[4/5] mb-4 hover-lift">
+              <div className="relative overflow-hidden rounded-2xl bg-secondary aspect-square mb-4 hover-lift">
                 <img
                   src={p.img}
                   alt={p.name}
                   width={800}
                   height={1024}
                   loading="lazy"
-                  className="w-full h-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-110"
+                  className="w-full h-full object-cover transition-transform duration-1200 ease-out group-hover:scale-110"
                 />
                 {p.tag && (
                   <span className="absolute top-3 left-3 px-3 py-1 rounded-full bg-background/80 backdrop-blur text-[10px] uppercase tracking-wider font-medium">

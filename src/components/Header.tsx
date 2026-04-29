@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { Search, ShoppingBag, User, Menu, X, Moon, Sun, Heart } from "lucide-react";
 import { useTheme } from "./ThemeProvider";
+import logo from "@/assets/logo.jpg";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/store/cart";
 import {
@@ -36,16 +37,18 @@ const Header = () => {
   return (
     <header
       className={`fixed top-0 inset-x-0 z-50 transition-all duration-500 ${
-        scrolled ? "glass shadow-soft" : "bg-transparent"
+        scrolled ? "bg-background shadow-soft" : "bg-background"
       }`}
     >
       <div className="container mx-auto flex items-center justify-between h-16 md:h-20">
-        <Link to="/" className="flex items-center gap-2 group">
-          <div className="w-9 h-9 rounded-full bg-gradient-soft flex items-center justify-center shadow-soft group-hover:scale-105 transition-transform duration-500">
-            <span className="font-serif text-lg italic text-primary">p</span>
-          </div>
+        <Link to="/" className="flex items-center gap-2.5 group">
+          <img
+            src={logo}
+            alt="BugyBoo Baby Shop"
+            className="w-10 h-10 md:w-12 md:h-12 rounded-full object-cover shadow-soft group-hover:scale-105 transition-transform duration-500"
+          />
           <span className="font-serif text-xl md:text-2xl tracking-tight">
-            Petite <span className="italic">Lune</span>
+            Bugy<span className="italic">Boo</span>
           </span>
         </Link>
 
@@ -126,7 +129,7 @@ const Header = () => {
                 </div>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="glass border-border/50 rounded-2xl mr-2">
+            <DropdownMenuContent align="end" className="bg-background border-border/50 rounded-2xl mr-2">
               <DropdownMenuItem className="rounded-lg" onClick={() => navigate("/login")}>Login</DropdownMenuItem>
               <DropdownMenuItem className="rounded-lg" onClick={() => navigate("/signup")}>Sign up</DropdownMenuItem>
               <DropdownMenuSeparator />
@@ -148,7 +151,7 @@ const Header = () => {
       </div>
 
       {searchOpen && (
-        <div className="border-t border-border/40 glass animate-fade-in">
+        <div className="border-t border-border/40 bg-background animate-fade-in">
           <div className="container mx-auto py-4">
             <form
               className="relative"
@@ -170,7 +173,7 @@ const Header = () => {
       )}
 
       {mobileOpen && (
-        <div className="lg:hidden border-t border-border/40 glass animate-fade-in">
+        <div className="lg:hidden border-t border-border/40 bg-background animate-fade-in">
           <nav className="container mx-auto py-6 flex flex-col gap-1">
             {navItems.map((item) => (
               <NavLink

@@ -16,7 +16,7 @@ const Signup = () => {
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
-    toast({ title: "Welcome to Petite Lune", description: "Your account has been created." });
+    toast({ title: "Welcome to BugyBoo", description: "Your account has been created." });
     navigate("/");
   };
 

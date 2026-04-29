@@ -139,7 +139,7 @@ const Shop = () => {
                     src={p.img}
                     alt={p.name}
                     loading="lazy"
-                    className="w-full h-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-110"
+                    className="w-full h-full object-cover transition-transform duration-1200 ease-out group-hover:scale-110"
                   />
                   {p.tag && (
                     <span className="absolute top-3 left-3 px-3 py-1 rounded-full bg-background/80 backdrop-blur text-[10px] uppercase tracking-wider font-medium">
