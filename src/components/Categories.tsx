@@ -1,4 +1,5 @@
 import { ArrowUpRight } from "lucide-react";
+import { Link } from "react-router-dom";
 import boys from "@/assets/cat-boys.jpg";
 import girls from "@/assets/cat-girls.jpg";
 import newborn from "@/assets/cat-newborn.jpg";
@@ -29,9 +30,9 @@ const Categories = () => {
 
         <div className="grid grid-cols-2 md:grid-cols-4 grid-rows-2 gap-4 md:gap-5 md:h-[640px]">
           {categories.map((c, i) => (
-            <a
+            <Link
               key={c.name}
-              href="#"
+              to={`/shop?category=${encodeURIComponent(c.name)}`}
               className={`group relative overflow-hidden rounded-3xl ${c.tone} hover-lift animate-scale-in ${
                 i === 0 ? "row-span-2 col-span-2 md:col-span-2" : ""
               }`}
@@ -51,7 +52,7 @@ const Categories = () => {
               <div className="absolute top-5 right-5 w-10 h-10 rounded-full glass flex items-center justify-center opacity-0 group-hover:opacity-100 -translate-y-2 group-hover:translate-y-0 transition-all duration-500">
                 <ArrowUpRight className="h-4 w-4" />
               </div>
-            </a>
+            </Link>
           ))}
         </div>
       </div>
