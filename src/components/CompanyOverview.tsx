@@ -15,29 +15,29 @@ const values = [
     icon: Leaf,
     title: "Sustainably Made",
     desc: "Every piece is crafted from GOTS-certified organic cotton and eco-friendly dyes — gentle on skin, kinder to the planet.",
-    accent: "hsl(140 45% 50%)",
-    bg: "hsl(140 40% 95%)",
+    accent: "hsl(175 30% 42%)",
+    bg: "hsl(175 25% 93%)",
   },
   {
     icon: Heart,
     title: "Designed with Love",
     desc: "Our in-house team designs every garment with the softness babies deserve and the style parents adore.",
-    accent: "hsl(350 60% 60%)",
-    bg: "hsl(350 60% 95%)",
+    accent: "hsl(193 28% 40%)",
+    bg: "hsl(193 25% 92%)",
   },
   {
     icon: Shield,
     title: "Safe & Certified",
     desc: "OEKO-TEX Standard 100 certified. No harmful chemicals, no compromises — just pure comfort for little ones.",
-    accent: "hsl(205 65% 55%)",
-    bg: "hsl(205 60% 94%)",
+    accent: "hsl(193 35% 45%)",
+    bg: "hsl(193 30% 93%)",
   },
   {
     icon: Sparkles,
     title: "Heirloom Quality",
     desc: "Built to last through siblings, seasons, and countless washes. Fashion that's meant to be passed down.",
-    accent: "hsl(45 80% 50%)",
-    bg: "hsl(45 70% 94%)",
+    accent: "hsl(43 60% 48%)",
+    bg: "hsl(43 50% 93%)",
   },
 ];
 
@@ -110,7 +110,7 @@ const CompanyOverview = () => {
             <p className="co-desc">
               From our design studio in Mumbai, we craft each collection using organic fabrics, non-toxic dyes, and
               artisan techniques passed down through generations. Every stitch carries our promise: <em>comfort
-              first, always.</em>
+                first, always.</em>
             </p>
 
             {/* Stats */}
@@ -162,26 +162,7 @@ const CompanyOverview = () => {
         </div>
 
         {/* ── Full-width Banner Image ── */}
-        <div
-          className="co-banner"
-          style={{
-            opacity: isVisible ? 1 : 0,
-            transform: isVisible ? "translateY(0)" : "translateY(24px)",
-            transition: "all 0.9s cubic-bezier(0.22,1,0.36,1) 0.5s",
-          }}
-        >
-          <img
-            src="https://images.unsplash.com/photo-1471286174890-9c112ffca5b4?w=1200&h=400&fit=crop&crop=center"
-            alt="BugyBoo lifestyle — kids playing in nature"
-            loading="lazy"
-          />
-          <div className="co-banner-overlay">
-            <p className="co-banner-quote">
-              "We don't just dress children — we wrap them in love, comfort, and a better tomorrow."
-            </p>
-            <span className="co-banner-author">— The BugyBoo Team</span>
-          </div>
-        </div>
+
       </div>
 
       <style>{`
@@ -189,7 +170,7 @@ const CompanyOverview = () => {
           position: relative;
           overflow: hidden;
           padding: 80px 0 90px;
-          background: linear-gradient(180deg, hsl(36 33% 97%) 0%, hsl(35 30% 95%) 50%, hsl(36 33% 97%) 100%);
+          background: linear-gradient(180deg, hsl(43 82% 96%) 0%, hsl(43 50% 94%) 50%, hsl(43 82% 96%) 100%);
         }
         .co-bg-blob {
           position: absolute;
@@ -201,12 +182,12 @@ const CompanyOverview = () => {
         .co-bg-blob-1 {
           width: 500px; height: 500px;
           top: -100px; left: -150px;
-          background: hsl(350 55% 90%);
+          background: hsl(193 30% 88%);
         }
         .co-bg-blob-2 {
           width: 450px; height: 450px;
           bottom: -80px; right: -100px;
-          background: hsl(140 40% 88%);
+          background: hsl(175 25% 86%);
         }
 
         /* ── Hero Split ── */
@@ -263,14 +244,14 @@ const CompanyOverview = () => {
           font-size: 11px;
           text-transform: uppercase;
           letter-spacing: 0.25em;
-          color: hsl(25 15% 50%);
+          color: hsl(193 15% 45%);
           font-family: Inter, sans-serif;
           margin-bottom: 10px;
         }
         .co-title {
           font-family: "Playfair Display", Georgia, serif;
           font-size: clamp(26px, 4vw, 42px);
-          color: hsl(25 20% 18%);
+          color: hsl(193 28% 18%);
           line-height: 1.2;
           margin-bottom: 20px;
         }
@@ -282,11 +263,11 @@ const CompanyOverview = () => {
           font-family: Inter, sans-serif;
           font-size: 15px;
           line-height: 1.7;
-          color: hsl(25 12% 38%);
+          color: hsl(193 14% 36%);
           margin-bottom: 16px;
         }
         .co-desc strong {
-          color: hsl(25 20% 22%);
+          color: hsl(193 25% 20%);
           font-weight: 600;
         }
         .co-desc em {
@@ -300,8 +281,8 @@ const CompanyOverview = () => {
           gap: 16px;
           margin: 24px 0 20px;
           padding: 20px 0;
-          border-top: 1px solid hsl(30 20% 88%);
-          border-bottom: 1px solid hsl(30 20% 88%);
+          border-top: 1px solid hsl(193 15% 85%);
+          border-bottom: 1px solid hsl(193 15% 85%);
         }
         .co-stat {
           text-align: center;
@@ -311,14 +292,14 @@ const CompanyOverview = () => {
           font-family: "Playfair Display", Georgia, serif;
           font-size: 24px;
           font-weight: 700;
-          color: hsl(25 25% 22%);
+          color: hsl(193 28% 20%);
           line-height: 1.2;
           margin-bottom: 4px;
         }
         .co-stat-label {
           font-family: Inter, sans-serif;
           font-size: 11px;
-          color: hsl(25 10% 55%);
+          color: hsl(193 12% 50%);
           text-transform: uppercase;
           letter-spacing: 0.05em;
         }
@@ -354,7 +335,7 @@ const CompanyOverview = () => {
         .co-value-title {
           font-family: "Playfair Display", Georgia, serif;
           font-size: 18px;
-          color: hsl(25 20% 18%);
+          color: hsl(193 28% 18%);
           margin-bottom: 8px;
           line-height: 1.3;
         }
@@ -362,7 +343,7 @@ const CompanyOverview = () => {
           font-family: Inter, sans-serif;
           font-size: 13px;
           line-height: 1.65;
-          color: hsl(25 10% 45%);
+          color: hsl(193 12% 42%);
         }
 
         /* ── Banner ── */

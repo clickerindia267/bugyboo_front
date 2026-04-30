@@ -46,8 +46,8 @@ const Header = () => {
             alt="BugyBoo Baby Shop"
             className="w-10 h-10 md:w-12 md:h-12 rounded-full object-cover shadow-soft group-hover:scale-105 transition-transform duration-500"
           />
-          <span className="font-serif text-xl md:text-2xl tracking-tight">
-            Bugy<span className="italic">Boo</span>
+          <span className="font-serif text-xl md:text-2xl tracking-tight text-primary">
+            <span className="font-semibold">Bugy</span><span className="italic font-light">Boo</span>
           </span>
         </Link>
 

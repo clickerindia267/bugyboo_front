@@ -52,8 +52,8 @@ const ShopByOccasion = () => {
               onClick={() => handleSelect(o)}
               className="group flex flex-col items-center gap-2.5 focus:outline-none"
             >
-              {/* circle with yellow ring */}
-              <div className="relative w-20 h-20 sm:w-[5.5rem] sm:h-[5.5rem] md:w-24 md:h-24 rounded-full transition-all duration-500 ring-[2.5px] ring-[#F9D54A]/60 ring-offset-[3px] ring-offset-background group-hover:ring-[#F9D54A] group-hover:scale-110">
+              {/* circle with brand teal ring */}
+              <div className="relative w-20 h-20 sm:w-[5.5rem] sm:h-[5.5rem] md:w-24 md:h-24 rounded-full transition-all duration-500 ring-[2.5px] ring-[#3f646f]/50 ring-offset-[3px] ring-offset-background group-hover:ring-[#3f646f] group-hover:scale-110">
                 <img
                   src={o.img}
                   alt={o.label}

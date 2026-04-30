@@ -5,120 +5,129 @@
 @tailwind utilities;
 
 /* BugyBoo — Luxury Kids Fashion Design System
-   Soft pastel palette: cream, beige, baby pink, sky blue, lavender
-   All colors MUST be HSL.
+   Brand palette built around logo colors:
+     Primary:    #3f646f  →  hsl(193 28% 34%)   (deep teal)
+     Background: #fdf8ed  →  hsl(43 82% 96%)    (warm ivory)
+   All CSS custom-property values are HSL triplets.
 */
 
 @layer base {
   :root {
-    /* Surfaces */
-    --background: 36 33% 97%;          /* warm cream */
-    --foreground: 25 20% 18%;          /* soft espresso */
+    /* ── Surfaces ── */
+    --background: 43 82% 96%;             /* warm ivory  #fdf8ed */
+    --foreground: 193 30% 15%;            /* deep teal-black */
 
-    --card: 0 0% 100%;
-    --card-foreground: 25 20% 18%;
+    --card: 43 60% 98%;
+    --card-foreground: 193 30% 15%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 25 20% 18%;
+    --popover: 43 60% 98%;
+    --popover-foreground: 193 30% 15%;
 
-    /* Brand: warm taupe / sand */
-    --primary: 25 25% 28%;
-    --primary-foreground: 36 40% 97%;
+    /* ── Brand primary: deep teal ── */
+    --primary: 193 28% 34%;              /* #3f646f */
+    --primary-foreground: 43 82% 96%;    /* #fdf8ed */
 
-    /* Pastels */
-    --pink: 350 75% 90%;
-    --pink-foreground: 350 40% 30%;
-    --blue: 205 70% 88%;
-    --blue-foreground: 210 40% 28%;
-    --lavender: 265 55% 90%;
-    --lavender-foreground: 265 30% 30%;
-    --beige: 35 35% 88%;
-    --beige-foreground: 30 25% 25%;
+    /* ── Pastel accents (harmonised with teal + ivory) ── */
+    --pink: 350 50% 90%;
+    --pink-foreground: 350 35% 30%;
+    --blue: 193 35% 85%;
+    --blue-foreground: 193 30% 25%;
+    --lavender: 220 40% 90%;
+    --lavender-foreground: 220 28% 30%;
+    --beige: 43 50% 88%;
+    --beige-foreground: 43 30% 25%;
 
-    --secondary: 35 30% 92%;
-    --secondary-foreground: 25 25% 25%;
+    --secondary: 43 45% 93%;
+    --secondary-foreground: 193 25% 20%;
 
-    --muted: 35 25% 94%;
-    --muted-foreground: 25 12% 45%;
+    --muted: 43 35% 94%;
+    --muted-foreground: 193 12% 45%;
 
-    --accent: 350 60% 93%;             /* baby pink accent */
-    --accent-foreground: 350 40% 30%;
+    --accent: 175 30% 90%;               /* soft teal accent */
+    --accent-foreground: 193 28% 28%;
 
     --destructive: 0 70% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 30 20% 88%;
-    --input: 30 20% 90%;
-    --ring: 25 25% 40%;
+    --border: 43 30% 87%;
+    --input: 43 30% 90%;
+    --ring: 193 28% 40%;
 
     --radius: 1rem;
 
-    /* Gradients */
-    --gradient-soft: linear-gradient(135deg, hsl(350 70% 95%) 0%, hsl(265 50% 95%) 50%, hsl(205 65% 94%) 100%);
-    --gradient-cream: linear-gradient(180deg, hsl(36 40% 98%) 0%, hsl(35 35% 94%) 100%);
-    --gradient-hero: linear-gradient(135deg, hsl(36 40% 97% / 0.4) 0%, hsl(350 60% 92% / 0.3) 100%);
+    /* ── Gradients ── */
+    --gradient-soft: linear-gradient(135deg, hsl(175 30% 94%) 0%, hsl(193 25% 92%) 50%, hsl(43 50% 95%) 100%);
+    --gradient-cream: linear-gradient(180deg, hsl(43 82% 97%) 0%, hsl(43 50% 93%) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(43 82% 96% / 0.4) 0%, hsl(193 28% 80% / 0.3) 100%);
 
-    /* Shadows */
-    --shadow-soft: 0 4px 24px -8px hsl(25 30% 30% / 0.08);
-    --shadow-elegant: 0 20px 60px -20px hsl(25 30% 30% / 0.18);
-    --shadow-glow: 0 8px 40px -12px hsl(350 70% 80% / 0.5);
+    /* ── Shadows ── */
+    --shadow-soft: 0 4px 24px -8px hsl(193 28% 30% / 0.10);
+    --shadow-elegant: 0 20px 60px -20px hsl(193 28% 25% / 0.18);
+    --shadow-glow: 0 8px 40px -12px hsl(193 40% 55% / 0.35);
 
-    /* Glass */
-    --glass-bg: hsl(0 0% 100% / 0.6);
-    --glass-border: hsl(0 0% 100% / 0.4);
+    /* ── Glass ── */
+    --glass-bg: hsl(43 60% 98% / 0.65);
+    --glass-border: hsl(43 60% 98% / 0.45);
 
-    /* Transitions */
+    /* ── Transitions ── */
     --ease-luxury: cubic-bezier(0.22, 1, 0.36, 1);
+
+    /* ── Named brand tokens ── */
+    --brand-teal: #3f646f;
+    --brand-ivory: #fdf8ed;
+    --brand-teal-light: hsl(193 28% 50%);
+    --brand-teal-dark: hsl(193 30% 22%);
+    --brand-gold: hsl(43 65% 55%);
   }
 
   .dark {
-    --background: 25 18% 9%;
-    --foreground: 35 30% 92%;
+    --background: 193 22% 8%;
+    --foreground: 43 50% 92%;
 
-    --card: 25 18% 12%;
-    --card-foreground: 35 30% 92%;
+    --card: 193 20% 11%;
+    --card-foreground: 43 50% 92%;
 
-    --popover: 25 18% 12%;
-    --popover-foreground: 35 30% 92%;
+    --popover: 193 20% 11%;
+    --popover-foreground: 43 50% 92%;
 
-    --primary: 35 30% 88%;
-    --primary-foreground: 25 25% 15%;
+    --primary: 193 30% 70%;
+    --primary-foreground: 193 28% 12%;
 
-    --pink: 350 35% 25%;
-    --pink-foreground: 350 60% 90%;
-    --blue: 210 35% 25%;
-    --blue-foreground: 205 60% 90%;
-    --lavender: 265 25% 25%;
-    --lavender-foreground: 265 50% 90%;
-    --beige: 30 15% 22%;
-    --beige-foreground: 35 30% 90%;
+    --pink: 350 25% 22%;
+    --pink-foreground: 350 45% 88%;
+    --blue: 193 25% 22%;
+    --blue-foreground: 193 40% 88%;
+    --lavender: 220 20% 22%;
+    --lavender-foreground: 220 35% 88%;
+    --beige: 43 15% 20%;
+    --beige-foreground: 43 40% 88%;
 
-    --secondary: 25 12% 18%;
-    --secondary-foreground: 35 30% 92%;
+    --secondary: 193 14% 15%;
+    --secondary-foreground: 43 45% 92%;
 
-    --muted: 25 12% 16%;
-    --muted-foreground: 35 15% 65%;
+    --muted: 193 14% 14%;
+    --muted-foreground: 43 18% 62%;
 
-    --accent: 350 30% 22%;
-    --accent-foreground: 350 60% 90%;
+    --accent: 175 18% 18%;
+    --accent-foreground: 175 35% 85%;
 
-    --destructive: 0 60% 45%;
+    --destructive: 0 55% 42%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 25 12% 20%;
-    --input: 25 12% 20%;
-    --ring: 35 30% 70%;
+    --border: 193 14% 18%;
+    --input: 193 14% 18%;
+    --ring: 193 28% 55%;
 
-    --gradient-soft: linear-gradient(135deg, hsl(350 25% 18%) 0%, hsl(265 20% 18%) 50%, hsl(205 25% 18%) 100%);
-    --gradient-cream: linear-gradient(180deg, hsl(25 18% 11%) 0%, hsl(25 18% 8%) 100%);
-    --gradient-hero: linear-gradient(135deg, hsl(25 18% 9% / 0.4) 0%, hsl(350 30% 18% / 0.4) 100%);
+    --gradient-soft: linear-gradient(135deg, hsl(175 15% 14%) 0%, hsl(193 18% 14%) 50%, hsl(43 15% 14%) 100%);
+    --gradient-cream: linear-gradient(180deg, hsl(193 20% 9%) 0%, hsl(193 20% 7%) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(193 20% 8% / 0.4) 0%, hsl(175 18% 15% / 0.4) 100%);
 
     --shadow-soft: 0 4px 24px -8px hsl(0 0% 0% / 0.4);
     --shadow-elegant: 0 20px 60px -20px hsl(0 0% 0% / 0.6);
-    --shadow-glow: 0 8px 40px -12px hsl(350 50% 40% / 0.4);
+    --shadow-glow: 0 8px 40px -12px hsl(193 40% 35% / 0.4);
 
-    --glass-bg: hsl(25 18% 14% / 0.6);
-    --glass-border: hsl(35 30% 80% / 0.1);
+    --glass-bg: hsl(193 20% 12% / 0.6);
+    --glass-border: hsl(43 30% 70% / 0.08);
   }
 }
 

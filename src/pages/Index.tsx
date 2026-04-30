@@ -5,7 +5,7 @@ import SeasonBestsellers from "@/components/SeasonBestsellers";
 import ShopByOccasion from "@/components/ShopByOccasion";
 import Testimonials from "@/components/Testimonials";
 import CompanyOverview from "@/components/CompanyOverview";
-import NewsletterPopup from "@/components/NewsletterPopup";
+import StepIntoWorld from "@/components/StepIntoWorld";
 import Footer from "@/components/Footer";
 import FloatingCart from "@/components/FloatingCart";
 
@@ -20,10 +20,10 @@ const Index = () => {
         <SeasonBestsellers />
         <Testimonials />
         <CompanyOverview />
+        <StepIntoWorld />
       </main>
       <Footer />
       <FloatingCart />
-      <NewsletterPopup />
     </div>
   );
 };

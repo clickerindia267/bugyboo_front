@@ -29,8 +29,8 @@ const slides: Slide[] = [
     subtitle: "NEW ARRIVALS",
     cta: "Shop Now",
     ctaLink: "/shop",
-    panelBg: "hsl(30 30% 95%)",
-    accentColor: "hsl(350 55% 50%)",
+    panelBg: "hsl(43 82% 96%)",
+    accentColor: "#3f646f",
   },
   {
     img: heroSplit2,
@@ -40,8 +40,8 @@ const slides: Slide[] = [
     subtitle: "BEACH COLLECTION",
     cta: "Explore Now",
     ctaLink: "/shop",
-    panelBg: "hsl(205 40% 95%)",
-    accentColor: "hsl(205 55% 45%)",
+    panelBg: "hsl(193 25% 94%)",
+    accentColor: "hsl(193 35% 38%)",
   },
   {
     img: heroBanner1,
@@ -51,8 +51,8 @@ const slides: Slide[] = [
     subtitle: "ORGANIC COLLECTION",
     cta: "Explore Collection",
     ctaLink: "/shop",
-    panelBg: "hsl(140 25% 94%)",
-    accentColor: "hsl(140 40% 38%)",
+    panelBg: "hsl(160 25% 94%)",
+    accentColor: "hsl(175 30% 35%)",
   },
   {
     img: heroBanner2,
@@ -62,8 +62,8 @@ const slides: Slide[] = [
     subtitle: "MINI WARDROBE",
     cta: "Shop the Look",
     ctaLink: "/shop",
-    panelBg: "hsl(35 35% 94%)",
-    accentColor: "hsl(25 45% 40%)",
+    panelBg: "hsl(43 50% 95%)",
+    accentColor: "hsl(193 28% 30%)",
   },
   {
     img: heroBanner3,
@@ -73,8 +73,8 @@ const slides: Slide[] = [
     subtitle: "NEWBORN EDIT",
     cta: "Discover Now",
     ctaLink: "/shop",
-    panelBg: "hsl(265 30% 95%)",
-    accentColor: "hsl(265 45% 50%)",
+    panelBg: "hsl(43 60% 96%)",
+    accentColor: "hsl(193 32% 42%)",
   },
 ];
 
@@ -83,7 +83,7 @@ const SLIDE_DURATION = 3000;
 /* ── Decorative SVGs ────────────────────────────────────── */
 const SunDecor = ({ className, color }: { className?: string; color?: string }) => (
   <svg className={className} viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="30" cy="30" r="8" fill={color || "hsl(45 85% 65%)"} opacity="0.8" />
+    <circle cx="30" cy="30" r="8" fill={color || "hsl(193 28% 50%)"} opacity="0.8" />
     {[0, 45, 90, 135, 180, 225, 270, 315].map((angle) => (
       <line
         key={angle}
@@ -91,7 +91,7 @@ const SunDecor = ({ className, color }: { className?: string; color?: string }) 
         y1="30"
         x2={30 + 18 * Math.cos((angle * Math.PI) / 180)}
         y2={30 + 18 * Math.sin((angle * Math.PI) / 180)}
-        stroke={color || "hsl(45 85% 65%)"}
+        stroke={color || "hsl(193 28% 50%)"}
         strokeWidth="2"
         strokeLinecap="round"
         opacity="0.6"
@@ -101,18 +101,18 @@ const SunDecor = ({ className, color }: { className?: string; color?: string }) 
 );
 
 const HeartDecor = ({ className, color }: { className?: string; color?: string }) => (
-  <svg className={className} viewBox="0 0 24 24" fill={color || "hsl(350 70% 60%)"} xmlns="http://www.w3.org/2000/svg">
+  <svg className={className} viewBox="0 0 24 24" fill={color || "hsl(193 30% 45%)"} xmlns="http://www.w3.org/2000/svg">
     <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
   </svg>
 );
 
 const FloralDecor = ({ className }: { className?: string }) => (
   <svg className={className} viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="40" cy="40" r="6" fill="hsl(45 80% 60%)" opacity="0.7" />
-    <path d="M40 10 C45 25, 55 30, 40 40 C25 30, 35 25, 40 10Z" fill="hsl(140 40% 55%)" opacity="0.4" />
-    <path d="M40 70 C45 55, 55 50, 40 40 C25 50, 35 55, 40 70Z" fill="hsl(140 40% 55%)" opacity="0.4" />
-    <path d="M10 40 C25 35, 30 25, 40 40 C30 55, 25 45, 10 40Z" fill="hsl(350 60% 75%)" opacity="0.4" />
-    <path d="M70 40 C55 35, 50 25, 40 40 C50 55, 55 45, 70 40Z" fill="hsl(350 60% 75%)" opacity="0.4" />
+    <circle cx="40" cy="40" r="6" fill="hsl(43 65% 55%)" opacity="0.7" />
+    <path d="M40 10 C45 25, 55 30, 40 40 C25 30, 35 25, 40 10Z" fill="hsl(193 28% 50%)" opacity="0.4" />
+    <path d="M40 70 C45 55, 55 50, 40 40 C25 50, 35 55, 40 70Z" fill="hsl(193 28% 50%)" opacity="0.4" />
+    <path d="M10 40 C25 35, 30 25, 40 40 C30 55, 25 45, 10 40Z" fill="hsl(175 30% 60%)" opacity="0.4" />
+    <path d="M70 40 C55 35, 50 25, 40 40 C50 55, 55 45, 70 40Z" fill="hsl(175 30% 60%)" opacity="0.4" />
   </svg>
 );
 
@@ -229,7 +229,7 @@ const Hero = () => {
                 {s.eyebrow && (
                   <p
                     className="text-xs tracking-[0.25em] uppercase font-sans font-medium mb-4 opacity-60"
-                    style={{ color: "hsl(25 20% 25%)" }}
+                    style={{ color: "hsl(193 28% 22%)" }}
                   >
                     {s.eyebrow}
                   </p>
@@ -257,7 +257,7 @@ const Hero = () => {
                 {s.subtitle && (
                   <p
                     className="text-sm md:text-base lg:text-lg tracking-[0.35em] uppercase font-sans font-semibold mb-8"
-                    style={{ color: "hsl(25 20% 18%)" }}
+                    style={{ color: "hsl(193 30% 18%)" }}
                   >
                     {s.subtitle}
                   </p>

@@ -48,31 +48,31 @@ const testimonials = [
 /* ─── SVG Decorations ─── */
 const PaperPlane = ({ style = {} }: { style?: React.CSSProperties }) => (
   <svg style={{ pointerEvents: "none", ...style }} width="44" height="44" viewBox="0 0 48 48" fill="none">
-    <path d="M6 8L42 24L6 40V26L30 24L6 22V8Z" fill="hsl(350 60% 70%)" opacity="0.7" />
-    <path d="M6 8L42 24L6 40V26L30 24L6 22V8Z" stroke="hsl(350 50% 55%)" strokeWidth="1.5" fill="none" />
+    <path d="M6 8L42 24L6 40V26L30 24L6 22V8Z" fill="hsl(193 30% 60%)" opacity="0.7" />
+    <path d="M6 8L42 24L6 40V26L30 24L6 22V8Z" stroke="hsl(193 28% 45%)" strokeWidth="1.5" fill="none" />
   </svg>
 );
 
 const Butterfly = ({ style = {} }: { style?: React.CSSProperties }) => (
   <svg style={{ pointerEvents: "none", ...style }} width="32" height="32" viewBox="0 0 36 36" fill="none">
-    <path d="M18 8C14 4 6 3 4 10C2 17 10 20 18 18C26 20 34 17 32 10C30 3 22 4 18 8Z" fill="hsl(205 60% 78%)" opacity="0.6" />
-    <path d="M18 18C14 22 8 30 12 32C16 34 18 26 18 18C18 26 20 34 24 32C28 30 22 22 18 18Z" fill="hsl(265 50% 80%)" opacity="0.5" />
+    <path d="M18 8C14 4 6 3 4 10C2 17 10 20 18 18C26 20 34 17 32 10C30 3 22 4 18 8Z" fill="hsl(193 30% 70%)" opacity="0.6" />
+    <path d="M18 18C14 22 8 30 12 32C16 34 18 26 18 18C18 26 20 34 24 32C28 30 22 22 18 18Z" fill="hsl(175 30% 72%)" opacity="0.5" />
   </svg>
 );
 
 const Flower = ({ style = {} }: { style?: React.CSSProperties }) => (
   <svg style={{ pointerEvents: "none", ...style }} width="28" height="28" viewBox="0 0 32 32" fill="none">
-    <circle cx="16" cy="10" r="5" fill="hsl(45 80% 70%)" opacity="0.6" />
-    <circle cx="10" cy="16" r="5" fill="hsl(45 80% 70%)" opacity="0.5" />
-    <circle cx="22" cy="16" r="5" fill="hsl(45 80% 70%)" opacity="0.5" />
-    <circle cx="16" cy="22" r="5" fill="hsl(45 80% 70%)" opacity="0.6" />
-    <circle cx="16" cy="16" r="3.5" fill="hsl(35 60% 55%)" />
+    <circle cx="16" cy="10" r="5" fill="hsl(43 60% 65%)" opacity="0.6" />
+    <circle cx="10" cy="16" r="5" fill="hsl(43 60% 65%)" opacity="0.5" />
+    <circle cx="22" cy="16" r="5" fill="hsl(43 60% 65%)" opacity="0.5" />
+    <circle cx="16" cy="22" r="5" fill="hsl(43 60% 65%)" opacity="0.6" />
+    <circle cx="16" cy="16" r="3.5" fill="hsl(193 28% 45%)" />
   </svg>
 );
 
 const Sparkle = ({ style = {} }: { style?: React.CSSProperties }) => (
   <svg style={{ pointerEvents: "none", ...style }} width="18" height="18" viewBox="0 0 20 20" fill="none">
-    <path d="M10 0L12 8L20 10L12 12L10 20L8 12L0 10L8 8L10 0Z" fill="hsl(350 60% 70%)" opacity="0.5" />
+    <path d="M10 0L12 8L20 10L12 12L10 20L8 12L0 10L8 8L10 0Z" fill="hsl(193 28% 55%)" opacity="0.5" />
   </svg>
 );
 
@@ -289,11 +289,11 @@ const Testimonials = () => {
           position: relative;
           overflow: hidden;
           padding: 80px 0 100px;
-          background: linear-gradient(180deg, hsl(36 33% 97%) 0%, hsl(90 20% 92% / 0.3) 15%, hsl(36 33% 97%) 30%, hsl(90 20% 92% / 0.2) 70%, hsl(36 33% 97%) 100%);
+          background: linear-gradient(180deg, hsl(43 82% 96%) 0%, hsl(175 15% 93% / 0.3) 15%, hsl(43 82% 96%) 30%, hsl(175 15% 93% / 0.2) 70%, hsl(43 82% 96%) 100%);
         }
         .tm-wash { position: absolute; left: 0; right: 0; height: 180px; pointer-events: none; }
-        .tm-wash-top { top: 0; background: linear-gradient(180deg, hsl(110 30% 85% / 0.25) 0%, transparent 100%); }
-        .tm-wash-bottom { bottom: 0; background: linear-gradient(0deg, hsl(110 30% 85% / 0.2) 0%, transparent 100%); }
+        .tm-wash-top { top: 0; background: linear-gradient(180deg, hsl(193 25% 88% / 0.25) 0%, transparent 100%); }
+        .tm-wash-bottom { bottom: 0; background: linear-gradient(0deg, hsl(193 25% 88% / 0.2) 0%, transparent 100%); }
         .tm-decos { display: block; }
 
         /* ── Desktop Grid ── */
@@ -319,15 +319,15 @@ const Testimonials = () => {
         }
         .tm-cta-label {
           font-size: 11px; text-transform: uppercase; letter-spacing: 0.2em;
-          color: hsl(25 15% 50%); margin-bottom: 4px; font-family: Inter, sans-serif;
+          color: hsl(193 15% 45%); margin-bottom: 4px; font-family: Inter, sans-serif;
         }
         .tm-cta-title {
           font-family: "Playfair Display", Georgia, serif;
           font-size: 26px; font-weight: 600; font-style: italic;
-          color: hsl(25 30% 22%); margin-bottom: 12px; line-height: 1.2;
+          color: hsl(193 28% 22%); margin-bottom: 12px; line-height: 1.2;
         }
         .tm-cta-desc {
-          font-size: 13px; line-height: 1.65; color: hsl(25 12% 42%);
+          font-size: 13px; line-height: 1.65; color: hsl(193 12% 40%);
           font-family: Inter, sans-serif;
         }
 
@@ -358,18 +358,18 @@ const Testimonials = () => {
           transform: translateY(-4px) rotate(0deg) !important;
           box-shadow: 0 8px 32px rgba(0,0,0,0.10);
         }
-        .tm-quote-cream { background: rgba(253,248,240,0.85); }
-        .tm-quote-pink { background: rgba(252,235,237,0.75); }
+        .tm-quote-cream { background: rgba(253,248,237,0.85); }
+        .tm-quote-pink { background: rgba(200,228,235,0.55); }
         .tm-quote-overlap {
           position: absolute; bottom: -20px; left: -30px; z-index: 3;
         }
         .tm-quote {
           font-family: "Playfair Display", Georgia, serif;
           font-style: italic; font-size: 15px; line-height: 1.6;
-          color: hsl(25 20% 25%); margin-bottom: 10px;
+          color: hsl(193 25% 22%); margin-bottom: 10px;
         }
         .tm-author {
-          font-size: 13px; font-weight: 500; color: hsl(25 15% 40%);
+          font-size: 13px; font-weight: 500; color: hsl(193 18% 38%);
           font-family: Inter, sans-serif;
         }
 
@@ -434,13 +434,13 @@ const Testimonials = () => {
           font-style: italic;
           font-size: 16px;
           line-height: 1.55;
-          color: hsl(25 20% 22%);
+          color: hsl(193 25% 20%);
           margin-bottom: 12px;
         }
         .tm-mobile-author {
           font-size: 13px;
           font-weight: 500;
-          color: hsl(25 15% 42%);
+          color: hsl(193 15% 40%);
           font-family: Inter, sans-serif;
         }
 
@@ -451,13 +451,13 @@ const Testimonials = () => {
         }
         .tm-dot {
           width: 8px; height: 8px; border-radius: 50%;
-          background: hsl(25 20% 75%); border: none; padding: 0;
+          background: hsl(193 22% 30%); border: none; padding: 0;
           cursor: pointer;
           transition: all 0.35s ease;
         }
         .tm-dot-active {
           width: 28px; border-radius: 4px;
-          background: hsl(25 25% 35%);
+          background: hsl(193 28% 34%);
         }
 
         @media (max-width: 767px) {

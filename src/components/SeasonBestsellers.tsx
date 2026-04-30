@@ -8,10 +8,10 @@ import { toast } from "@/hooks/use-toast";
 
 /* ─── Season config ─── */
 const seasons = [
-  { key: "summer", label: "Summer Edit", icon: "☀️", accent: "hsl(45 90% 55%)" },
-  { key: "monsoon", label: "Monsoon Edit", icon: "🌧️", accent: "hsl(205 65% 55%)" },
-  { key: "winter", label: "Winter Edit", icon: "❄️", accent: "hsl(265 50% 65%)" },
-  { key: "festive", label: "Festive Edit", icon: "✨", accent: "hsl(350 60% 60%)" },
+  { key: "summer", label: "Summer Edit", icon: "☀️", accent: "hsl(193 32% 42%)" },
+  { key: "monsoon", label: "Monsoon Edit", icon: "🌧️", accent: "hsl(193 40% 50%)" },
+  { key: "winter", label: "Winter Edit", icon: "❄️", accent: "hsl(193 25% 30%)" },
+  { key: "festive", label: "Festive Edit", icon: "✨", accent: "hsl(175 30% 38%)" },
 ] as const;
 
 type SeasonKey = (typeof seasons)[number]["key"];
@@ -167,7 +167,7 @@ const SeasonBestsellers = () => {
                 className={`sb-tab ${activeSeason === s.key ? "sb-tab-active" : ""}`}
                 style={
                   activeSeason === s.key
-                    ? { borderColor: s.accent, color: "hsl(25 20% 18%)" }
+                     ? { borderColor: s.accent, color: "hsl(193 28% 18%)" }
                     : {}
                 }
               >
@@ -215,7 +215,7 @@ const SeasonBestsellers = () => {
           position: relative;
           padding: 80px 0 90px;
           overflow: hidden;
-          background: hsl(36 33% 97%);
+          background: hsl(43 82% 96%);
         }
 
         /* Background blobs */
@@ -229,12 +229,12 @@ const SeasonBestsellers = () => {
         .sb-bg-blob-1 {
           width: 500px; height: 500px;
           top: -150px; right: -100px;
-          background: hsl(350 60% 90%);
+          background: hsl(193 30% 88%);
         }
         .sb-bg-blob-2 {
           width: 400px; height: 400px;
           bottom: -120px; left: -80px;
-          background: hsl(205 60% 90%);
+          background: hsl(175 30% 88%);
         }
 
         /* ── Header ── */
@@ -253,14 +253,14 @@ const SeasonBestsellers = () => {
           font-size: 11px;
           text-transform: uppercase;
           letter-spacing: 0.25em;
-          color: hsl(25 12% 50%);
+          color: hsl(193 18% 45%);
           font-family: Inter, sans-serif;
           margin-bottom: 6px;
         }
         .sb-title {
           font-family: "Playfair Display", Georgia, serif;
           font-size: clamp(28px, 5vw, 48px);
-          color: hsl(25 20% 18%);
+          color: hsl(193 30% 18%);
           line-height: 1.15;
         }
         .sb-title em {
@@ -287,15 +287,15 @@ const SeasonBestsellers = () => {
           gap: 8px;
           padding: 10px 20px;
           border-radius: 50px;
-          border: 2px solid hsl(30 20% 88%);
-          background: rgba(255,255,255,0.6);
+          border: 2px solid hsl(43 30% 87%);
+          background: rgba(253,248,237,0.6);
           backdrop-filter: blur(6px);
           cursor: pointer;
           transition: all 0.35s cubic-bezier(0.22,1,0.36,1);
           font-family: Inter, sans-serif;
           font-size: 13px;
           font-weight: 500;
-          color: hsl(25 12% 45%);
+          color: hsl(193 15% 42%);
           white-space: nowrap;
         }
         .sb-tab:hover {
@@ -304,7 +304,7 @@ const SeasonBestsellers = () => {
           box-shadow: 0 4px 16px rgba(0,0,0,0.06);
         }
         .sb-tab-active {
-          background: rgba(255,255,255,0.9) !important;
+          background: rgba(253,248,237,0.9) !important;
           box-shadow: 0 4px 20px rgba(0,0,0,0.08);
           font-weight: 600;
           border-width: 2px;
@@ -342,7 +342,7 @@ const SeasonBestsellers = () => {
           position: relative;
           overflow: hidden;
           border-radius: 20px;
-          background: hsl(35 30% 92%);
+          background: hsl(43 45% 92%);
           aspect-ratio: 3/4;
           margin-bottom: 14px;
           transition: transform 0.5s cubic-bezier(0.22,1,0.36,1),
@@ -372,7 +372,7 @@ const SeasonBestsellers = () => {
           letter-spacing: 0.1em;
           font-weight: 600;
           font-family: Inter, sans-serif;
-          color: hsl(25 20% 25%);
+          color: hsl(193 25% 22%);
         }
         .sb-wish {
           position: absolute;
@@ -417,19 +417,19 @@ const SeasonBestsellers = () => {
           align-items: center;
           gap: 4px;
           font-size: 12px;
-          color: hsl(25 12% 45%);
+          color: hsl(193 15% 42%);
           font-family: Inter, sans-serif;
           margin-bottom: 6px;
         }
         .sb-review-count {
-          color: hsl(25 10% 60%);
+          color: hsl(193 12% 55%);
           font-size: 11px;
         }
         .sb-card-name {
           font-family: "Playfair Display", Georgia, serif;
           font-size: 17px;
           line-height: 1.3;
-          color: hsl(25 20% 18%);
+          color: hsl(193 28% 18%);
           margin-bottom: 6px;
         }
         .sb-price-row {
@@ -442,12 +442,12 @@ const SeasonBestsellers = () => {
           font-family: Inter, sans-serif;
           font-size: 15px;
           font-weight: 600;
-          color: hsl(25 20% 18%);
+          color: hsl(193 28% 18%);
         }
         .sb-og-price {
           font-family: Inter, sans-serif;
           font-size: 13px;
-          color: hsl(25 10% 60%);
+          color: hsl(193 12% 55%);
           text-decoration: line-through;
         }
         .sb-discount {
@@ -475,7 +475,7 @@ const SeasonBestsellers = () => {
         .sb-swatch:hover { transform: scale(1.25); }
         .sb-swatch-more {
           font-size: 10px;
-          color: hsl(25 10% 50%);
+          color: hsl(193 12% 48%);
           font-family: Inter, sans-serif;
         }
 

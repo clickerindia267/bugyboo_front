@@ -23,8 +23,8 @@ const AuthLayout = ({
         <div className="w-full max-w-md animate-fade-in">
           <Link to="/" className="inline-flex items-center gap-2.5 mb-10">
             <img src={logo} alt="BugyBoo" className="w-10 h-10 rounded-full object-cover shadow-soft" />
-            <span className="font-serif text-2xl">
-              Bugy<span className="italic">Boo</span>
+            <span className="font-serif text-2xl tracking-tight text-primary">
+              <span className="font-semibold">Bugy</span><span className="italic font-light">Boo</span>
             </span>
           </Link>
           <h1 className="font-serif text-4xl md:text-5xl mb-3">{title}</h1>
