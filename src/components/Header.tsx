@@ -35,8 +35,8 @@ const Header = () => {
 
   return (
     <header
-      className={`fixed top-0 inset-x-0 z-50 transition-all duration-500 ${
-        scrolled ? "bg-background shadow-soft" : "bg-background"
+      className={`fixed top-0 inset-x-0 z-[60] transition-all duration-500 bg-white ${
+        scrolled ? "shadow-soft" : ""
       }`}
     >
       <div className="container mx-auto flex items-center justify-between h-16 md:h-20">

@@ -57,7 +57,7 @@ const ProductCard = ({ p, index }: { p: Product; index: number }) => {
         <div className="sb-quick-add">
           <Button
             size="sm"
-            className="w-full rounded-full bg-background text-foreground hover:bg-background/90 shadow-soft"
+            className="w-full rounded-full bg-[#3f646f] text-white hover:bg-[#3f646f]/90 shadow-soft"
             onClick={quickAdd}
           >
             <ShoppingBag className="h-3.5 w-3.5 mr-2" />

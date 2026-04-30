@@ -14,8 +14,10 @@
 @layer base {
   :root {
     /* ── Surfaces ── */
-    --background: 43 82% 96%;             /* warm ivory  #fdf8ed */
-    --foreground: 193 30% 15%;            /* deep teal-black */
+    --background: #ffffff;
+    /* warm ivory  #fdf8ed */
+    --foreground: 0 0% 20%;
+    /* deep teal-black */
 
     --card: 43 60% 98%;
     --card-foreground: 193 30% 15%;
@@ -24,8 +26,10 @@
     --popover-foreground: 193 30% 15%;
 
     /* ── Brand primary: deep teal ── */
-    --primary: 193 28% 34%;              /* #3f646f */
-    --primary-foreground: 43 82% 96%;    /* #fdf8ed */
+    --primary: 193 28% 34%;
+    /* #3f646f */
+    --primary-foreground: 43 82% 96%;
+    /* #fdf8ed */
 
     /* ── Pastel accents (harmonised with teal + ivory) ── */
     --pink: 350 50% 90%;
@@ -43,7 +47,8 @@
     --muted: 43 35% 94%;
     --muted-foreground: 193 12% 45%;
 
-    --accent: 175 30% 90%;               /* soft teal accent */
+    --accent: 175 30% 90%;
+    /* soft teal accent */
     --accent-foreground: 193 28% 28%;
 
     --destructive: 0 70% 55%;
@@ -145,7 +150,12 @@
     font-feature-settings: "ss01", "cv11";
   }
 
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     @apply font-serif tracking-tight;
   }
 }
@@ -166,6 +176,7 @@
     @apply transition-all duration-500;
     transition-timing-function: var(--ease-luxury);
   }
+
   .hover-lift:hover {
     transform: translateY(-6px);
     box-shadow: var(--shadow-elegant);
@@ -174,52 +185,87 @@
   .story-link {
     @apply relative inline-block;
   }
+
   .story-link::after {
     content: '';
     @apply absolute left-0 -bottom-0.5 h-px w-full origin-bottom-right scale-x-0 bg-current transition-transform duration-500;
     transition-timing-function: var(--ease-luxury);
   }
+
   .story-link:hover::after {
     @apply origin-bottom-left scale-x-100;
   }
 
   .shimmer {
-    background: linear-gradient(
-      110deg,
-      hsl(var(--muted)) 8%,
-      hsl(var(--secondary)) 18%,
-      hsl(var(--muted)) 33%
-    );
+    background: linear-gradient(110deg,
+        hsl(var(--muted)) 8%,
+        hsl(var(--secondary)) 18%,
+        hsl(var(--muted)) 33%);
     background-size: 200% 100%;
     animation: shimmer 1.6s linear infinite;
   }
 }
 
 @keyframes shimmer {
-  to { background-position-x: -200%; }
+  to {
+    background-position-x: -200%;
+  }
 }
 
 @keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-8px);
+  }
 }
 
 @keyframes fade-in {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes fade-in-slow {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes scale-in {
-  from { opacity: 0; transform: scale(0.96); }
-  to { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 @keyframes slide-up {
-  from { opacity: 0; transform: translateY(40px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

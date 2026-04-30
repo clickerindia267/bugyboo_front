@@ -65,7 +65,7 @@ const FeaturedProducts = () => {
                 <div className="absolute inset-x-3 bottom-3 translate-y-4 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-500">
                   <Button
                     size="sm"
-                    className="w-full rounded-full bg-background text-foreground hover:bg-background/90 shadow-soft"
+                    className="w-full rounded-full bg-[#3f646f] text-white hover:bg-[#3f646f]/90 shadow-soft"
                     onClick={(e) => quickAdd(e, p.id, p.sizes[0], p.colors[0].name, p.name)}
                   >
                     <ShoppingBag className="h-3.5 w-3.5 mr-2" />
