@@ -52,7 +52,7 @@ const Cart = () => {
                       <Link to={`/product/${i.product.slug}`}>
                         <h3 className="font-serif text-lg leading-tight">{i.product.name}</h3>
                       </Link>
-                      <p className="font-serif text-base whitespace-nowrap">€{i.product.price * i.qty}</p>
+                      <p className="font-serif text-base whitespace-nowrap">₹{i.product.price * i.qty}</p>
                     </div>
                     <p className="text-xs text-muted-foreground mb-auto">
                       {i.color} · Size {i.size}
@@ -114,21 +114,21 @@ const Cart = () => {
                 <div className="space-y-3 text-sm border-t border-border/50 pt-5">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Subtotal</span>
-                    <span>€{subtotal.toFixed(2)}</span>
+                    <span>₹{subtotal.toFixed(2)}</span>
                   </div>
                   {discount > 0 && (
                     <div className="flex justify-between text-primary">
                       <span>Discount (LUNE10)</span>
-                      <span>-€{discount.toFixed(2)}</span>
+                      <span>-₹{discount.toFixed(2)}</span>
                     </div>
                   )}
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Shipping</span>
-                    <span>{shipping === 0 ? "Free" : `€${shipping}`}</span>
+                    <span>{shipping === 0 ? "Free" : `₹${shipping}`}</span>
                   </div>
                   <div className="flex justify-between font-serif text-lg pt-3 border-t border-border/50">
                     <span>Total</span>
-                    <span>€{total.toFixed(2)}</span>
+                    <span>₹{total.toFixed(2)}</span>
                   </div>
                 </div>
 
@@ -141,7 +141,7 @@ const Cart = () => {
                   <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
                 </Button>
                 <p className="text-xs text-muted-foreground text-center mt-3">
-                  Free EU shipping over €100 · 30-day returns
+                  Free EU shipping over ₹100 · 30-day returns
                 </p>
               </div>
             </aside>

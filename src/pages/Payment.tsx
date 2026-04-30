@@ -140,27 +140,27 @@ const Payment = () => {
                         {i.size} · {i.color} · ×{i.qty}
                       </p>
                     </div>
-                    <span className="text-sm">€{i.product.price * i.qty}</span>
+                    <span className="text-sm">₹{i.product.price * i.qty}</span>
                   </div>
                 ))}
               </div>
               <div className="space-y-2 text-sm border-t border-border/50 pt-4">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Subtotal</span>
-                  <span>€{subtotal.toFixed(2)}</span>
+                  <span>₹{subtotal.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Shipping</span>
-                  <span>{subtotal > 100 ? "Free" : "€9"}</span>
+                  <span>{subtotal > 100 ? "Free" : "₹9"}</span>
                 </div>
                 <div className="flex justify-between font-serif text-lg pt-3 border-t border-border/50 mt-3">
                   <span>Total</span>
-                  <span>€{total.toFixed(2)}</span>
+                  <span>₹{total.toFixed(2)}</span>
                 </div>
               </div>
               <Button type="submit" size="lg" className="w-full rounded-full mt-6 h-12 bg-primary hover:bg-primary/90 group">
                 <Lock className="h-3.5 w-3.5 mr-2" />
-                Pay €{total.toFixed(2)}
+                Pay ₹{total.toFixed(2)}
               </Button>
               <p className="text-xs text-muted-foreground text-center mt-3 flex items-center justify-center gap-1.5">
                 <ShieldCheck className="h-3 w-3" />

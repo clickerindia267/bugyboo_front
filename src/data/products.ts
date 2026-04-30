@@ -1,7 +1,21 @@
-import p1 from "@/assets/product-1.jpg";
-import p2 from "@/assets/product-2.jpg";
-import p3 from "@/assets/product-3.jpg";
-import p4 from "@/assets/product-4.jpg";
+import p1 from "@/assets/pinktop1.jpeg";
+import p11 from "@/assets/pinktop2.jpeg";
+import p12 from "@/assets/pinktop3.jpeg";
+import p13 from "@/assets/pinktop4.jpeg";
+
+// nightwear
+
+import p2 from "@/assets/nightwear2.jpeg";
+import p21 from "@/assets/nightwear1.jpeg";
+import p22 from "@/assets/nightwear3.jpeg";
+
+//  frok 
+
+import p3 from "@/assets/frok1.jpeg";
+import p31 from "@/assets/frok2.jpeg";
+import p32 from "@/assets/frok3.jpeg";
+
+import p4 from "@/assets/pinktop1.jpeg";
 
 export type Product = {
   id: number;
@@ -27,7 +41,7 @@ export const products: Product[] = [
     id: 1,
     slug: "rose-knit-cardigan",
     img: p1,
-    gallery: [p1, p2, p3, p4],
+    gallery: [p1, p11, p12, p13],
     name: "Rosé Knit Cardigan",
     price: 68,
     rating: 4.9,
@@ -55,7 +69,7 @@ export const products: Product[] = [
     id: 2,
     slug: "cream-heirloom-knit",
     img: p2,
-    gallery: [p2, p1, p4, p3],
+    gallery: [p2, p21, p22],
     name: "Cream Heirloom Knit",
     price: 84,
     rating: 5.0,
@@ -77,7 +91,7 @@ export const products: Product[] = [
     id: 3,
     slug: "petal-ruffle-dress",
     img: p3,
-    gallery: [p3, p1, p2, p4],
+    gallery: [p3, p31, p32],
     name: "Petal Ruffle Dress",
     price: 92,
     rating: 4.8,

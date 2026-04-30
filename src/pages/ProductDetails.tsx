@@ -105,7 +105,7 @@ const ProductDetails = () => {
                   {product.rating} · {product.reviews} reviews
                 </span>
               </div>
-              <p className="text-3xl font-serif mb-6">€{product.price}</p>
+              <p className="text-3xl font-serif mb-6">₹{product.price}</p>
               <p className="text-muted-foreground leading-relaxed mb-8">{product.description}</p>
 
               {/* Color */}
@@ -167,7 +167,7 @@ const ProductDetails = () => {
                   className="rounded-full bg-primary hover:bg-primary/90 h-12 px-8 flex-1 shadow-soft"
                   onClick={() => handleAdd(false)}
                 >
-                  Add to bag · €{product.price * qty}
+                  Add to bag · ₹{product.price * qty}
                 </Button>
                 <Button
                   size="lg"
@@ -224,7 +224,7 @@ const ProductDetails = () => {
                   />
                 </div>
                 <h3 className="font-serif text-base">{p.name}</h3>
-                <p className="text-sm text-muted-foreground">€{p.price}</p>
+                <p className="text-sm text-muted-foreground">₹{p.price}</p>
               </Link>
             ))}
           </div>

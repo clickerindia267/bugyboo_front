@@ -79,7 +79,7 @@ const FeaturedProducts = () => {
                   <span className="text-xs text-muted-foreground">{p.rating}</span>
                 </div>
                 <h3 className="font-serif text-lg leading-tight mb-1">{p.name}</h3>
-                <p className="text-sm text-muted-foreground">€{p.price}</p>
+                <p className="text-sm text-muted-foreground">₹{p.price}</p>
               </div>
             </Link>
           ))}

@@ -93,7 +93,7 @@ const Shop = () => {
           onChange={(e) => setMaxPrice(Number(e.target.value))}
           className="w-full accent-primary"
         />
-        <p className="text-sm text-muted-foreground mt-2">Up to €{maxPrice}</p>
+        <p className="text-sm text-muted-foreground mt-2">Up to ₹{maxPrice}</p>
       </div>
       <div>
         <h4 className="font-serif text-lg mb-3">Occasion</h4>
@@ -175,7 +175,7 @@ const Shop = () => {
                     <span className="text-xs text-muted-foreground">{p.rating}</span>
                   </div>
                   <h3 className="font-serif text-base leading-tight mb-1">{p.name}</h3>
-                  <p className="text-sm text-muted-foreground">€{p.price}</p>
+                  <p className="text-sm text-muted-foreground">₹{p.price}</p>
                 </div>
               </Link>
             ))}

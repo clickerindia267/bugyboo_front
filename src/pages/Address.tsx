@@ -92,9 +92,9 @@ const Address = () => {
               <h3 className="font-serif text-xl mb-5">Shipping method</h3>
               <div className="space-y-3">
                 {[
-                  { id: "standard", l: "Standard · 3–5 business days", price: subtotal > 100 ? "Free" : "€9" },
-                  { id: "express", l: "Express · 1–2 business days", price: "€19" },
-                  { id: "carbon", l: "Carbon-neutral · 5–7 days", price: "€6" },
+                  { id: "standard", l: "Standard · 3–5 business days", price: subtotal > 100 ? "Free" : "₹9" },
+                  { id: "express", l: "Express · 1–2 business days", price: "₹19" },
+                  { id: "carbon", l: "Carbon-neutral · 5–7 days", price: "₹6" },
                 ].map((m) => (
                   <label
                     key={m.id}
@@ -126,15 +126,15 @@ const Address = () => {
               <div className="space-y-2 text-sm mb-5">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Items ({count})</span>
-                  <span>€{subtotal.toFixed(2)}</span>
+                  <span>₹{subtotal.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Shipping</span>
-                  <span>{subtotal > 100 ? "Free" : "€9"}</span>
+                  <span>{subtotal > 100 ? "Free" : "₹9"}</span>
                 </div>
                 <div className="flex justify-between font-serif text-lg pt-3 border-t border-border/50 mt-3">
                   <span>Total</span>
-                  <span>€{(subtotal + (subtotal > 100 ? 0 : 9)).toFixed(2)}</span>
+                  <span>₹{(subtotal + (subtotal > 100 ? 0 : 9)).toFixed(2)}</span>
                 </div>
               </div>
               <Button type="submit" size="lg" className="w-full rounded-full h-12 group bg-primary hover:bg-primary/90">
