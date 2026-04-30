@@ -3,6 +3,7 @@ import Hero from "@/components/Hero";
 import FeaturedProducts from "@/components/FeaturedProducts";
 import SeasonBestsellers from "@/components/SeasonBestsellers";
 import ShopByOccasion from "@/components/ShopByOccasion";
+import BabyBanners from "@/components/BabyBanners";
 import Testimonials from "@/components/Testimonials";
 import CompanyOverview from "@/components/CompanyOverview";
 import StepIntoWorld from "@/components/StepIntoWorld";
@@ -16,6 +17,7 @@ const Index = () => {
       <main>
         <Hero />
         <ShopByOccasion />
+        <BabyBanners />
         <FeaturedProducts />
         <SeasonBestsellers />
         <Testimonials />
