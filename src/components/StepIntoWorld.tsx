@@ -119,7 +119,7 @@ const StepIntoWorld = () => {
       <style>{`
         .siw-section {
           padding: 80px 0 90px;
-          background: linear-gradient(180deg, hsl(43 82% 96%) 0%, hsl(43 60% 95%) 50%, hsl(43 82% 96%) 100%);
+          background: transparent;
         }
 
         .siw-header {

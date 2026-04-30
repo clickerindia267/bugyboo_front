@@ -170,7 +170,7 @@ const CompanyOverview = () => {
           position: relative;
           overflow: hidden;
           padding: 80px 0 90px;
-          background: linear-gradient(180deg, hsl(43 82% 96%) 0%, hsl(43 50% 94%) 50%, hsl(43 82% 96%) 100%);
+          background: transparent;
         }
         .co-bg-blob {
           position: absolute;

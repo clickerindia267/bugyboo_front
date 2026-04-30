@@ -215,7 +215,7 @@ const SeasonBestsellers = () => {
           position: relative;
           padding: 80px 0 90px;
           overflow: hidden;
-          background: hsl(43 82% 96%);
+          background: transparent;
         }
 
         /* Background blobs */

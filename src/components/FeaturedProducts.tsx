@@ -17,7 +17,7 @@ const FeaturedProducts = () => {
   };
 
   return (
-    <section className="py-24 md:py-32 bg-gradient-cream">
+    <section className="py-24 md:py-32 bg-background">
       <div className="container mx-auto">
         <div className="flex items-end justify-between mb-12 md:mb-16 flex-wrap gap-4">
           <div>

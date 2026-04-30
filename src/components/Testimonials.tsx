@@ -289,7 +289,7 @@ const Testimonials = () => {
           position: relative;
           overflow: hidden;
           padding: 80px 0 100px;
-          background: linear-gradient(180deg, hsl(43 82% 96%) 0%, hsl(175 15% 93% / 0.3) 15%, hsl(43 82% 96%) 30%, hsl(175 15% 93% / 0.2) 70%, hsl(43 82% 96%) 100%);
+          background: transparent;
         }
         .tm-wash { position: absolute; left: 0; right: 0; height: 180px; pointer-events: none; }
         .tm-wash-top { top: 0; background: linear-gradient(180deg, hsl(193 25% 88% / 0.25) 0%, transparent 100%); }

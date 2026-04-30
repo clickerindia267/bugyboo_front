@@ -29,7 +29,7 @@ const slides: Slide[] = [
     subtitle: "NEW ARRIVALS",
     cta: "Shop Now",
     ctaLink: "/shop",
-    panelBg: "hsl(43 82% 96%)",
+    panelBg: "transparent",
     accentColor: "#3f646f",
   },
   {
@@ -40,7 +40,7 @@ const slides: Slide[] = [
     subtitle: "BEACH COLLECTION",
     cta: "Explore Now",
     ctaLink: "/shop",
-    panelBg: "hsl(193 25% 94%)",
+    panelBg: "transparent",
     accentColor: "hsl(193 35% 38%)",
   },
   {
@@ -51,7 +51,7 @@ const slides: Slide[] = [
     subtitle: "ORGANIC COLLECTION",
     cta: "Explore Collection",
     ctaLink: "/shop",
-    panelBg: "hsl(160 25% 94%)",
+    panelBg: "transparent",
     accentColor: "hsl(175 30% 35%)",
   },
   {
@@ -62,7 +62,7 @@ const slides: Slide[] = [
     subtitle: "MINI WARDROBE",
     cta: "Shop the Look",
     ctaLink: "/shop",
-    panelBg: "hsl(43 50% 95%)",
+    panelBg: "transparent",
     accentColor: "hsl(193 28% 30%)",
   },
   {
@@ -73,7 +73,7 @@ const slides: Slide[] = [
     subtitle: "NEWBORN EDIT",
     cta: "Discover Now",
     ctaLink: "/shop",
-    panelBg: "hsl(43 60% 96%)",
+    panelBg: "transparent",
     accentColor: "hsl(193 32% 42%)",
   },
 ];
