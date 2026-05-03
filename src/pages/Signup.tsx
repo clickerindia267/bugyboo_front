@@ -5,19 +5,39 @@ import AuthLayout from "@/components/AuthLayout";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import hero from "@/assets/hero-2.jpg";
+import { signup } from "@/lib/api";
 
 const Signup = () => {
   const navigate = useNavigate();
   const [show, setShow] = useState(false);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [mobile, setMobile] = useState("");
   const [pwd, setPwd] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const strength = Math.min(4, Math.floor(pwd.length / 3));
   const strengthLabel = ["Too short", "Weak", "Fair", "Good", "Strong"][strength];
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast({ title: "Welcome to BugyBoo", description: "Your account has been created." });
-    navigate("/");
+
+    if (!name || !email || !mobile || !pwd) {
+      toast({ title: "Missing information", description: "Please complete all fields to register." });
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const response = await signup(name, email, mobile, pwd);
+      toast({ title: "Account created", description: response.message });
+      navigate("/login");
+    } catch (error) {
+      toast({ title: "Signup failed", description: error instanceof Error ? error.message : "Unable to create account." });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -52,28 +72,34 @@ const Signup = () => {
       }
     >
       <form onSubmit={submit} className="space-y-4">
-        <div className="grid grid-cols-2 gap-3">
-          <label className="block">
-            <span className="text-xs uppercase tracking-wider text-muted-foreground mb-1.5 block">First name</span>
-            <input
-              required
-              className="w-full h-12 px-4 rounded-xl bg-card border border-border focus:outline-none focus:ring-2 focus:ring-ring/30 text-sm"
-            />
-          </label>
-          <label className="block">
-            <span className="text-xs uppercase tracking-wider text-muted-foreground mb-1.5 block">Last name</span>
-            <input
-              required
-              className="w-full h-12 px-4 rounded-xl bg-card border border-border focus:outline-none focus:ring-2 focus:ring-ring/30 text-sm"
-            />
-          </label>
-        </div>
+        <label className="block">
+          <span className="text-xs uppercase tracking-wider text-muted-foreground mb-1.5 block">Name</span>
+          <input
+            required
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="bugyboo"
+            className="w-full h-12 px-4 rounded-xl bg-card border border-border focus:outline-none focus:ring-2 focus:ring-ring/30 text-sm"
+          />
+        </label>
+        <label className="block">
+          <span className="text-xs uppercase tracking-wider text-muted-foreground mb-1.5 block">Mobile</span>
+          <input
+            required
+            value={mobile}
+            onChange={(e) => setMobile(e.target.value)}
+            placeholder="8744953803"
+            className="w-full h-12 px-4 rounded-xl bg-card border border-border focus:outline-none focus:ring-2 focus:ring-ring/30 text-sm"
+          />
+        </label>
         <label className="block">
           <span className="text-xs uppercase tracking-wider text-muted-foreground mb-1.5 block">Email</span>
           <input
             type="email"
             required
-            placeholder="your@email.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="info@bugyboo.com"
             className="w-full h-12 px-4 rounded-xl bg-card border border-border focus:outline-none focus:ring-2 focus:ring-ring/30 text-sm"
           />
         </label>
@@ -85,7 +111,7 @@ const Signup = () => {
               required
               value={pwd}
               onChange={(e) => setPwd(e.target.value)}
-              placeholder="At least 8 characters"
+              placeholder="Avish@123"
               className="w-full h-12 px-4 pr-12 rounded-xl bg-card border border-border focus:outline-none focus:ring-2 focus:ring-ring/30 text-sm"
             />
             <button
@@ -116,8 +142,8 @@ const Signup = () => {
           <input type="checkbox" required className="mt-1 accent-primary" />
           I agree to the <a href="#" className="text-foreground story-link">Terms</a> & <a href="#" className="text-foreground story-link">Privacy</a>.
         </label>
-        <Button type="submit" size="lg" className="w-full rounded-full h-12 bg-primary hover:bg-primary/90 shadow-soft">
-          Create account
+        <Button type="submit" size="lg" className="w-full rounded-full h-12 bg-primary hover:bg-primary/90 shadow-soft" disabled={isLoading}>
+          {isLoading ? "Creating account..." : "Create account"}
         </Button>
       </form>
 

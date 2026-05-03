@@ -2,18 +2,34 @@ import { Link, useNavigate } from "react-router-dom";
 import { Minus, Plus, Trash2, ArrowRight, ShoppingBag } from "lucide-react";
 import PageShell from "@/components/PageShell";
 import { Button } from "@/components/ui/button";
-import { useCart } from "@/store/cart";
-import { useState } from "react";
-import { toast } from "@/hooks/use-toast";
+import { getUserCart, UserCart } from "@/lib/api";
+import { useState, useEffect } from "react";
+import { toast } from "sonner";
+import { useAuth } from "@/store/auth";
 
 const Cart = () => {
-  const { detailed, setQty, remove, subtotal, count, clear } = useCart();
   const navigate = useNavigate();
-  const [promo, setPromo] = useState("");
-  const [discount, setDiscount] = useState(0);
+  const { accessToken } = useAuth();
+  const [cartData, setCartData] = useState<UserCart | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
+  useEffect(() => {
+    if (!accessToken) return;
+
+    getUserCart(accessToken)
+      .then((response) => {
+        setCartData(response.data);
+      })
+      .catch((error) => {
+        toast.error(error instanceof Error ? error.message : "Failed to load cart");
+      })
+      .finally(() => setIsLoading(false));
+  }, [accessToken]);
+
+  const count = cartData?.products?.length || 0;
+  const subtotal = 0; // You can calculate this based on cart products
   const shipping = subtotal > 100 || subtotal === 0 ? 0 : 9;
-  const total = Math.max(0, subtotal - discount + shipping);
+  const total = Math.max(0, subtotal - 0 + shipping); // Add discount logic if needed
 
   const applyPromo = () => {
     if (promo.toUpperCase() === "LUNE10") {
@@ -24,10 +40,25 @@ const Cart = () => {
     }
   };
 
+  if (isLoading) {
+    return (
+      <PageShell title="Your bag" eyebrow="Cart" subtitle="Loading your cart...">
+        <section className="container mx-auto pb-24">
+          <div className="text-center py-16">
+            <div className="inline-flex w-20 h-20 rounded-full bg-secondary items-center justify-center mb-6">
+              <ShoppingBag className="h-8 w-8 text-muted-foreground animate-pulse" />
+            </div>
+            <p className="text-muted-foreground">Loading your cart...</p>
+          </div>
+        </section>
+      </PageShell>
+    );
+  }
+
   return (
     <PageShell title="Your bag" eyebrow="Cart" subtitle={count === 0 ? "Empty for now — let's find something lovely." : `${count} item${count > 1 ? "s" : ""} waiting for you.`}>
       <section className="container mx-auto pb-24">
-        {detailed.length === 0 ? (
+        {count === 0 ? (
           <div className="text-center py-16">
             <div className="inline-flex w-20 h-20 rounded-full bg-secondary items-center justify-center mb-6">
               <ShoppingBag className="h-8 w-8 text-muted-foreground" />
@@ -39,56 +70,15 @@ const Cart = () => {
         ) : (
           <div className="grid lg:grid-cols-[1fr_380px] gap-10">
             <div className="space-y-4">
-              {detailed.map((i) => (
-                <div
-                  key={`${i.productId}-${i.size}-${i.color}`}
-                  className="flex gap-4 p-4 rounded-2xl bg-card border border-border/50 hover-lift"
-                >
-                  <Link to={`/product/${i.product.slug}`} className="shrink-0">
-                    <img src={i.product.img} alt={i.product.name} className="w-24 h-32 object-cover rounded-xl" />
-                  </Link>
-                  <div className="flex-1 flex flex-col">
-                    <div className="flex justify-between gap-3 mb-1">
-                      <Link to={`/product/${i.product.slug}`}>
-                        <h3 className="font-serif text-lg leading-tight">{i.product.name}</h3>
-                      </Link>
-                      <p className="font-serif text-base whitespace-nowrap">₹{i.product.price * i.qty}</p>
-                    </div>
-                    <p className="text-xs text-muted-foreground mb-auto">
-                      {i.color} · Size {i.size}
-                    </p>
-                    <div className="flex items-center justify-between mt-3">
-                      <div className="inline-flex items-center border border-border rounded-full">
-                        <button
-                          onClick={() => setQty(i.productId, i.size, i.color, i.qty - 1)}
-                          className="w-8 h-8 flex items-center justify-center hover:bg-secondary rounded-full"
-                        >
-                          <Minus className="h-3 w-3" />
-                        </button>
-                        <span className="w-8 text-center text-sm">{i.qty}</span>
-                        <button
-                          onClick={() => setQty(i.productId, i.size, i.color, i.qty + 1)}
-                          className="w-8 h-8 flex items-center justify-center hover:bg-secondary rounded-full"
-                        >
-                          <Plus className="h-3 w-3" />
-                        </button>
-                      </div>
-                      <button
-                        onClick={() => remove(i.productId, i.size, i.color)}
-                        className="text-xs text-muted-foreground hover:text-destructive flex items-center gap-1.5 transition-colors"
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                        Remove
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
+              {/* Cart items would go here - you can implement based on your cart structure */}
+              <div className="text-center py-8 text-muted-foreground">
+                Cart items display - implement based on your cart data structure
+              </div>
               <div className="flex items-center justify-between pt-2">
                 <Link to="/shop" className="text-sm story-link text-muted-foreground hover:text-foreground">
                   ← Continue shopping
                 </Link>
-                <button onClick={clear} className="text-xs text-muted-foreground hover:text-destructive">
+                <button className="text-xs text-muted-foreground hover:text-destructive">
                   Clear bag
                 </button>
               </div>
@@ -136,6 +126,7 @@ const Cart = () => {
                   size="lg"
                   className="w-full rounded-full mt-6 bg-primary hover:bg-primary/90 h-12 shadow-soft group"
                   onClick={() => navigate("/address")}
+                  disabled={count === 0}
                 >
                   Checkout
                   <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />

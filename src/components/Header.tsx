@@ -1,9 +1,12 @@
 import { useState, useEffect } from "react";
-import { Link, NavLink, useNavigate } from "react-router-dom";
-import { Search, ShoppingBag, User, Menu, X, Heart } from "lucide-react";
+import { Link, NavLink, useNavigate, useLocation } from "react-router-dom";
+import { Search, ShoppingBag, User, Menu, X, Heart, LogOut } from "lucide-react";
 import logo from "@/assets/logo.jpg";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/store/cart";
+import { useAuth } from "@/store/auth";
+import { logout } from "@/lib/api";
+import { toast } from "sonner";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,7 +25,9 @@ const navItems = [
 const Header = () => {
 
   const { count } = useCart();
+  const { isLoggedIn, user, clearAuth } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [scrolled, setScrolled] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -32,6 +37,32 @@ const Header = () => {
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  /** Navigate to cart — if not logged in, send to login with redirectUrl */
+  const handleCartClick = () => {
+    if (isLoggedIn) {
+      navigate("/cart");
+    } else {
+      navigate(`/login?redirectUrl=${encodeURIComponent("/cart")}`);
+    }
+  };
+
+  /** Logout — clear auth, go to homepage */
+  const handleLogout = async () => {
+    const refreshToken = localStorage.getItem("refreshToken");
+    clearAuth();
+
+    if (refreshToken) {
+      try {
+        await logout(refreshToken);
+      } catch {
+        // silently ignore
+      }
+    }
+
+    toast.success("Logged out successfully");
+    navigate("/");
+  };
 
   return (
     <header
@@ -89,7 +120,7 @@ const Header = () => {
             size="icon"
             className="rounded-full hover:bg-accent/50 relative"
             aria-label="Cart"
-            onClick={() => navigate("/cart")}
+            onClick={handleCartClick}
           >
             <ShoppingBag className="h-[18px] w-[18px]" />
             {count > 0 && (
@@ -99,18 +130,50 @@ const Header = () => {
             )}
           </Button>
 
+          {/* Desktop auth buttons */}
           <div className="hidden md:flex items-center gap-2 ml-2">
-            <Button variant="ghost" className="rounded-full text-sm" onClick={() => navigate("/login")}>
-              Login
-            </Button>
-            <Button
-              className="rounded-full text-sm bg-primary hover:bg-primary/90 shadow-soft"
-              onClick={() => navigate("/signup")}
-            >
-              Sign up
-            </Button>
+            {isLoggedIn ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="rounded-full text-sm gap-2">
+                    <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center">
+                      <User className="h-3.5 w-3.5 text-primary" />
+                    </div>
+                    My Account
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="bg-background border-border/50 rounded-2xl min-w-[180px]">
+                  <div className="px-3 py-2">
+                    <p className="text-sm font-medium">{user?.name}</p>
+                    <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+                  </div>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem className="rounded-lg" onClick={() => navigate("/user/dashboard")}>Dashboard</DropdownMenuItem>
+                  <DropdownMenuItem className="rounded-lg" onClick={() => navigate("/user/orders")}>My Orders</DropdownMenuItem>
+                  <DropdownMenuItem className="rounded-lg" onClick={() => navigate("/user/address")}>Addresses</DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem className="rounded-lg text-destructive focus:text-destructive" onClick={handleLogout}>
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Logout
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <>
+                <Button variant="ghost" className="rounded-full text-sm" onClick={() => navigate("/login")}>
+                  Login
+                </Button>
+                <Button
+                  className="rounded-full text-sm bg-primary hover:bg-primary/90 shadow-soft"
+                  onClick={() => navigate("/signup")}
+                >
+                  Sign up
+                </Button>
+              </>
+            )}
           </div>
 
+          {/* Mobile account dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="md:hidden rounded-full" aria-label="Account">
@@ -120,11 +183,31 @@ const Header = () => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="bg-background border-border/50 rounded-2xl mr-2">
-              <DropdownMenuItem className="rounded-lg" onClick={() => navigate("/login")}>Login</DropdownMenuItem>
-              <DropdownMenuItem className="rounded-lg" onClick={() => navigate("/signup")}>Sign up</DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem className="rounded-lg" onClick={() => navigate("/cart")}>Cart</DropdownMenuItem>
-              <DropdownMenuItem className="rounded-lg" onClick={() => navigate("/address")}>Addresses</DropdownMenuItem>
+              {isLoggedIn ? (
+                <>
+                  <div className="px-3 py-2">
+                    <p className="text-sm font-medium">{user?.name}</p>
+                    <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+                  </div>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem className="rounded-lg" onClick={() => navigate("/user/dashboard")}>Dashboard</DropdownMenuItem>
+                  <DropdownMenuItem className="rounded-lg" onClick={() => navigate("/user/orders")}>My Orders</DropdownMenuItem>
+                  <DropdownMenuItem className="rounded-lg" onClick={handleCartClick}>Cart</DropdownMenuItem>
+                  <DropdownMenuItem className="rounded-lg" onClick={() => navigate("/user/address")}>Addresses</DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem className="rounded-lg text-destructive focus:text-destructive" onClick={handleLogout}>
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Logout
+                  </DropdownMenuItem>
+                </>
+              ) : (
+                <>
+                  <DropdownMenuItem className="rounded-lg" onClick={() => navigate("/login")}>Login</DropdownMenuItem>
+                  <DropdownMenuItem className="rounded-lg" onClick={() => navigate("/signup")}>Sign up</DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem className="rounded-lg" onClick={handleCartClick}>Cart</DropdownMenuItem>
+                </>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
 
