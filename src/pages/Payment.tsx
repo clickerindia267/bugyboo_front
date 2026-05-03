@@ -1,28 +1,32 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { CreditCard, Lock, ShieldCheck } from "lucide-react";
+import { CreditCard, Lock, ShieldCheck, ShoppingBag } from "lucide-react";
 import PageShell from "@/components/PageShell";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/store/cart";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 const Payment = () => {
   const navigate = useNavigate();
-  const { subtotal, count, clear, detailed } = useCart();
+  const { subtotal, count, clear, items } = useCart();
   const [method, setMethod] = useState("card");
-  const total = subtotal + (subtotal > 100 ? 0 : 9);
+  const total = subtotal + (subtotal > 500 ? 0 : 49);
 
   const placeOrder = (e: React.FormEvent) => {
     e.preventDefault();
-    toast({ title: "Order placed", description: "Thank you — a confirmation is on its way." });
+    toast.success("Order placed successfully! Thank you for shopping with BugyBoo.");
     clear();
-    setTimeout(() => navigate("/"), 800);
+    setTimeout(() => navigate("/"), 1500);
   };
 
   if (count === 0) {
     return (
       <PageShell title="Nothing to pay for yet" eyebrow="Payment">
         <div className="container mx-auto pb-24 text-center">
+          <div className="inline-flex w-20 h-20 rounded-full bg-secondary items-center justify-center mb-6">
+            <ShoppingBag className="h-8 w-8 text-muted-foreground" />
+          </div>
+          <p className="text-muted-foreground mb-6">Your bag is empty.</p>
           <Button className="rounded-full" onClick={() => navigate("/shop")}>
             Browse the collection
           </Button>
@@ -131,36 +135,40 @@ const Payment = () => {
             <div className="rounded-3xl bg-gradient-cream p-7 shadow-soft">
               <h3 className="font-serif text-xl mb-5">Your order</h3>
               <div className="space-y-3 mb-5 max-h-64 overflow-y-auto pr-1">
-                {detailed.map((i) => (
-                  <div key={`${i.productId}-${i.size}-${i.color}`} className="flex gap-3 items-center">
-                    <img src={i.product.img} alt={i.product.name} className="w-12 h-14 object-cover rounded-lg" />
+                {items.map((item) => (
+                  <div key={item._id} className="flex gap-3 items-center">
+                    <img 
+                      src={item.product?.images?.[0] ?? "/placeholder.svg"} 
+                      alt={item.product?.name ?? "Product"} 
+                      className="w-12 h-14 object-cover rounded-lg bg-secondary" 
+                    />
                     <div className="flex-1 text-sm">
-                      <p className="font-medium leading-tight">{i.product.name}</p>
+                      <p className="font-medium leading-tight truncate max-w-[150px]">{item.product?.name ?? "Product"}</p>
                       <p className="text-xs text-muted-foreground">
-                        {i.size} · {i.color} · ×{i.qty}
+                        Qty: {item.quantity}
                       </p>
                     </div>
-                    <span className="text-sm">₹{i.product.price * i.qty}</span>
+                    <span className="text-sm font-medium">₹{(item.product?.sellPrice ?? 0) * item.quantity}</span>
                   </div>
                 ))}
               </div>
               <div className="space-y-2 text-sm border-t border-border/50 pt-4">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Subtotal</span>
-                  <span>₹{subtotal.toFixed(2)}</span>
+                  <span>₹{subtotal.toLocaleString("en-IN")}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Shipping</span>
-                  <span>{subtotal > 100 ? "Free" : "₹9"}</span>
+                  <span>{subtotal > 500 ? "Free" : "₹49"}</span>
                 </div>
                 <div className="flex justify-between font-serif text-lg pt-3 border-t border-border/50 mt-3">
                   <span>Total</span>
-                  <span>₹{total.toFixed(2)}</span>
+                  <span className="font-bold">₹{total.toLocaleString("en-IN")}</span>
                 </div>
               </div>
-              <Button type="submit" size="lg" className="w-full rounded-full mt-6 h-12 bg-primary hover:bg-primary/90 group">
+              <Button type="submit" size="lg" className="w-full rounded-full mt-6 h-12 bg-primary hover:bg-primary/90 group shadow-soft">
                 <Lock className="h-3.5 w-3.5 mr-2" />
-                Pay ₹{total.toFixed(2)}
+                Pay ₹{total.toLocaleString("en-IN")}
               </Button>
               <p className="text-xs text-muted-foreground text-center mt-3 flex items-center justify-center gap-1.5">
                 <ShieldCheck className="h-3 w-3" />

@@ -1,9 +1,11 @@
 import { useState, useRef, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { Star, Heart, ShoppingBag, ChevronLeft, ChevronRight, Flame } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { Heart, ShoppingBag, ChevronLeft, ChevronRight, Flame } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { products, type Product } from "@/data/products";
+import { useQuery } from "@tanstack/react-query";
+import { getProducts, type PublicProduct } from "@/lib/api";
 import { useCart } from "@/store/cart";
+import { useAuth } from "@/store/auth";
 import { toast } from "@/hooks/use-toast";
 
 /* ─── Season config ─── */
@@ -16,37 +18,62 @@ const seasons = [
 
 type SeasonKey = (typeof seasons)[number]["key"];
 
-/*
-  Map products to seasons in a round-robin fashion so every tab has content.
-  In production you'd have a `season` field on each product.
-*/
-const seasonProducts: Record<SeasonKey, Product[]> = {
-  summer: products.filter((p) => p.tag === "Summer" || p.tag === "New").slice(0, 8),
-  monsoon: [...products].filter((_, i) => i >= 2 && i <= 7).slice(0, 6),
-  winter: [...products].reverse().slice(0, 6),
-  festive: products.filter((p) => p.tag === "Bestseller" || p.tag === "Limited" || p.tag === "New").slice(0, 6),
+/* Distribute products across seasons in a round-robin fashion */
+const distributeProducts = (products: PublicProduct[]): Record<SeasonKey, PublicProduct[]> => {
+  const active = products.filter((p) => !p.isPaused);
+  const result: Record<SeasonKey, PublicProduct[]> = {
+    summer: [],
+    monsoon: [],
+    winter: [],
+    festive: [],
+  };
+  const keys: SeasonKey[] = ["summer", "monsoon", "winter", "festive"];
+  active.forEach((p, i) => {
+    result[keys[i % keys.length]].push(p);
+  });
+  // Ensure each season has products – fill empty ones from the full list
+  keys.forEach((key) => {
+    if (result[key].length === 0 && active.length > 0) {
+      result[key] = active.slice(0, Math.min(4, active.length));
+    }
+  });
+  return result;
 };
 
 /* ─── Product Card ─── */
-const ProductCard = ({ p, index }: { p: Product; index: number }) => {
+const ProductCard = ({ p, index }: { p: PublicProduct; index: number }) => {
   const { add } = useCart();
+  const { isLoggedIn } = useAuth();
+  const navigate = useNavigate();
 
-  const quickAdd = (e: React.MouseEvent) => {
+  const quickAdd = async (e: React.MouseEvent) => {
     e.preventDefault();
-    add({ productId: p.id, size: p.sizes[0], color: p.colors[0].name, qty: 1 });
-    toast({ title: "Added to bag", description: p.name });
+    if (!isLoggedIn) {
+      navigate("/login");
+      return;
+    }
+    try {
+      await add(p._id, 1);
+      toast({ title: "Added to bag", description: p.name });
+    } catch (error) {
+      toast({ title: "Failed to add to bag", description: "Please try again", variant: "destructive" });
+    }
   };
+
+  const discount = p.basePrice > p.sellPrice
+    ? Math.round(((p.basePrice - p.sellPrice) / p.basePrice) * 100)
+    : 0;
 
   return (
     <Link
-      to={`/product/${p.slug}`}
+      to={`/product/${p._id}`}
       className="sb-card group"
       style={{ animationDelay: `${index * 100}ms` }}
     >
       {/* Image */}
       <div className="sb-card-img">
-        <img src={p.img} alt={p.name} loading="lazy" />
-        {p.tag && <span className="sb-tag">{p.tag}</span>}
+        <img src={p.images?.[0] ?? ""} alt={p.name} loading="lazy" />
+        {discount > 0 && <span className="sb-tag">{discount}% off</span>}
         <button
           aria-label="Add to wishlist"
           onClick={(e) => e.preventDefault()}
@@ -68,29 +95,15 @@ const ProductCard = ({ p, index }: { p: Product; index: number }) => {
 
       {/* Info */}
       <div className="sb-card-info">
-        <div className="sb-rating">
-          <Star className="h-3 w-3 fill-foreground text-foreground" />
-          <span>{p.rating}</span>
-          <span className="sb-review-count">({p.reviews})</span>
-        </div>
+        <p className="text-[11px] text-muted-foreground mb-1">{p.category?.name}</p>
         <h3 className="sb-card-name">{p.name}</h3>
         <div className="sb-price-row">
-          <span className="sb-price">₹{p.price}</span>
-          <span className="sb-og-price">₹{Math.round(p.price * 1.4)}</span>
-          <span className="sb-discount">30% off</span>
-        </div>
-        {/* Color swatches */}
-        <div className="sb-swatches">
-          {p.colors.slice(0, 3).map((c) => (
-            <span
-              key={c.name}
-              className="sb-swatch"
-              style={{ background: c.hex }}
-              title={c.name}
-            />
-          ))}
-          {p.colors.length > 3 && (
-            <span className="sb-swatch-more">+{p.colors.length - 3}</span>
+          <span className="sb-price">₹{p.sellPrice}</span>
+          {p.basePrice > p.sellPrice && (
+            <span className="sb-og-price">₹{p.basePrice}</span>
+          )}
+          {discount > 0 && (
+            <span className="sb-discount">{discount}% off</span>
           )}
         </div>
       </div>
@@ -104,6 +117,13 @@ const SeasonBestsellers = () => {
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  const { data, isLoading } = useQuery({
+    queryKey: ["products"],
+    queryFn: getProducts,
+  });
+
+  const seasonProducts = distributeProducts(data?.data ?? []);
 
   /* Intersection observer for entrance animation */
   useEffect(() => {
@@ -130,7 +150,7 @@ const SeasonBestsellers = () => {
       <div className="sb-bg-blob sb-bg-blob-2" />
 
       <div
-        className="container mx-auto"
+        className="container mx-auto px-4"
         style={{
           position: "relative",
           zIndex: 2,
@@ -189,11 +209,28 @@ const SeasonBestsellers = () => {
             <ChevronRight className="h-4 w-4" />
           </button>
 
-          <div className="sb-grid" ref={scrollRef} key={activeSeason}>
-            {activeData.map((p, i) => (
-              <ProductCard key={`${activeSeason}-${p.id}`} p={p} index={i} />
-            ))}
-          </div>
+          {isLoading ? (
+            <div className="sb-grid">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="animate-pulse">
+                  <div className="rounded-[20px] aspect-[3/4] mb-3.5 shimmer" />
+                  <div className="h-4 w-3/4 rounded shimmer mb-2" />
+                  <div className="h-3 w-1/2 rounded shimmer" />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="sb-grid" ref={scrollRef} key={activeSeason}>
+              {activeData.map((p, i) => (
+                <ProductCard key={`${activeSeason}-${p._id}`} p={p} index={i} />
+              ))}
+              {activeData.length === 0 && (
+                <p className="col-span-full text-center text-muted-foreground py-12">
+                  Products coming soon for this season!
+                </p>
+              )}
+            </div>
+          )}
         </div>
 
         {/* ── Bottom CTA ── */}
@@ -412,19 +449,6 @@ const SeasonBestsellers = () => {
         .sb-card-info {
           padding: 0 4px;
         }
-        .sb-rating {
-          display: flex;
-          align-items: center;
-          gap: 4px;
-          font-size: 12px;
-          color: hsl(193 15% 42%);
-          font-family: Inter, sans-serif;
-          margin-bottom: 6px;
-        }
-        .sb-review-count {
-          color: hsl(193 12% 55%);
-          font-size: 11px;
-        }
         .sb-card-name {
           font-family: "Playfair Display", Georgia, serif;
           font-size: 17px;
@@ -458,25 +482,6 @@ const SeasonBestsellers = () => {
           background: hsl(140 50% 95%);
           padding: 2px 8px;
           border-radius: 20px;
-        }
-        .sb-swatches {
-          display: flex;
-          align-items: center;
-          gap: 6px;
-        }
-        .sb-swatch {
-          width: 16px; height: 16px;
-          border-radius: 50%;
-          border: 2px solid rgba(255,255,255,0.9);
-          box-shadow: 0 0 0 1px rgba(0,0,0,0.08);
-          cursor: pointer;
-          transition: transform 0.2s ease;
-        }
-        .sb-swatch:hover { transform: scale(1.25); }
-        .sb-swatch-more {
-          font-size: 10px;
-          color: hsl(193 12% 48%);
-          font-family: Inter, sans-serif;
         }
 
         /* ── Bottom CTA ── */

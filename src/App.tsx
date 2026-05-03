@@ -9,8 +9,8 @@ import Shop from "./pages/Shop.tsx";
 import ProductDetails from "./pages/ProductDetails.tsx";
 import Cart from "./pages/Cart.tsx";
 import Address from "./pages/Address.tsx";
-import Payment from "./pages/Payment.tsx";
 import Blog from "./pages/Blog.tsx";
+import BlogDetail from "./pages/BlogDetail.tsx";
 import Contact from "./pages/Contact.tsx";
 import Login from "./pages/Login.tsx";
 import Signup from "./pages/Signup.tsx";
@@ -25,6 +25,7 @@ import UserLayout from "./layouts/UserLayout.tsx";
 import UserDashboard from "./pages/user/Dashboard.tsx";
 import UserCart from "./pages/user/UserCart.tsx";
 import UserOrders from "./pages/user/UserOrders.tsx";
+import UserOrderDetail from "./pages/user/UserOrderDetail.tsx";
 import UserAddress from "./pages/user/UserAddress.tsx";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { CartProvider } from "./store/cart";
@@ -42,16 +43,16 @@ const App = () => (
           <TooltipProvider>
             <Toaster />
             <Sonner />
-            <BrowserRouter>
+            <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
               <ScrollToTop />
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/shop" element={<Shop />} />
-                <Route path="/product/:slug" element={<ProductDetails />} />
+                <Route path="/product/:id" element={<ProductDetails />} />
                 <Route path="/cart" element={<ProtectedRoute><Cart /></ProtectedRoute>} />
                 <Route path="/address" element={<ProtectedRoute><Address /></ProtectedRoute>} />
-                <Route path="/payment" element={<ProtectedRoute><Payment /></ProtectedRoute>} />
                 <Route path="/blog" element={<Blog />} />
+                <Route path="/blog/:id" element={<BlogDetail />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<Signup />} />
@@ -71,6 +72,7 @@ const App = () => (
                   <Route path="dashboard" element={<UserDashboard />} />
                   <Route path="cart" element={<UserCart />} />
                   <Route path="orders" element={<UserOrders />} />
+                  <Route path="orders/:id" element={<UserOrderDetail />} />
                   <Route path="address" element={<UserAddress />} />
                 </Route>
 

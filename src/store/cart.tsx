@@ -1,82 +1,150 @@
-import { createContext, useContext, useEffect, useMemo, useState, ReactNode } from "react";
-import { products, Product } from "@/data/products";
+import { createContext, useContext, useEffect, useMemo, useState, useCallback, ReactNode } from "react";
+import { addToCart, getUserCart, updateCart, removeFromCart, getProductById } from "@/lib/api";
+import { useAuth } from "./auth";
+import type { PublicProduct } from "@/lib/api";
 
 export type CartItem = {
-  productId: number;
-  size: string;
-  color: string;
-  qty: number;
+  productId: string;
+  quantity: number;
+  _id: string;
+  product?: {
+    _id: string;
+    name: string;
+    sellPrice: number;
+    images: string[];
+  };
 };
 
 type CartCtx = {
   items: CartItem[];
-  add: (item: CartItem) => void;
-  remove: (productId: number, size: string, color: string) => void;
-  setQty: (productId: number, size: string, color: string, qty: number) => void;
+  add: (productId: string, quantity: number) => Promise<void>;
+  update: (productId: string, quantity: number) => Promise<void>;
+  remove: (productId: string) => Promise<void>;
   clear: () => void;
+  refreshCart: () => Promise<void>;
   count: number;
   subtotal: number;
-  detailed: (CartItem & { product: Product })[];
+  loading: boolean;
 };
 
 const Ctx = createContext<CartCtx | null>(null);
 
 export const CartProvider = ({ children }: { children: ReactNode }) => {
-  const [items, setItems] = useState<CartItem[]>(() => {
-    try {
-      const raw = localStorage.getItem("petite-lune-cart");
-      return raw ? JSON.parse(raw) : [];
-    } catch {
-      return [];
-    }
-  });
+  const { isLoggedIn, accessToken } = useAuth();
+  const [items, setItems] = useState<CartItem[]>([]);
+  const [cartId, setCartId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    localStorage.setItem("petite-lune-cart", JSON.stringify(items));
-  }, [items]);
+    if (isLoggedIn && accessToken) {
+      fetchCart();
+    } else {
+      setItems([]);
+    }
+  }, [isLoggedIn, accessToken]);
 
-  const add: CartCtx["add"] = (item) => {
-    setItems((prev) => {
-      const idx = prev.findIndex(
-        (i) => i.productId === item.productId && i.size === item.size && i.color === item.color,
+  const fetchCart = useCallback(async () => {
+    if (!accessToken) return;
+    try {
+      setLoading(true);
+      const response = await getUserCart(accessToken);
+      setCartId(response.data._id);
+      const baseItems: CartItem[] = response.data.products.map((p: any) => ({
+        productId: typeof p.productId === 'string' ? p.productId : p.productId._id,
+        quantity: p.quantity,
+        _id: p._id,
+        product: typeof p.productId === 'object' ? {
+          _id: p.productId._id,
+          name: p.productId.name,
+          sellPrice: p.productId.sellPrice,
+          images: p.productId.images,
+        } : undefined,
+      }));
+
+      // Fetch product details for items that don't have them
+      const itemsWithProducts = await Promise.all(
+        baseItems.map(async (item) => {
+          if (item.product) return item;
+          try {
+            const productRes = await getProductById(item.productId);
+            return {
+              ...item,
+              product: {
+                _id: productRes.data._id,
+                name: productRes.data.name,
+                sellPrice: productRes.data.sellPrice,
+                images: productRes.data.images,
+              },
+            };
+          } catch (error) {
+            console.error(`Failed to fetch product details for ${item.productId}:`, error);
+            return item;
+          }
+        })
       );
-      if (idx >= 0) {
-        const next = [...prev];
-        next[idx] = { ...next[idx], qty: next[idx].qty + item.qty };
-        return next;
-      }
-      return [...prev, item];
-    });
+
+      setItems(itemsWithProducts);
+    } catch (error) {
+      console.error('Failed to fetch cart:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [accessToken]);
+
+  const add: CartCtx["add"] = async (productId, quantity) => {
+    if (!accessToken) throw new Error('Not logged in');
+    try {
+      await addToCart(productId, quantity, accessToken);
+      await fetchCart(); // Refresh cart
+    } catch (error) {
+      console.error('Failed to add to cart:', error);
+      throw error;
+    }
   };
 
-  const remove: CartCtx["remove"] = (productId, size, color) =>
-    setItems((prev) => prev.filter((i) => !(i.productId === productId && i.size === size && i.color === color)));
+  const update: CartCtx["update"] = async (productId, quantity) => {
+    if (!accessToken) throw new Error('Not logged in');
+    try {
+      await updateCart(productId, quantity, accessToken);
+      await fetchCart(); // Refresh cart
+    } catch (error) {
+      console.error('Failed to update cart:', error);
+      throw error;
+    }
+  };
 
-  const setQty: CartCtx["setQty"] = (productId, size, color, qty) =>
-    setItems((prev) =>
-      prev.map((i) =>
-        i.productId === productId && i.size === size && i.color === color ? { ...i, qty: Math.max(1, qty) } : i,
-      ),
-    );
+  const remove: CartCtx["remove"] = async (productId) => {
+    if (!accessToken) throw new Error('Not logged in');
+    if (!cartId) throw new Error('Cart not loaded');
+    try {
+      // Use the dedicated remove endpoint (DELETE /cart/remove/:cartId)
+      await removeFromCart(productId, accessToken);
+      // Optimistically remove from local state
+      setItems((prev) => prev.filter((item) => item.productId !== productId));
+      // Then refresh from server to ensure consistency
+      await fetchCart();
+    } catch (error) {
+      console.error('Failed to remove from cart:', error);
+      throw error;
+    }
+  };
 
-  const clear = () => setItems([]);
+  const clear = () => {
+    setItems([]);
+    setCartId(null);
+  };
 
-  const detailed = useMemo(
-    () =>
-      items
-        .map((i) => {
-          const product = products.find((p) => p.id === i.productId);
-          return product ? { ...i, product } : null;
-        })
-        .filter(Boolean) as (CartItem & { product: Product })[],
-    [items],
-  );
+  const refreshCart = useCallback(async () => {
+    await fetchCart();
+  }, [fetchCart]);
 
-  const count = detailed.reduce((s, i) => s + i.qty, 0);
-  const subtotal = detailed.reduce((s, i) => s + i.qty * i.product.price, 0);
+  const count = items.reduce((s, i) => s + i.quantity, 0);
+  const subtotal = items.reduce((s, i) => s + i.quantity * (i.product?.sellPrice ?? 0), 0);
 
   return (
-    <Ctx.Provider value={{ items, add, remove, setQty, clear, count, subtotal, detailed }}>{children}</Ctx.Provider>
+    <Ctx.Provider value={{ items, add, update, remove, clear, refreshCart, count, subtotal, loading }}>
+      {children}
+    </Ctx.Provider>
   );
 };
 

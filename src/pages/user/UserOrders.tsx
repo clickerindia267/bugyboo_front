@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { CheckCircle2, Clock, Package, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -8,8 +9,8 @@ import { getUserOrders, getUserOrder, UserOrder } from "@/lib/api";
 import { toast } from "sonner";
 
 export default function UserOrders() {
+  const navigate = useNavigate();
   const [orders, setOrders] = useState<UserOrder[]>([]);
-  const [selectedOrder, setSelectedOrder] = useState<UserOrder | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -30,19 +31,8 @@ export default function UserOrders() {
       .finally(() => setIsLoading(false));
   }, []);
 
-  const handleViewOrderDetails = async (orderId: string) => {
-    const accessToken = localStorage.getItem("accessToken");
-    if (!accessToken) {
-      toast.error("Missing access token. Please login again.");
-      return;
-    }
-
-    try {
-      const response = await getUserOrder(orderId, accessToken);
-      setSelectedOrder(response.data);
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Failed to load order details");
-    }
+  const handleViewOrderDetails = (orderId: string) => {
+    navigate(`/user/orders/${orderId}`);
   };
 
   const OrderCard = ({ order }: { order: UserOrder }) => {
@@ -113,91 +103,6 @@ export default function UserOrders() {
           {isLoading ? <div className="text-center py-8">Loading...</div> : orders.filter(o => o.orderStatus === 'ordered').length === 0 ? <EmptyState /> : orders.filter(o => o.orderStatus === 'ordered').map(o => <OrderCard key={o._id} order={o} />)}
         </TabsContent>
       </Tabs>
-
-      {/* Order Details Dialog */}
-      <Dialog open={!!selectedOrder} onOpenChange={() => setSelectedOrder(null)}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="font-serif">Order Details</DialogTitle>
-          </DialogHeader>
-          {selectedOrder && (
-            <div className="space-y-6 font-sans">
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <p className="font-semibold text-foreground">Order ID</p>
-                  <p className="text-muted-foreground">{selectedOrder._id}</p>
-                </div>
-                <div>
-                  <p className="font-semibold text-foreground">Order Date</p>
-                  <p className="text-muted-foreground">{new Date(selectedOrder.createdAt).toLocaleDateString()}</p>
-                </div>
-                <div>
-                  <p className="font-semibold text-foreground">Status</p>
-                  <p className={`px-2 py-1 rounded-full text-xs font-medium inline-flex items-center gap-1
-                    ${selectedOrder.orderStatus === 'completed' ? 'bg-accent text-accent-foreground' : ''}
-                    ${selectedOrder.orderStatus === 'ordered' ? 'bg-beige text-beige-foreground' : ''}
-                    ${selectedOrder.orderStatus === 'cancelled' ? 'bg-destructive/10 text-destructive' : ''}
-                  `}>
-                    {selectedOrder.orderStatus === 'completed' && <CheckCircle2 className="w-3 h-3" />}
-                    {selectedOrder.orderStatus === 'ordered' && <Clock className="w-3 h-3" />}
-                    {selectedOrder.orderStatus === 'ordered' ? 'Pending' : selectedOrder.orderStatus === 'completed' ? 'Delivered' : selectedOrder.orderStatus}
-                  </p>
-                </div>
-                <div>
-                  <p className="font-semibold text-foreground">Total Amount</p>
-                  <p className="text-primary font-bold">₹{selectedOrder.totalAmount}</p>
-                </div>
-              </div>
-
-              <div>
-                <h3 className="font-semibold text-foreground mb-3">Customer Details</h3>
-                <div className="bg-secondary/30 rounded-lg p-4 text-sm">
-                  <p><span className="font-medium">Name:</span> {selectedOrder.contact.name}</p>
-                  <p><span className="font-medium">Email:</span> {selectedOrder.contact.email}</p>
-                  <p><span className="font-medium">Mobile:</span> {selectedOrder.contact.mobile}</p>
-                </div>
-              </div>
-
-              {selectedOrder.address && (
-                <div>
-                  <h3 className="font-semibold text-foreground mb-3">Shipping Address</h3>
-                  <div className="bg-secondary/30 rounded-lg p-4 text-sm">
-                    <p>{selectedOrder.address}</p>
-                  </div>
-                </div>
-              )}
-
-              <div>
-                <h3 className="font-semibold text-foreground mb-3">Payment Details</h3>
-                <div className="bg-secondary/30 rounded-lg p-4 text-sm">
-                  <p><span className="font-medium">Method:</span> {selectedOrder.paymentMethod}</p>
-                  <p><span className="font-medium">Status:</span> {selectedOrder.paymentStatus}</p>
-                </div>
-              </div>
-
-              <div>
-                <h3 className="font-semibold text-foreground mb-3">Order Items</h3>
-                <div className="space-y-3">
-                  {selectedOrder.products.map((item: any, index: number) => (
-                    <div key={index} className="flex items-center gap-4 bg-secondary/30 rounded-lg p-4">
-                      <div className="w-16 h-16 rounded-lg overflow-hidden bg-secondary flex-shrink-0">
-                        {item.product?.images?.[0] ? (
-                          <img src={item.product.images[0]} alt={item.product?.name || "Product"} className="w-full h-full object-cover" />
-                        ) : null}
-                      </div>
-                      <div className="flex-1">
-                        <p className="font-medium text-foreground">{item.product?.name || "Product"}</p>
-                        <p className="text-sm text-muted-foreground">Quantity: {item.quantity}</p>
-                        <p className="text-sm font-bold text-primary">₹{item.price}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };

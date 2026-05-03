@@ -1,18 +1,25 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowRight, MapPin } from "lucide-react";
+import { MapPin, CreditCard, Smartphone, Truck, CheckCircle2, Loader2, X, PartyPopper } from "lucide-react";
 import PageShell from "@/components/PageShell";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/store/cart";
+import { useAuth } from "@/store/auth";
+import { getUserAddresses, createOrder, type UserAddress } from "@/lib/api";
+import { toast } from "sonner";
 
 const Field = ({
   label,
+  value,
+  onChange,
   ...props
-}: { label: string } & React.InputHTMLAttributes<HTMLInputElement>) => (
+}: { label: string; value: string; onChange: (v: string) => void } & Omit<React.InputHTMLAttributes<HTMLInputElement>, "value" | "onChange">) => (
   <label className="block">
     <span className="text-xs uppercase tracking-wider text-muted-foreground mb-1.5 block">{label}</span>
     <input
       {...props}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
       className="w-full h-12 px-4 rounded-xl bg-card border border-border focus:outline-none focus:ring-2 focus:ring-ring/30 text-sm"
     />
   </label>
@@ -20,10 +27,95 @@ const Field = ({
 
 const Address = () => {
   const navigate = useNavigate();
-  const { subtotal, count } = useCart();
-  const [shipping, setShipping] = useState("standard");
+  const { subtotal, count, clear, refreshCart } = useCart();
+  const { user, accessToken } = useAuth();
 
-  if (count === 0) {
+  // Contact form state
+  const [contactName, setContactName] = useState(user?.name ?? "");
+  const [contactMobile, setContactMobile] = useState(user?.mobile ?? "");
+  const [contactEmail, setContactEmail] = useState(user?.email ?? "");
+
+  // Addresses
+  const [addresses, setAddresses] = useState<UserAddress[]>([]);
+  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
+  const [loadingAddresses, setLoadingAddresses] = useState(true);
+
+  // Payment
+  const [paymentMethod, setPaymentMethod] = useState("COD");
+
+  // Order
+  const [placing, setPlacing] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+
+  // Fetch user addresses
+  useEffect(() => {
+    if (!accessToken) return;
+    const fetchAddresses = async () => {
+      try {
+        const res = await getUserAddresses(accessToken);
+        setAddresses(res.data);
+        if (res.data.length > 0) {
+          setSelectedAddressId(res.data[0]._id);
+        }
+      } catch (err) {
+        console.error("Failed to load addresses:", err);
+      } finally {
+        setLoadingAddresses(false);
+      }
+    };
+    fetchAddresses();
+  }, [accessToken]);
+
+  // Pre-fill contact from user
+  useEffect(() => {
+    if (user) {
+      setContactName(user.name ?? "");
+      setContactMobile(user.mobile ?? "");
+      setContactEmail(user.email ?? "");
+    }
+  }, [user]);
+
+  const handlePlaceOrder = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!accessToken) {
+      toast.error("Please log in to place an order");
+      return;
+    }
+    if (!selectedAddressId) {
+      toast.error("Please select a delivery address");
+      return;
+    }
+    if (!contactName.trim() || !contactMobile.trim()) {
+      toast.error("Please fill in your contact details");
+      return;
+    }
+
+    setPlacing(true);
+    try {
+      await createOrder(
+        {
+          contact: {
+            name: contactName.trim(),
+            mobile: contactMobile.trim(),
+            email: contactEmail.trim(),
+          },
+          addressId: selectedAddressId,
+          paymentMethod,
+        },
+        accessToken
+      );
+      clear();
+      refreshCart();
+      setShowSuccess(true);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to place order");
+    } finally {
+      setPlacing(false);
+    }
+  };
+
+  if (count === 0 && !showSuccess) {
     return (
       <PageShell title="Your bag is empty" eyebrow="Address">
         <div className="container mx-auto pb-24 text-center">
@@ -36,116 +128,255 @@ const Address = () => {
   }
 
   return (
-    <PageShell title="Where to?" eyebrow="Step 1 of 2" subtitle="Where should we deliver your little treasures?">
-      <section className="container mx-auto pb-24">
-        <div className="flex items-center justify-center gap-4 mb-10">
-          {["Bag", "Address", "Payment"].map((s, i) => (
-            <div key={s} className="flex items-center gap-3">
-              <div
-                className={`w-7 h-7 rounded-full flex items-center justify-center text-xs ${
-                  i <= 1 ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground"
-                }`}
-              >
-                {i + 1}
-              </div>
-              <span className={`text-sm ${i <= 1 ? "text-foreground" : "text-muted-foreground"}`}>{s}</span>
-              {i < 2 && <span className="w-8 h-px bg-border" />}
-            </div>
-          ))}
-        </div>
-
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            navigate("/payment");
-          }}
-          className="grid lg:grid-cols-[1fr_380px] gap-10 max-w-5xl mx-auto"
-        >
-          <div className="space-y-8">
-            <div className="rounded-3xl bg-card border border-border/50 p-7">
-              <div className="flex items-center gap-2 mb-5">
-                <MapPin className="h-4 w-4 text-primary" />
-                <h3 className="font-serif text-xl">Contact</h3>
-              </div>
-              <div className="grid sm:grid-cols-2 gap-4">
-                <Field label="First name" required defaultValue="Camille" />
-                <Field label="Last name" required defaultValue="Moreau" />
-                <Field label="Email" type="email" required defaultValue="camille@example.com" />
-                <Field label="Phone" type="tel" required defaultValue="+33 6 12 34 56 78" />
-              </div>
-            </div>
-
-            <div className="rounded-3xl bg-card border border-border/50 p-7">
-              <h3 className="font-serif text-xl mb-5">Shipping address</h3>
-              <div className="space-y-4">
-                <Field label="Street address" required defaultValue="14 Rue de Rivoli" />
-                <div className="grid sm:grid-cols-3 gap-4">
-                  <Field label="City" required defaultValue="Paris" />
-                  <Field label="Postal code" required defaultValue="75004" />
-                  <Field label="Country" required defaultValue="France" />
+    <>
+      <PageShell title="Checkout" eyebrow="Secure Checkout" subtitle="Fill in your details to complete your order.">
+        <section className="container mx-auto pb-24">
+          {/* Progress steps */}
+          <div className="flex items-center justify-center gap-4 mb-10">
+            {["Bag", "Checkout"].map((s, i) => (
+              <div key={s} className="flex items-center gap-3">
+                <div
+                  className={`w-7 h-7 rounded-full flex items-center justify-center text-xs ${
+                    i <= 1 ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground"
+                  }`}
+                >
+                  {i + 1}
                 </div>
-                <Field label="Apartment, suite (optional)" />
+                <span className={`text-sm ${i <= 1 ? "text-foreground" : "text-muted-foreground"}`}>{s}</span>
+                {i < 1 && <span className="w-8 h-px bg-border" />}
               </div>
-            </div>
-
-            <div className="rounded-3xl bg-card border border-border/50 p-7">
-              <h3 className="font-serif text-xl mb-5">Shipping method</h3>
-              <div className="space-y-3">
-                {[
-                  { id: "standard", l: "Standard · 3–5 business days", price: subtotal > 100 ? "Free" : "₹9" },
-                  { id: "express", l: "Express · 1–2 business days", price: "₹19" },
-                  { id: "carbon", l: "Carbon-neutral · 5–7 days", price: "₹6" },
-                ].map((m) => (
-                  <label
-                    key={m.id}
-                    className={`flex items-center justify-between gap-4 p-4 rounded-2xl border cursor-pointer transition-all ${
-                      shipping === m.id ? "border-primary bg-secondary/40" : "border-border hover:border-foreground/30"
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <input
-                        type="radio"
-                        name="shipping"
-                        value={m.id}
-                        checked={shipping === m.id}
-                        onChange={() => setShipping(m.id)}
-                        className="accent-primary"
-                      />
-                      <span className="text-sm">{m.l}</span>
-                    </div>
-                    <span className="text-sm font-medium">{m.price}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
+            ))}
           </div>
 
-          <aside className="lg:sticky lg:top-28 h-fit">
-            <div className="rounded-3xl bg-gradient-cream p-7 shadow-soft">
-              <h3 className="font-serif text-xl mb-5">Summary</h3>
-              <div className="space-y-2 text-sm mb-5">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Items ({count})</span>
-                  <span>₹{subtotal.toFixed(2)}</span>
+          <form onSubmit={handlePlaceOrder} className="grid lg:grid-cols-[1fr_380px] gap-10 max-w-5xl mx-auto">
+            <div className="space-y-8">
+              {/* Contact Info */}
+              <div className="rounded-3xl bg-card border border-border/50 p-7">
+                <div className="flex items-center gap-2 mb-5">
+                  <MapPin className="h-4 w-4 text-primary" />
+                  <h3 className="font-serif text-xl">Contact</h3>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Shipping</span>
-                  <span>{subtotal > 100 ? "Free" : "₹9"}</span>
-                </div>
-                <div className="flex justify-between font-serif text-lg pt-3 border-t border-border/50 mt-3">
-                  <span>Total</span>
-                  <span>₹{(subtotal + (subtotal > 100 ? 0 : 9)).toFixed(2)}</span>
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <Field label="Full name" required value={contactName} onChange={setContactName} />
+                  <Field label="Phone" type="tel" required value={contactMobile} onChange={setContactMobile} />
+                  <Field label="Email" type="email" value={contactEmail} onChange={setContactEmail} className="sm:col-span-2" />
                 </div>
               </div>
-              <Button type="submit" size="lg" className="w-full rounded-full h-12 group bg-primary hover:bg-primary/90">
-                Continue to payment
-                <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+
+              {/* Delivery Address */}
+              <div className="rounded-3xl bg-card border border-border/50 p-7">
+                <h3 className="font-serif text-xl mb-5">Delivery address</h3>
+                {loadingAddresses ? (
+                  <div className="flex items-center justify-center py-8">
+                    <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                    <span className="ml-2 text-sm text-muted-foreground">Loading addresses...</span>
+                  </div>
+                ) : addresses.length === 0 ? (
+                  <div className="text-center py-8">
+                    <p className="text-sm text-muted-foreground mb-3">No saved addresses found.</p>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="rounded-xl"
+                      onClick={() => navigate("/user/address")}
+                    >
+                      Add an address
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {addresses.map((addr) => (
+                      <label
+                        key={addr._id}
+                        className={`flex items-start gap-3 p-4 rounded-2xl border cursor-pointer transition-all ${
+                          selectedAddressId === addr._id
+                            ? "border-primary bg-secondary/40 shadow-sm"
+                            : "border-border hover:border-foreground/30"
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name="address"
+                          value={addr._id}
+                          checked={selectedAddressId === addr._id}
+                          onChange={() => setSelectedAddressId(addr._id)}
+                          className="accent-primary mt-0.5"
+                        />
+                        <div className="text-sm">
+                          <p className="font-medium">{addr.fullAddress}</p>
+                          <p className="text-muted-foreground">
+                            {addr.city}, {addr.pincode}, {addr.country}
+                          </p>
+                        </div>
+                      </label>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={() => navigate("/user/address")}
+                      className="text-sm text-primary hover:underline mt-2"
+                    >
+                      + Add a new address
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Payment Method */}
+              <div className="rounded-3xl bg-card border border-border/50 p-7">
+                <div className="flex items-center gap-2 mb-5">
+                  <CreditCard className="h-4 w-4 text-primary" />
+                  <h3 className="font-serif text-xl">Payment method</h3>
+                </div>
+                <div className="space-y-3">
+                  {[
+                    {
+                      id: "COD",
+                      label: "Cash on Delivery",
+                      desc: "Pay when your order arrives",
+                      Icon: Truck,
+                    },
+                    {
+                      id: "UPI",
+                      label: "UPI",
+                      desc: "Pay via Google Pay, PhonePe, Paytm etc.",
+                      Icon: Smartphone,
+                    },
+                  ].map(({ id, label, desc, Icon }) => (
+                    <label
+                      key={id}
+                      className={`flex items-center gap-4 p-4 rounded-2xl border cursor-pointer transition-all ${
+                        paymentMethod === id
+                          ? "border-primary bg-secondary/40 shadow-sm"
+                          : "border-border hover:border-foreground/30"
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="payment"
+                        value={id}
+                        checked={paymentMethod === id}
+                        onChange={() => setPaymentMethod(id)}
+                        className="accent-primary"
+                      />
+                      <div className="flex items-center gap-3 flex-1">
+                        <div className="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center shrink-0">
+                          <Icon className="h-5 w-5 text-primary" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium">{label}</p>
+                          <p className="text-xs text-muted-foreground">{desc}</p>
+                        </div>
+                      </div>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Summary Sidebar */}
+            <aside className="lg:sticky lg:top-28 h-fit">
+              <div className="rounded-3xl bg-gradient-cream p-7 shadow-soft">
+                <h3 className="font-serif text-xl mb-5">Summary</h3>
+                <div className="space-y-2 text-sm mb-5">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Items ({count})</span>
+                    <span>₹{subtotal.toLocaleString("en-IN")}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Shipping</span>
+                    <span>{subtotal > 500 ? "Free" : "₹49"}</span>
+                  </div>
+                  <div className="flex justify-between font-serif text-lg pt-3 border-t border-border/50 mt-3">
+                    <span>Total</span>
+                    <span>₹{(subtotal + (subtotal > 500 ? 0 : 49)).toLocaleString("en-IN")}</span>
+                  </div>
+                </div>
+                <Button
+                  type="submit"
+                  size="lg"
+                  className="w-full rounded-full h-12 group bg-primary hover:bg-primary/90"
+                  disabled={placing || !selectedAddressId}
+                >
+                  {placing ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Placing order...
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle2 className="h-4 w-4 mr-2" />
+                      Confirm Order
+                    </>
+                  )}
+                </Button>
+                <p className="text-xs text-muted-foreground text-center mt-3">
+                  Free shipping on orders above ₹500 · Easy returns
+                </p>
+              </div>
+            </aside>
+          </form>
+        </section>
+      </PageShell>
+
+      {/* Order Success Modal */}
+      {showSuccess && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 animate-fade-in">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            onClick={() => {
+              setShowSuccess(false);
+              navigate("/");
+            }}
+          />
+          {/* Modal */}
+          <div className="relative bg-card rounded-3xl shadow-2xl max-w-md w-full p-8 text-center animate-scale-in z-10">
+            <button
+              onClick={() => {
+                setShowSuccess(false);
+                navigate("/");
+              }}
+              className="absolute top-4 right-4 text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <X className="h-5 w-5" />
+            </button>
+
+            {/* Success icon */}
+            <div className="relative inline-flex items-center justify-center w-20 h-20 rounded-full bg-green-100 mb-6">
+              <CheckCircle2 className="h-10 w-10 text-green-600" />
+              <PartyPopper className="absolute -top-1 -right-1 h-6 w-6 text-amber-500 animate-bounce" />
+            </div>
+
+            <h2 className="font-serif text-2xl md:text-3xl mb-2">Order Placed!</h2>
+            <p className="text-muted-foreground text-sm mb-6">
+              Thank you for shopping with BugyBoo! Your order has been placed successfully. We'll send you updates on your order status.
+            </p>
+
+            <div className="space-y-3">
+              <Button
+                className="w-full rounded-full h-12 bg-primary hover:bg-primary/90"
+                onClick={() => {
+                  setShowSuccess(false);
+                  navigate("/");
+                }}
+              >
+                Continue Shopping
+              </Button>
+              <Button
+                variant="outline"
+                className="w-full rounded-full h-12"
+                onClick={() => {
+                  setShowSuccess(false);
+                  navigate("/user/orders");
+                }}
+              >
+                View My Orders
               </Button>
             </div>
-          </aside>
-        </form>
-      </section>
-    </PageShell>
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 

@@ -1,11 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, NavLink, useNavigate, useLocation } from "react-router-dom";
-import { Search, ShoppingBag, User, Menu, X, Heart, LogOut } from "lucide-react";
+import { Search, ShoppingBag, User, Menu, X, Heart, LogOut, Loader2 } from "lucide-react";
 import logo from "@/assets/logo.jpg";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/store/cart";
 import { useAuth } from "@/store/auth";
-import { logout } from "@/lib/api";
+import { logout, searchProducts, type PublicProduct } from "@/lib/api";
 import { toast } from "sonner";
 import {
   DropdownMenu,
@@ -31,12 +31,43 @@ const Header = () => {
   const [scrolled, setScrolled] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<PublicProduct[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const searchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  // Debounced search
+  useEffect(() => {
+    if (searchTimeout.current) clearTimeout(searchTimeout.current);
+
+    if (searchQuery.trim().length < 2) {
+      setSearchResults([]);
+      setIsSearching(false);
+      return;
+    }
+
+    setIsSearching(true);
+    searchTimeout.current = setTimeout(async () => {
+      try {
+        const res = await searchProducts(searchQuery.trim());
+        setSearchResults(res.data ?? []);
+      } catch {
+        setSearchResults([]);
+      } finally {
+        setIsSearching(false);
+      }
+    }, 400);
+
+    return () => {
+      if (searchTimeout.current) clearTimeout(searchTimeout.current);
+    };
+  }, [searchQuery]);
 
   /** Navigate to cart — if not logged in, send to login with redirectUrl */
   const handleCartClick = () => {
@@ -62,6 +93,13 @@ const Header = () => {
 
     toast.success("Logged out successfully");
     navigate("/");
+  };
+
+  const handleSearchResultClick = (productId: string) => {
+    setSearchOpen(false);
+    setSearchQuery("");
+    setSearchResults([]);
+    navigate(`/product/${productId}`);
   };
 
   return (
@@ -103,7 +141,13 @@ const Header = () => {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => setSearchOpen((s) => !s)}
+            onClick={() => {
+              setSearchOpen((s) => !s);
+              if (searchOpen) {
+                setSearchQuery("");
+                setSearchResults([]);
+              }
+            }}
             className="rounded-full hover:bg-accent/50"
             aria-label="Search"
           >
@@ -225,22 +269,75 @@ const Header = () => {
 
       {searchOpen && (
         <div className="border-t border-border/40 bg-background animate-fade-in">
-          <div className="container mx-auto py-4">
+          <div className="container mx-auto py-4 px-4">
             <form
               className="relative"
               onSubmit={(e) => {
                 e.preventDefault();
-                setSearchOpen(false);
-                navigate("/shop");
+                if (searchQuery.trim()) {
+                  setSearchOpen(false);
+                  setSearchQuery("");
+                  setSearchResults([]);
+                  navigate(`/shop`);
+                }
               }}
             >
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <input
                 autoFocus
-                placeholder="Search for dresses, knitwear, party wear…"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search for products…"
                 className="w-full h-12 pl-12 pr-4 rounded-full bg-background/60 border border-border/60 focus:outline-none focus:ring-2 focus:ring-ring/30 text-sm"
               />
+              {isSearching && (
+                <Loader2 className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />
+              )}
             </form>
+
+            {/* Search results dropdown */}
+            {searchQuery.trim().length >= 2 && (
+              <div className="mt-2 max-h-80 overflow-y-auto rounded-2xl border border-border/40 bg-background shadow-elegant">
+                {isSearching && (
+                  <div className="p-6 text-center text-muted-foreground text-sm">
+                    Searching...
+                  </div>
+                )}
+                {!isSearching && searchResults.length === 0 && (
+                  <div className="p-6 text-center text-muted-foreground text-sm">
+                    No products found for "{searchQuery}"
+                  </div>
+                )}
+                {!isSearching && searchResults.length > 0 && (
+                  <div className="py-2">
+                    {searchResults.map((product) => (
+                      <button
+                        key={product._id}
+                        onClick={() => handleSearchResultClick(product._id)}
+                        className="w-full flex items-center gap-4 px-4 py-3 hover:bg-accent/30 transition-colors text-left"
+                      >
+                        <div className="w-12 h-12 rounded-xl overflow-hidden bg-secondary flex-shrink-0">
+                          <img
+                            src={product.images?.[0] ?? ""}
+                            alt={product.name}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium truncate">{product.name}</p>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-semibold">₹{product.sellPrice}</span>
+                            {product.basePrice > product.sellPrice && (
+                              <span className="text-xs text-muted-foreground line-through">₹{product.basePrice}</span>
+                            )}
+                          </div>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       )}

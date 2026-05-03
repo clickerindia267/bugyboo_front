@@ -167,7 +167,7 @@ export interface AdminOrder {
   products: OrderProductItem[];
   totalAmount: number;
   contact: OrderContact;
-  address: string;
+  address: string | UserAddress | any;
   paymentMethod: string;
   paymentStatus: string;
   orderStatus: string;
@@ -489,10 +489,16 @@ export interface UserDashboardResponse {
   data: UserDashboardData;
 }
 
+export interface CartProduct {
+  productId: string;
+  quantity: number;
+  _id: string;
+}
+
 export interface UserCart {
   _id: string;
   userId: string;
-  products: any[]; // You can define a more specific type if needed
+  products: CartProduct[];
   createdAt: string;
   __v: number;
 }
@@ -518,7 +524,7 @@ export interface UserOrder {
     email: string;
     _id: string;
   };
-  address: string | null;
+  address: string | UserAddress | null;
   paymentMethod: string;
   paymentStatus: string;
   orderStatus: string;
@@ -588,6 +594,32 @@ export const getUserCart = (accessToken: string) =>
     },
   });
 
+export const addToCart = (productId: string, quantity: number, accessToken: string) =>
+  request<UserCartResponse>("/cart/add", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+    body: { productId, quantity },
+  });
+
+export const updateCart = (productId: string, quantity: number, accessToken: string) =>
+  request<UserCartResponse>("/cart/update", {
+    method: "PATCH",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+    body: { productId, quantity },
+  });
+
+export const removeFromCart = (productId: string, accessToken: string) =>
+  request<UserCartResponse>(`/cart/remove/${productId}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
 export const getUserOrders = (accessToken: string) =>
   request<UserOrdersResponse>("/orders", {
     method: "GET",
@@ -636,5 +668,112 @@ export const deleteUserAddress = (addressId: string, accessToken: string) =>
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },
+  });
+
+export interface CreateOrderRequest {
+  contact: {
+    name: string;
+    mobile: string;
+    email: string;
+  };
+  addressId: string;
+  paymentMethod: string;
+}
+
+export interface CreateOrderResponse {
+  success: boolean;
+  data: UserOrder;
+}
+
+export const createOrder = (order: CreateOrderRequest, accessToken: string) =>
+  request<CreateOrderResponse>("/orders", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+    body: order,
+  });
+
+// Public Blog APIs (no auth required)
+export interface PublicBlog {
+  _id: string;
+  title: string;
+  description: string;
+  images: string[];
+  createdBy: {
+    _id: string;
+    name: string;
+    email: string;
+    role: string;
+  };
+  isPublished: boolean;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+}
+
+export interface PublicBlogsResponse {
+  success: boolean;
+  blog: PublicBlog[];
+}
+
+export interface PublicBlogResponse {
+  success: boolean;
+  blog: PublicBlog;
+}
+
+export const getBlogs = () =>
+  request<PublicBlogsResponse>("/blogs", {
+    method: "GET",
+  });
+
+export const getBlogById = (blogId: string) =>
+  request<PublicBlogResponse>(`/blogs/${blogId}`, {
+    method: "GET",
+  });
+
+// Public Product APIs (no auth required)
+export interface PublicProduct {
+  _id: string;
+  name: string;
+  category: {
+    _id: string;
+    name: string;
+  };
+  color: string;
+  size: string;
+  description: string;
+  basePrice: number;
+  sellPrice: number;
+  gst: number;
+  images: string[];
+  isPaused: boolean;
+  createdAt: string;
+  __v: number;
+}
+
+export interface PublicProductsResponse {
+  success: boolean;
+  data: PublicProduct[];
+}
+
+export interface PublicProductResponse {
+  success: boolean;
+  data: PublicProduct;
+}
+
+export const getProducts = () =>
+  request<PublicProductsResponse>("/products", {
+    method: "GET",
+  });
+
+export const getProductById = (productId: string) =>
+  request<PublicProductResponse>(`/products/${productId}`, {
+    method: "GET",
+  });
+
+export const searchProducts = (query: string) =>
+  request<PublicProductsResponse>(`/products/search?q=${encodeURIComponent(query)}`, {
+    method: "GET",
   });
 

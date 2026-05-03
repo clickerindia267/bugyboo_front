@@ -1,44 +1,48 @@
 import { useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { SlidersHorizontal, Star, X } from "lucide-react";
+import { SlidersHorizontal, X } from "lucide-react";
 import PageShell from "@/components/PageShell";
 import { Button } from "@/components/ui/button";
-import { products } from "@/data/products";
+import { useQuery } from "@tanstack/react-query";
+import { getProducts, type PublicProduct } from "@/lib/api";
 
-const categories = ["All", "Girls", "Boys", "Unisex", "Newborn", "Accessories"];
-const ages = ["All", "0-1Y", "0-2Y", "1-3Y", "2-4Y", "3-6Y", "0-3Y"];
-const occasionOptions = ["All", "New In", "Birthday", "Step Out", "Vacation"];
 const sortOptions = [
   { v: "featured", l: "Featured" },
   { v: "low", l: "Price: Low → High" },
   { v: "high", l: "Price: High → Low" },
-  { v: "rating", l: "Top rated" },
 ];
 
 const Shop = () => {
   const [params, setParams] = useSearchParams();
-  const initial = params.get("category");
-  const initialOccasion = params.get("occasion");
-  const [cat, setCat] = useState(initial && categories.includes(initial) ? initial : "All");
-  const [age, setAge] = useState("All");
-  const [occasion, setOccasion] = useState(initialOccasion && occasionOptions.includes(initialOccasion) ? initialOccasion : "All");
+  const initialCategory = params.get("category");
+  const [cat, setCat] = useState(initialCategory ?? "All");
   const [sort, setSort] = useState("featured");
-  const [maxPrice, setMaxPrice] = useState(150);
+  const [maxPrice, setMaxPrice] = useState(50000);
   const [filtersOpen, setFiltersOpen] = useState(false);
 
+  const { data, isLoading } = useQuery({
+    queryKey: ["products"],
+    queryFn: getProducts,
+  });
+
+  const allProducts: PublicProduct[] = data?.data?.filter((p) => !p.isPaused) ?? [];
+
+  // Extract unique categories from API data
+  const categories = useMemo(() => {
+    const cats = allProducts.map((p) => p.category?.name).filter(Boolean);
+    return ["All", ...Array.from(new Set(cats))];
+  }, [allProducts]);
+
   const filtered = useMemo(() => {
-    let list = products.filter(
+    let list = allProducts.filter(
       (p) =>
-        (cat === "All" || p.category === cat) &&
-        (age === "All" || p.ageGroup === age) &&
-        (occasion === "All" || p.occasions?.includes(occasion)) &&
-        p.price <= maxPrice,
+        (cat === "All" || p.category?.name === cat) &&
+        p.sellPrice <= maxPrice,
     );
-    if (sort === "low") list = [...list].sort((a, b) => a.price - b.price);
-    if (sort === "high") list = [...list].sort((a, b) => b.price - a.price);
-    if (sort === "rating") list = [...list].sort((a, b) => b.rating - a.rating);
+    if (sort === "low") list = [...list].sort((a, b) => a.sellPrice - b.sellPrice);
+    if (sort === "high") list = [...list].sort((a, b) => b.sellPrice - a.sellPrice);
     return list;
-  }, [cat, age, occasion, sort, maxPrice]);
+  }, [allProducts, cat, sort, maxPrice]);
 
   const updateCat = (c: string) => {
     setCat(c);
@@ -66,61 +70,28 @@ const Shop = () => {
         </div>
       </div>
       <div>
-        <h4 className="font-serif text-lg mb-3">Age</h4>
-        <div className="flex flex-wrap gap-2">
-          {ages.map((a) => (
-            <button
-              key={a}
-              onClick={() => setAge(a)}
-              className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${
-                age === a
-                  ? "bg-primary text-primary-foreground border-primary"
-                  : "border-border hover:border-foreground/40"
-              }`}
-            >
-              {a}
-            </button>
-          ))}
-        </div>
-      </div>
-      <div>
         <h4 className="font-serif text-lg mb-3">Max price</h4>
         <input
           type="range"
-          min={20}
-          max={150}
+          min={100}
+          max={50000}
+          step={100}
           value={maxPrice}
           onChange={(e) => setMaxPrice(Number(e.target.value))}
           className="w-full accent-primary"
         />
-        <p className="text-sm text-muted-foreground mt-2">Up to ₹{maxPrice}</p>
-      </div>
-      <div>
-        <h4 className="font-serif text-lg mb-3">Occasion</h4>
-        <div className="flex flex-wrap gap-2">
-          {occasionOptions.map((o) => (
-            <button
-              key={o}
-              onClick={() => setOccasion(o)}
-              className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${
-                occasion === o
-                  ? "bg-primary text-primary-foreground border-primary"
-                  : "border-border hover:border-foreground/40"
-              }`}
-            >
-              {o}
-            </button>
-          ))}
-        </div>
+        <p className="text-sm text-muted-foreground mt-2">Up to ₹{maxPrice.toLocaleString("en-IN")}</p>
       </div>
     </div>
   );
 
   return (
-    <PageShell title="The Collection" eyebrow="Shop" subtitle="Curated little wardrobes for ages 0–6.">
-      <section className="container mx-auto pb-24">
+    <PageShell title="The Collection" eyebrow="Shop" subtitle="Curated little wardrobes for your little ones.">
+      <section className="container mx-auto pb-24 px-4">
         <div className="flex items-center justify-between gap-4 mb-8 flex-wrap">
-          <p className="text-sm text-muted-foreground">{filtered.length} pieces</p>
+          <p className="text-sm text-muted-foreground">
+            {isLoading ? "Loading..." : `${filtered.length} pieces`}
+          </p>
           <div className="flex items-center gap-2">
             <Button
               variant="outline"
@@ -149,37 +120,50 @@ const Shop = () => {
           <aside className="hidden lg:block">{Filters}</aside>
 
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
-            {filtered.map((p, i) => (
+            {isLoading && (
+              <>
+                {[...Array(6)].map((_, i) => (
+                  <div key={i} className="animate-pulse">
+                    <div className="rounded-2xl bg-secondary aspect-[4/5] mb-3 shimmer" />
+                    <div className="h-4 w-3/4 rounded shimmer mb-2" />
+                    <div className="h-3 w-1/2 rounded shimmer" />
+                  </div>
+                ))}
+              </>
+            )}
+            {!isLoading && filtered.map((p, i) => (
               <Link
-                key={p.id}
-                to={`/product/${p.slug}`}
+                key={p._id}
+                to={`/product/${p._id}`}
                 className="group animate-fade-in"
                 style={{ animationDelay: `${i * 50}ms`, animationFillMode: "backwards" }}
               >
                 <div className="relative overflow-hidden rounded-2xl bg-secondary aspect-[4/5] mb-3 hover-lift">
                   <img
-                    src={p.img}
+                    src={p.images?.[0] ?? ""}
                     alt={p.name}
                     loading="lazy"
                     className="w-full h-full object-cover transition-transform duration-1200 ease-out group-hover:scale-110"
                   />
-                  {p.tag && (
+                  {p.basePrice > p.sellPrice && (
                     <span className="absolute top-3 left-3 px-3 py-1 rounded-full bg-background/80 backdrop-blur text-[10px] uppercase tracking-wider font-medium">
-                      {p.tag}
+                      {Math.round(((p.basePrice - p.sellPrice) / p.basePrice) * 100)}% off
                     </span>
                   )}
                 </div>
                 <div className="px-1">
-                  <div className="flex items-center gap-1 mb-1">
-                    <Star className="h-3 w-3 fill-foreground text-foreground" />
-                    <span className="text-xs text-muted-foreground">{p.rating}</span>
-                  </div>
+                  <p className="text-[11px] text-muted-foreground mb-1">{p.category?.name}</p>
                   <h3 className="font-serif text-base leading-tight mb-1">{p.name}</h3>
-                  <p className="text-sm text-muted-foreground">₹{p.price}</p>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium">₹{p.sellPrice}</span>
+                    {p.basePrice > p.sellPrice && (
+                      <span className="text-xs text-muted-foreground line-through">₹{p.basePrice}</span>
+                    )}
+                  </div>
                 </div>
               </Link>
             ))}
-            {filtered.length === 0 && (
+            {!isLoading && filtered.length === 0 && (
               <p className="col-span-full text-center text-muted-foreground py-20">
                 No pieces match your filters yet.
               </p>
