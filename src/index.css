@@ -14,7 +14,7 @@
 @layer base {
   :root {
     /* ── Surfaces ── */
-    --background: #ffffff;
+    --background: 0 0% 100%;
     /* warm ivory  #fdf8ed */
     --foreground: 0 0% 20%;
     /* deep teal-black */

@@ -186,7 +186,7 @@ const Header = () => {
                     My Account
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="bg-background border-border/50 rounded-2xl min-w-[180px]">
+                <DropdownMenuContent align="end" className="bg-white border-border shadow-elegant rounded-2xl min-w-[200px] z-[70]">
                   <div className="px-3 py-2">
                     <p className="text-sm font-medium">{user?.name}</p>
                     <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
@@ -226,7 +226,7 @@ const Header = () => {
                 </div>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="bg-background border-border/50 rounded-2xl mr-2">
+            <DropdownMenuContent align="end" className="bg-white border-border shadow-elegant rounded-2xl mr-2 z-[70]">
               {isLoggedIn ? (
                 <>
                   <div className="px-3 py-2">

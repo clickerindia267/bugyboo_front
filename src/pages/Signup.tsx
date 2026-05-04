@@ -44,14 +44,7 @@ const Signup = () => {
     <AuthLayout
       title="Create an account"
       subtitle="Join our little circle — softer stories, gentler fashion."
-      footer={
-        <>
-          Already have an account?{" "}
-          <Link to="/login" className="text-foreground story-link">
-            Sign in
-          </Link>
-        </>
-      }
+      footer={null}
       side={
         <>
           <img src={hero} alt="" className="absolute inset-0 w-full h-full object-cover" />

@@ -9,6 +9,13 @@ import { getUserAddresses, createOrder, createUserAddress, type UserAddress } fr
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 const Field = ({
   label,
@@ -49,8 +56,8 @@ const Address = () => {
   const [placing, setPlacing] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   
-  // New Address Inline Form
-  const [showInlineForm, setShowInlineForm] = useState(false);
+  // New Address Dialog
+  const [isAddressDialogOpen, setIsAddressDialogOpen] = useState(false);
   const [newAddress, setNewAddress] = useState({ fullAddress: "", city: "", pincode: "", country: "India" });
   const [savingAddress, setSavingAddress] = useState(false);
 
@@ -134,7 +141,7 @@ const Address = () => {
       const res = await createUserAddress(newAddress, accessToken);
       setAddresses((prev) => [...prev, res.data]);
       setSelectedAddressId(res.data._id);
-      setShowInlineForm(false);
+      setIsAddressDialogOpen(false);
       setNewAddress({ fullAddress: "", city: "", pincode: "", country: "India" });
       toast.success("Address added successfully");
     } catch (err) {
@@ -242,96 +249,13 @@ const Address = () => {
                       ))}
                     </div>
 
-                    {!showInlineForm ? (
-                      <button
-                        type="button"
-                        onClick={() => setShowInlineForm(true)}
-                        className="text-sm text-primary font-medium hover:underline flex items-center gap-1 mt-2"
-                      >
-                        <Plus className="h-4 w-4" /> Add a new address
-                      </button>
-                    ) : (
-                      <div className="mt-6 p-6 rounded-2xl bg-secondary/30 border border-border/50 animate-fade-in">
-                        <div className="flex items-center justify-between mb-4">
-                          <h4 className="font-serif text-lg">Add New Address</h4>
-                          <button 
-                            type="button" 
-                            onClick={() => setShowInlineForm(false)}
-                            className="text-muted-foreground hover:text-foreground"
-                          >
-                            <X className="h-4 w-4" />
-                          </button>
-                        </div>
-                        <div className="grid gap-4">
-                          <div className="space-y-1.5">
-                            <Label htmlFor="fullAddress" className="text-xs uppercase tracking-wider text-muted-foreground">Full Address *</Label>
-                            <Input
-                              id="fullAddress"
-                              value={newAddress.fullAddress}
-                              onChange={(e) => setNewAddress({ ...newAddress, fullAddress: e.target.value })}
-                              placeholder="House no, Street, Locality"
-                              className="rounded-xl border-border bg-card"
-                            />
-                          </div>
-                          <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-1.5">
-                              <Label htmlFor="city" className="text-xs uppercase tracking-wider text-muted-foreground">City *</Label>
-                              <Input
-                                id="city"
-                                value={newAddress.city}
-                                onChange={(e) => setNewAddress({ ...newAddress, city: e.target.value })}
-                                placeholder="e.g. Delhi"
-                                className="rounded-xl border-border bg-card"
-                              />
-                            </div>
-                            <div className="space-y-1.5">
-                              <Label htmlFor="pincode" className="text-xs uppercase tracking-wider text-muted-foreground">Pincode *</Label>
-                              <Input
-                                id="pincode"
-                                value={newAddress.pincode}
-                                onChange={(e) => setNewAddress({ ...newAddress, pincode: e.target.value })}
-                                placeholder="e.g. 110001"
-                                className="rounded-xl border-border bg-card"
-                              />
-                            </div>
-                          </div>
-                          <div className="space-y-1.5">
-                            <Label htmlFor="country" className="text-xs uppercase tracking-wider text-muted-foreground">Country</Label>
-                            <Input
-                              id="country"
-                              value={newAddress.country}
-                              onChange={(e) => setNewAddress({ ...newAddress, country: e.target.value })}
-                              className="rounded-xl border-border bg-card"
-                            />
-                          </div>
-                          <div className="flex gap-2 mt-2">
-                            <Button
-                              type="button"
-                              onClick={handleSaveAddress}
-                              disabled={savingAddress}
-                              className="flex-1 bg-primary hover:bg-primary/90 text-white rounded-xl h-11"
-                            >
-                              {savingAddress ? (
-                                <>
-                                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                  Saving...
-                                </>
-                              ) : (
-                                "Save Address"
-                              )}
-                            </Button>
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              onClick={() => setShowInlineForm(false)}
-                              className="rounded-xl h-11"
-                            >
-                              Cancel
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    )}
+                    <button
+                      type="button"
+                      onClick={() => setIsAddressDialogOpen(true)}
+                      className="text-sm text-primary font-medium hover:underline flex items-center gap-1 mt-2"
+                    >
+                      <Plus className="h-4 w-4" /> Add a new address
+                    </button>
                   </div>
                 )}
               </div>
@@ -491,6 +415,80 @@ const Address = () => {
           </div>
         </div>
       )}
+
+      {/* Add Address Dialog */}
+      <Dialog open={isAddressDialogOpen} onOpenChange={setIsAddressDialogOpen}>
+        <DialogContent className="max-w-md mx-4 rounded-2xl bg-card border-none shadow-elegant">
+          <DialogHeader>
+            <DialogTitle className="text-lg lg:text-xl font-serif">Add New Address</DialogTitle>
+            <DialogDescription className="text-muted-foreground font-sans">
+              Enter your delivery details to complete your order.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4 font-sans">
+            <div className="space-y-2">
+              <Label>Full Address *</Label>
+              <Input
+                value={newAddress.fullAddress}
+                onChange={(e) => setNewAddress({ ...newAddress, fullAddress: e.target.value })}
+                placeholder="House no, Street, Locality"
+                className="rounded-xl border-border"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>City *</Label>
+                <Input
+                  value={newAddress.city}
+                  onChange={(e) => setNewAddress({ ...newAddress, city: e.target.value })}
+                  placeholder="e.g. Delhi"
+                  className="rounded-xl border-border"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Pincode *</Label>
+                <Input
+                  value={newAddress.pincode}
+                  onChange={(e) => setNewAddress({ ...newAddress, pincode: e.target.value })}
+                  placeholder="e.g. 110001"
+                  className="rounded-xl border-border"
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Country</Label>
+              <Input
+                value={newAddress.country}
+                onChange={(e) => setNewAddress({ ...newAddress, country: e.target.value })}
+                className="rounded-xl border-border"
+              />
+            </div>
+          </div>
+          <div className="flex gap-2 font-sans">
+            <Button
+              variant="outline"
+              onClick={() => setIsAddressDialogOpen(false)}
+              className="rounded-xl flex-1"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleSaveAddress}
+              disabled={savingAddress}
+              className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl flex-1"
+            >
+              {savingAddress ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                "Save Address"
+              )}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };

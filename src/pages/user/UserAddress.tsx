@@ -105,32 +105,31 @@ export default function UserAddress() {
           <h1 className="text-2xl lg:text-3xl font-serif font-bold text-foreground tracking-tight">My Addresses</h1>
           <p className="text-sm lg:text-base text-muted-foreground font-sans">Manage your saved addresses</p>
         </div>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button onClick={() => handleOpenDialog()} className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl flex items-center gap-2 font-sans w-full sm:w-auto">
-              <Plus className="h-4 w-4" /> Add Address
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-md mx-4 rounded-2xl bg-card border-none shadow-elegant">
-            <DialogHeader>
-              <DialogTitle className="text-lg lg:text-xl font-serif">{isEditing ? "Update Address" : "Add New Address"}</DialogTitle>
-              <DialogDescription className="text-muted-foreground font-sans">{isEditing ? "Edit your address details." : "Enter a new delivery address."}</DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4 font-sans">
-              <div className="space-y-2"><Label>Full Address *</Label><Input value={formData.fullAddress} onChange={(e) => setFormData({...formData, fullAddress: e.target.value})} placeholder="House no, Street, Locality" className="rounded-xl border-border" /></div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2"><Label>City *</Label><Input value={formData.city} onChange={(e) => setFormData({...formData, city: e.target.value})} placeholder="e.g. Delhi" className="rounded-xl border-border" /></div>
-                <div className="space-y-2"><Label>Pincode *</Label><Input value={formData.pincode} onChange={(e) => setFormData({...formData, pincode: e.target.value})} placeholder="e.g. 110001" className="rounded-xl border-border" /></div>
-              </div>
-              <div className="space-y-2"><Label>Country</Label><Input value={formData.country} onChange={(e) => setFormData({...formData, country: e.target.value})} className="rounded-xl border-border" /></div>
-            </div>
-            <DialogFooter className="font-sans flex flex-col sm:flex-row gap-2">
-              <Button variant="outline" onClick={() => setIsDialogOpen(false)} className="rounded-xl order-2 sm:order-1">Cancel</Button>
-              <Button onClick={handleSave} disabled={isSaving} className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl order-1 sm:order-2">{isSaving ? "Saving..." : isEditing ? "Update" : "Save Address"}</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <Button onClick={() => handleOpenDialog()} className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl flex items-center gap-2 font-sans w-full sm:w-auto">
+          <Plus className="h-4 w-4" /> Add Address
+        </Button>
       </div>
+
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="max-w-md mx-4 rounded-2xl bg-card border-none shadow-elegant">
+          <DialogHeader>
+            <DialogTitle className="text-lg lg:text-xl font-serif">{isEditing ? "Update Address" : "Add New Address"}</DialogTitle>
+            <DialogDescription className="text-muted-foreground font-sans">{isEditing ? "Edit your address details." : "Enter a new delivery address."}</DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4 font-sans">
+            <div className="space-y-2"><Label>Full Address *</Label><Input value={formData.fullAddress} onChange={(e) => setFormData({...formData, fullAddress: e.target.value})} placeholder="House no, Street, Locality" className="rounded-xl border-border" /></div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2"><Label>City *</Label><Input value={formData.city} onChange={(e) => setFormData({...formData, city: e.target.value})} placeholder="e.g. Delhi" className="rounded-xl border-border" /></div>
+              <div className="space-y-2"><Label>Pincode *</Label><Input value={formData.pincode} onChange={(e) => setFormData({...formData, pincode: e.target.value})} placeholder="e.g. 110001" className="rounded-xl border-border" /></div>
+            </div>
+            <div className="space-y-2"><Label>Country</Label><Input value={formData.country} onChange={(e) => setFormData({...formData, country: e.target.value})} className="rounded-xl border-border" /></div>
+          </div>
+          <DialogFooter className="font-sans flex flex-col sm:flex-row gap-2">
+            <Button variant="outline" onClick={() => setIsDialogOpen(false)} className="rounded-xl order-2 sm:order-1">Cancel</Button>
+            <Button onClick={handleSave} disabled={isSaving} className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl order-1 sm:order-2">{isSaving ? "Saving..." : isEditing ? "Update" : "Save Address"}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {isLoading ? (
         <div className="text-center py-8">Loading addresses...</div>
@@ -138,7 +137,10 @@ export default function UserAddress() {
         <Card className="border-none shadow-soft rounded-2xl bg-card">
           <CardContent className="p-8 lg:p-12 text-center">
             <div className="inline-flex w-12 h-12 lg:w-16 lg:h-16 rounded-full bg-secondary items-center justify-center mb-4"><MapPin className="h-5 w-5 lg:h-7 lg:w-7 text-muted-foreground" /></div>
-            <p className="text-muted-foreground font-sans text-sm lg:text-base">No saved addresses. Add one to get started.</p>
+            <p className="text-muted-foreground font-sans text-sm lg:text-base mb-6">No saved addresses. Add one to get started.</p>
+            <Button onClick={() => handleOpenDialog()} className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl flex items-center gap-2 font-sans mx-auto">
+              <Plus className="h-4 w-4" /> Add Your First Address
+            </Button>
           </CardContent>
         </Card>
       ) : (
