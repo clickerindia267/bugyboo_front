@@ -390,8 +390,11 @@ const SeasonBestsellers = () => {
         }
         .sb-card-img img {
           width: 100%; height: 100%;
-          object-fit: cover; display: block;
+          object-fit: contain; display: block;
           transition: transform 1.2s ease-out;
+        }
+        @media (min-width: 768px) {
+          .sb-card-img img { object-fit: cover; }
         }
         .sb-card:hover .sb-card-img img {
           transform: scale(1.08);

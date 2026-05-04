@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { MapPin, CreditCard, Smartphone, Truck, CheckCircle2, Loader2, X, PartyPopper } from "lucide-react";
+import { MapPin, CreditCard, Smartphone, Truck, CheckCircle2, Loader2, X, PartyPopper, Plus } from "lucide-react";
 import PageShell from "@/components/PageShell";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/store/cart";
 import { useAuth } from "@/store/auth";
-import { getUserAddresses, createOrder, type UserAddress } from "@/lib/api";
+import { getUserAddresses, createOrder, createUserAddress, type UserAddress } from "@/lib/api";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 
 const Field = ({
@@ -46,6 +48,11 @@ const Address = () => {
   // Order
   const [placing, setPlacing] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  
+  // New Address Inline Form
+  const [showInlineForm, setShowInlineForm] = useState(false);
+  const [newAddress, setNewAddress] = useState({ fullAddress: "", city: "", pincode: "", country: "India" });
+  const [savingAddress, setSavingAddress] = useState(false);
 
   // Fetch user addresses
   useEffect(() => {
@@ -115,6 +122,28 @@ const Address = () => {
     }
   };
 
+  const handleSaveAddress = async () => {
+    if (!newAddress.fullAddress || !newAddress.city || !newAddress.pincode) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
+    if (!accessToken) return;
+
+    setSavingAddress(true);
+    try {
+      const res = await createUserAddress(newAddress, accessToken);
+      setAddresses((prev) => [...prev, res.data]);
+      setSelectedAddressId(res.data._id);
+      setShowInlineForm(false);
+      setNewAddress({ fullAddress: "", city: "", pincode: "", country: "India" });
+      toast.success("Address added successfully");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to add address");
+    } finally {
+      setSavingAddress(false);
+    }
+  };
+
   if (count === 0 && !showSuccess) {
     return (
       <PageShell title="Your bag is empty" eyebrow="Address">
@@ -178,45 +207,131 @@ const Address = () => {
                       type="button"
                       variant="outline"
                       className="rounded-xl"
-                      onClick={() => navigate("/user/address")}
+                      onClick={() => setIsAddressDialogOpen(true)}
                     >
                       Add an address
                     </Button>
                   </div>
                 ) : (
-                  <div className="space-y-3">
-                    {addresses.map((addr) => (
-                      <label
-                        key={addr._id}
-                        className={`flex items-start gap-3 p-4 rounded-2xl border cursor-pointer transition-all ${
-                          selectedAddressId === addr._id
-                            ? "border-primary bg-secondary/40 shadow-sm"
-                            : "border-border hover:border-foreground/30"
-                        }`}
+                  <div className="space-y-4">
+                    <div className="space-y-3">
+                      {addresses.map((addr) => (
+                        <label
+                          key={addr._id}
+                          className={`flex items-start gap-3 p-4 rounded-2xl border cursor-pointer transition-all ${
+                            selectedAddressId === addr._id
+                              ? "border-primary bg-secondary/40 shadow-sm"
+                              : "border-border hover:border-foreground/30"
+                          }`}
+                        >
+                          <input
+                            type="radio"
+                            name="address"
+                            value={addr._id}
+                            checked={selectedAddressId === addr._id}
+                            onChange={() => setSelectedAddressId(addr._id)}
+                            className="accent-primary mt-0.5"
+                          />
+                          <div className="text-sm">
+                            <p className="font-medium">{addr.fullAddress}</p>
+                            <p className="text-muted-foreground">
+                              {addr.city}, {addr.pincode}, {addr.country}
+                            </p>
+                          </div>
+                        </label>
+                      ))}
+                    </div>
+
+                    {!showInlineForm ? (
+                      <button
+                        type="button"
+                        onClick={() => setShowInlineForm(true)}
+                        className="text-sm text-primary font-medium hover:underline flex items-center gap-1 mt-2"
                       >
-                        <input
-                          type="radio"
-                          name="address"
-                          value={addr._id}
-                          checked={selectedAddressId === addr._id}
-                          onChange={() => setSelectedAddressId(addr._id)}
-                          className="accent-primary mt-0.5"
-                        />
-                        <div className="text-sm">
-                          <p className="font-medium">{addr.fullAddress}</p>
-                          <p className="text-muted-foreground">
-                            {addr.city}, {addr.pincode}, {addr.country}
-                          </p>
+                        <Plus className="h-4 w-4" /> Add a new address
+                      </button>
+                    ) : (
+                      <div className="mt-6 p-6 rounded-2xl bg-secondary/30 border border-border/50 animate-fade-in">
+                        <div className="flex items-center justify-between mb-4">
+                          <h4 className="font-serif text-lg">Add New Address</h4>
+                          <button 
+                            type="button" 
+                            onClick={() => setShowInlineForm(false)}
+                            className="text-muted-foreground hover:text-foreground"
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
                         </div>
-                      </label>
-                    ))}
-                    <button
-                      type="button"
-                      onClick={() => navigate("/user/address")}
-                      className="text-sm text-primary hover:underline mt-2"
-                    >
-                      + Add a new address
-                    </button>
+                        <div className="grid gap-4">
+                          <div className="space-y-1.5">
+                            <Label htmlFor="fullAddress" className="text-xs uppercase tracking-wider text-muted-foreground">Full Address *</Label>
+                            <Input
+                              id="fullAddress"
+                              value={newAddress.fullAddress}
+                              onChange={(e) => setNewAddress({ ...newAddress, fullAddress: e.target.value })}
+                              placeholder="House no, Street, Locality"
+                              className="rounded-xl border-border bg-card"
+                            />
+                          </div>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-1.5">
+                              <Label htmlFor="city" className="text-xs uppercase tracking-wider text-muted-foreground">City *</Label>
+                              <Input
+                                id="city"
+                                value={newAddress.city}
+                                onChange={(e) => setNewAddress({ ...newAddress, city: e.target.value })}
+                                placeholder="e.g. Delhi"
+                                className="rounded-xl border-border bg-card"
+                              />
+                            </div>
+                            <div className="space-y-1.5">
+                              <Label htmlFor="pincode" className="text-xs uppercase tracking-wider text-muted-foreground">Pincode *</Label>
+                              <Input
+                                id="pincode"
+                                value={newAddress.pincode}
+                                onChange={(e) => setNewAddress({ ...newAddress, pincode: e.target.value })}
+                                placeholder="e.g. 110001"
+                                className="rounded-xl border-border bg-card"
+                              />
+                            </div>
+                          </div>
+                          <div className="space-y-1.5">
+                            <Label htmlFor="country" className="text-xs uppercase tracking-wider text-muted-foreground">Country</Label>
+                            <Input
+                              id="country"
+                              value={newAddress.country}
+                              onChange={(e) => setNewAddress({ ...newAddress, country: e.target.value })}
+                              className="rounded-xl border-border bg-card"
+                            />
+                          </div>
+                          <div className="flex gap-2 mt-2">
+                            <Button
+                              type="button"
+                              onClick={handleSaveAddress}
+                              disabled={savingAddress}
+                              className="flex-1 bg-primary hover:bg-primary/90 text-white rounded-xl h-11"
+                            >
+                              {savingAddress ? (
+                                <>
+                                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                  Saving...
+                                </>
+                              ) : (
+                                "Save Address"
+                              )}
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              onClick={() => setShowInlineForm(false)}
+                              className="rounded-xl h-11"
+                            >
+                              Cancel
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

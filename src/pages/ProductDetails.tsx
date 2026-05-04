@@ -129,7 +129,7 @@ const ProductDetails = () => {
                 <img
                   src={images[activeImg] ?? ""}
                   alt={product.name}
-                  className={`w-full h-full object-cover transition-transform duration-700 ${
+                  className={`w-full h-full object-contain md:object-cover transition-transform duration-700 ${
                     zoom ? "scale-150" : "scale-100"
                   }`}
                 />
@@ -185,7 +185,7 @@ const ProductDetails = () => {
                         i === activeImg ? "border-primary ring-1 ring-primary/30" : "border-transparent opacity-60 hover:opacity-100"
                       }`}
                     >
-                      <img src={img} alt="" className="w-full h-full object-cover" />
+                      <img src={img} alt="" className="w-full h-full object-contain" />
                     </button>
                   ))}
                 </div>
@@ -249,33 +249,33 @@ const ProductDetails = () => {
               </div>
 
               {/* CTAs */}
-              <div className="flex flex-col sm:flex-row gap-3 mb-8">
+              <div className="flex flex-col sm:flex-row gap-4 mb-8">
                 <Button
                   size="lg"
-                  className="rounded-full bg-primary hover:bg-primary/90 h-12 px-8 flex-1 shadow-soft"
+                  className="rounded-full bg-primary hover:bg-primary/90 h-14 sm:h-16 px-8 flex-[2] shadow-soft text-base sm:text-lg font-semibold tracking-wide transition-all active:scale-[0.98]"
                   onClick={() => handleAdd(false)}
                   disabled={adding}
                 >
                   {adding ? (
-                    <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    <span className="flex items-center justify-center">
+                      <Loader2 className="h-5 w-5 mr-3 animate-spin" />
                       Adding...
-                    </>
+                    </span>
                   ) : (
-                    `Add to bag · ₹${product.sellPrice * qty}`
+                    <span className="text-center">Add to bag · ₹{product.sellPrice * qty}</span>
                   )}
                 </Button>
                 <Button
                   size="lg"
                   variant="outline"
-                  className="rounded-full h-12 px-8 flex-1"
+                  className="rounded-full h-14 sm:h-16 px-8 flex-1 text-base sm:text-lg font-semibold tracking-wide border-2 hover:bg-secondary transition-all active:scale-[0.98]"
                   onClick={() => handleAdd(true)}
                   disabled={adding}
                 >
                   Buy it now
                 </Button>
-                <Button size="icon" variant="outline" className="rounded-full h-12 w-12" aria-label="Wishlist">
-                  <Heart className="h-4 w-4" />
+                <Button size="icon" variant="outline" className="rounded-full h-14 w-14 sm:h-16 sm:w-16 shrink-0 border-2" aria-label="Wishlist">
+                  <Heart className="h-5 w-5" />
                 </Button>
               </div>
 
@@ -308,7 +308,7 @@ const ProductDetails = () => {
                       src={p.images?.[0] ?? ""}
                       alt={p.name}
                       loading="lazy"
-                      className="w-full h-full object-cover transition-transform duration-1200 ease-out group-hover:scale-110"
+                      className="w-full h-full object-contain md:object-cover transition-transform duration-1200 ease-out group-hover:scale-110"
                     />
                   </div>
                   <h3 className="font-serif text-base">{p.name}</h3>
