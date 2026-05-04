@@ -18,9 +18,9 @@ const Contact = () => {
   };
 
   const channels = [
-    { Icon: Mail, l: "Email us", v: "hello@petitelune.com", tone: "bg-pink" },
-    { Icon: Phone, l: "Call us", v: "+33 1 23 45 67 89", tone: "bg-lavender" },
-    { Icon: MapPin, l: "Visit us", v: "14 Rue de Rivoli, Paris", tone: "bg-blue" },
+    { Icon: Mail, l: "Email us", v: "info@bugyboo.com", tone: "bg-pink" },
+    { Icon: Phone, l: "Call us", v: "+91 8744953803", tone: "bg-lavender" },
+    { Icon: MapPin, l: "Visit us", v: "RDC Ghaziabaad uttar pradesh 201102", tone: "bg-blue" },
     { Icon: MessageCircle, l: "Live chat", v: "Mon–Fri · 9am–6pm CET", tone: "bg-beige" },
   ];
 
