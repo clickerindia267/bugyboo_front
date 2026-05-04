@@ -54,7 +54,6 @@ const ProductCard = ({ p, index }: { p: PublicProduct; index: number }) => {
     }
     try {
       await add(p._id, 1);
-      toast({ title: "Added to bag", description: p.name });
     } catch (error) {
       toast({ title: "Failed to add to bag", description: "Please try again", variant: "destructive" });
     }

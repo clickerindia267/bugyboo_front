@@ -27,7 +27,6 @@ const FeaturedProducts = () => {
     }
     try {
       await add(product._id, 1);
-      toast({ title: "Added to bag", description: product.name });
     } catch (error) {
       toast({ title: "Failed to add to bag", description: "Please try again", variant: "destructive" });
     }

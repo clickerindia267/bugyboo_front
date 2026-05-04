@@ -83,7 +83,6 @@ const ProductDetails = () => {
     setAdding(true);
     try {
       await add(product._id, qty);
-      toast({ title: "Added to bag", description: `${product.name} × ${qty}` });
       if (goCart) navigate("/cart");
     } catch (err) {
       toast({ title: "Failed to add", description: err instanceof Error ? err.message : "Please try again." });
