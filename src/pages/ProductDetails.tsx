@@ -210,7 +210,20 @@ const ProductDetails = () => {
                   </span>
                 )}
               </div>
-              <p className="text-muted-foreground leading-relaxed mb-8">{product.description}</p>
+              <div className="mb-8">
+                {product.description?.includes('•') || product.description?.includes('\n') || product.description?.includes('|') ? (
+                  <ul className="space-y-3">
+                    {product.description.split(/[•\n|]/).map((point, i) => point.trim() && (
+                      <li key={i} className="flex gap-3 text-sm text-muted-foreground leading-relaxed items-start">
+                        <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-primary/40 shrink-0" />
+                        <span>{point.trim()}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-muted-foreground leading-relaxed">{product.description}</p>
+                )}
+              </div>
 
               {/* Color */}
               <div className="mb-6">

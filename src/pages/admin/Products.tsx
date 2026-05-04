@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
-import { Plus, Trash2, Edit, PauseCircle, PlayCircle, ImagePlus, X } from "lucide-react";
+import { Plus, Trash2, Edit, PauseCircle, PlayCircle, ImagePlus, X, Check, Crop } from "lucide-react";
+import Cropper from "react-easy-crop";
+import getCroppedImg from "@/lib/cropImage";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -84,6 +86,12 @@ export default function AdminProducts() {
     imageFiles: [],
     imagePreviews: [],
   });
+
+  const [imageToCrop, setImageToCrop] = useState<string | null>(null);
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null);
+  const [isCropping, setIsCropping] = useState(false);
 
   const resetForm = () => {
     setFormData({
@@ -232,15 +240,41 @@ export default function AdminProducts() {
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      const newFiles = Array.from(e.target.files);
-      const newPreviews = newFiles.map(file => URL.createObjectURL(file));
-      
-      setFormData(prev => ({
-        ...prev,
-        imageFiles: [...prev.imageFiles, ...newFiles],
-        imagePreviews: [...prev.imagePreviews, ...newPreviews],
-      }));
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      const reader = new FileReader();
+      reader.addEventListener("load", () => {
+        setImageToCrop(reader.result as string);
+        setIsCropping(true);
+      });
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const onCropComplete = (_: any, croppedAreaPixels: any) => {
+    setCroppedAreaPixels(croppedAreaPixels);
+  };
+
+  const handleApplyCrop = async () => {
+    try {
+      if (imageToCrop && croppedAreaPixels) {
+        const croppedBlob = await getCroppedImg(imageToCrop, croppedAreaPixels);
+        if (croppedBlob) {
+          const file = new File([croppedBlob], `product-${Date.now()}.jpg`, { type: "image/jpeg" });
+          const preview = URL.createObjectURL(croppedBlob);
+          
+          setFormData(prev => ({
+            ...prev,
+            imageFiles: [...prev.imageFiles, file],
+            imagePreviews: [...prev.imagePreviews, preview],
+          }));
+        }
+        setIsCropping(false);
+        setImageToCrop(null);
+      }
+    } catch (error) {
+      toast.error("Failed to crop image");
+      console.error(error);
     }
   };
 
@@ -311,34 +345,51 @@ export default function AdminProducts() {
               <div className="space-y-4">
                 <div className="space-y-2">
                   <Label>Product Images</Label>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                    {formData.imagePreviews.map((preview, index) => (
-                      <div key={index} className="relative aspect-square border border-border rounded-xl overflow-hidden group">
-                        <img src={preview} alt={`Preview ${index}`} className="w-full h-full object-cover" />
-                        <Button
-                          size="icon"
-                          variant="destructive"
-                          className="absolute top-1 right-1 h-6 w-6 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
-                          onClick={() => removeImage(index)}
-                        >
-                          <X className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    ))}
-                    <label className="aspect-square border-2 border-dashed border-border rounded-xl flex flex-col items-center justify-center cursor-pointer hover:bg-secondary/30 transition-colors gap-1">
-                      <div className="p-2 bg-card rounded-full shadow-sm text-muted-foreground">
-                        <ImagePlus className="h-5 w-5" />
-                      </div>
-                      <span className="text-[10px] font-medium text-muted-foreground">Add Image</span>
-                      <input
-                        type="file"
-                        className="hidden"
-                        accept="image/*"
-                        multiple
-                        onChange={handleImageUpload}
+                  {isCropping && imageToCrop ? (
+                    <div className="relative h-[300px] w-full rounded-2xl overflow-hidden bg-black mb-4">
+                      <Cropper
+                        image={imageToCrop}
+                        crop={crop}
+                        zoom={zoom}
+                        aspect={4 / 5}
+                        onCropChange={setCrop}
+                        onCropComplete={onCropComplete}
+                        onZoomChange={setZoom}
                       />
-                    </label>
-                  </div>
+                      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+                        <Button size="sm" variant="outline" onClick={() => setIsCropping(false)} className="bg-background/80 backdrop-blur">Cancel</Button>
+                        <Button size="sm" onClick={handleApplyCrop} className="bg-primary text-primary-foreground"><Check className="h-4 w-4 mr-1" /> Apply Crop</Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                      {formData.imagePreviews.map((preview, index) => (
+                        <div key={index} className="relative aspect-[4/5] border border-border rounded-xl overflow-hidden group">
+                          <img src={preview} alt={`Preview ${index}`} className="w-full h-full object-cover" />
+                          <Button
+                            size="icon"
+                            variant="destructive"
+                            className="absolute top-1 right-1 h-6 w-6 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                            onClick={() => removeImage(index)}
+                          >
+                            <X className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      ))}
+                      <label className="aspect-[4/5] border-2 border-dashed border-border rounded-xl flex flex-col items-center justify-center cursor-pointer hover:bg-secondary/30 transition-colors gap-1">
+                        <div className="p-2 bg-card rounded-full shadow-sm text-muted-foreground">
+                          <ImagePlus className="h-5 w-5" />
+                        </div>
+                        <span className="text-[10px] font-medium text-muted-foreground">Add Image</span>
+                        <input
+                          type="file"
+                          className="hidden"
+                          accept="image/*"
+                          onChange={handleImageUpload}
+                        />
+                      </label>
+                    </div>
+                  )}
                 </div>
                 <div className="space-y-2"><Label htmlFor="description">Description</Label><Textarea id="description" value={formData.description} onChange={(e) => setFormData({...formData, description: e.target.value})} className="rounded-xl border-border resize-none h-[100px] lg:h-[120px]" placeholder="Product details..." /></div>
               </div>
