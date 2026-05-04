@@ -401,7 +401,7 @@ const buildAdminProductFormData = (
     sellPrice: number;
     gst: number;
     isPaused: boolean;
-    imageFile?: File | null;
+    imageFiles?: File[];
   },
   fileField = "media",
 ) => {
@@ -421,17 +421,19 @@ const buildAdminProductFormData = (
   formData.append("sellPrice", product.sellPrice.toString());
   formData.append("gst", product.gst.toString());
   formData.append("isPaused", product.isPaused ? "true" : "false");
-  if (product.imageFile) {
-    formData.append(fileField, product.imageFile);
+  if (product.imageFiles && product.imageFiles.length > 0) {
+    product.imageFiles.forEach((file) => {
+      formData.append(fileField, file);
+    });
   }
   return formData;
 };
 
 export const createAdminProduct = (
-  product: Omit<AdminProduct, "_id" | "id" | "createdAt" | "__v" | "images"> & { imageFile?: File | null },
+  product: Omit<AdminProduct, "_id" | "id" | "createdAt" | "__v" | "images"> & { imageFiles?: File[] },
   accessToken: string,
 ) => {
-  const body = product.imageFile ? buildAdminProductFormData(product) : {
+  const body = product.imageFiles && product.imageFiles.length > 0 ? buildAdminProductFormData(product) : {
     ...product,
     images: [],
   };
@@ -447,10 +449,10 @@ export const createAdminProduct = (
 
 export const updateAdminProduct = (
   productId: string,
-  product: Partial<Omit<AdminProduct, "_id" | "id" | "createdAt" | "__v" | "images">> & { imageFile?: File | null },
+  product: Partial<Omit<AdminProduct, "_id" | "id" | "createdAt" | "__v" | "images">> & { imageFiles?: File[] },
   accessToken: string,
 ) => {
-  const body = product.imageFile ? buildAdminProductFormData(product as any, "images") : product;
+  const body = product.imageFiles && product.imageFiles.length > 0 ? buildAdminProductFormData(product as any, "images") : product;
   return request<AdminProductUpdateResponse>(`/admin/products/${productId}`, {
     method: "PATCH",
     headers: {

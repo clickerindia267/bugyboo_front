@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Plus, Trash2, Edit, PauseCircle, PlayCircle, ImagePlus } from "lucide-react";
+import { Plus, Trash2, Edit, PauseCircle, PlayCircle, ImagePlus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -48,8 +48,8 @@ interface ProductFormData {
   sellingPrice: string;
   gst: string;
   description: string;
-  imageFile: File | null;
-  imagePreview: string;
+  imageFiles: File[];
+  imagePreviews: string[];
 }
 
 const getProductId = (product: AdminProduct) => product._id ?? product.id ?? "";
@@ -81,8 +81,8 @@ export default function AdminProducts() {
     sellingPrice: "",
     gst: "18",
     description: "",
-    imageFile: null,
-    imagePreview: "",
+    imageFiles: [],
+    imagePreviews: [],
   });
 
   const resetForm = () => {
@@ -96,8 +96,8 @@ export default function AdminProducts() {
       sellingPrice: "",
       gst: "18",
       description: "",
-      imageFile: null,
-      imagePreview: "",
+      imageFiles: [],
+      imagePreviews: [],
     });
     setIsEditing(false);
   };
@@ -142,8 +142,8 @@ export default function AdminProducts() {
         sellingPrice: product.sellPrice?.toString() ?? "",
         gst: product.gst?.toString() ?? "18",
         description: product.description,
-        imageFile: null,
-        imagePreview: product.images?.[0] ?? "",
+        imageFiles: [],
+        imagePreviews: product.images ?? [],
       });
       setIsEditing(true);
     } else {
@@ -175,7 +175,7 @@ export default function AdminProducts() {
       basePrice: Number(formData.basePrice) || 0,
       sellPrice: Number(formData.sellingPrice) || 0,
       gst: Number(formData.gst) || 0,
-      imageFile: formData.imageFile,
+      imageFiles: formData.imageFiles,
       isPaused: isEditing ? existingProduct?.isPaused ?? false : false,
     };
 
@@ -232,13 +232,43 @@ export default function AdminProducts() {
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setFormData({
-        ...formData,
-        imageFile: e.target.files[0],
-        imagePreview: URL.createObjectURL(e.target.files[0]),
-      });
+    if (e.target.files) {
+      const newFiles = Array.from(e.target.files);
+      const newPreviews = newFiles.map(file => URL.createObjectURL(file));
+      
+      setFormData(prev => ({
+        ...prev,
+        imageFiles: [...prev.imageFiles, ...newFiles],
+        imagePreviews: [...prev.imagePreviews, ...newPreviews],
+      }));
     }
+  };
+
+  const removeImage = (index: number) => {
+    setFormData(prev => {
+      const newFiles = [...prev.imageFiles];
+      const newPreviews = [...prev.imagePreviews];
+      
+      // If it's a new file, remove from imageFiles
+      // The index in imagePreviews might correspond to imageFiles or existing images
+      // This logic needs to be careful if we mix existing and new images.
+      // For now, let's assume all previews are either existing URLs or blob URLs.
+      
+      const removedPreview = newPreviews[index];
+      if (removedPreview.startsWith('blob:')) {
+        // Find index in imageFiles
+        const blobIndex = newPreviews.slice(0, index).filter(p => p.startsWith('blob:')).length;
+        newFiles.splice(blobIndex, 1);
+      }
+      
+      newPreviews.splice(index, 1);
+      
+      return {
+        ...prev,
+        imageFiles: newFiles,
+        imagePreviews: newPreviews,
+      };
+    });
   };
 
   return (
@@ -279,13 +309,35 @@ export default function AdminProducts() {
                 </div>
               </div>
               <div className="space-y-4">
-                <div className="space-y-2"><Label>Product Image</Label>
-                  <div className="border-2 border-dashed border-border rounded-2xl p-4 flex flex-col items-center justify-center gap-4 relative h-[200px] lg:h-[250px] bg-secondary/30">
-                    {formData.imagePreview ? (
-                      <div className="relative w-full h-full"><img src={formData.imagePreview} alt="Preview" className="w-full h-full object-contain rounded-xl" /><Button size="sm" variant="destructive" className="absolute top-2 right-2 rounded-lg" onClick={() => setFormData({...formData, imageFile: null, imagePreview: ""})}>Remove</Button></div>
-                    ) : (
-                      <><div className="p-3 bg-card rounded-full shadow-sm text-muted-foreground"><ImagePlus className="h-6 w-6" /></div><div className="text-sm text-center text-muted-foreground"><p className="font-medium text-foreground">Click to upload</p><p>or drag and drop</p></div><input type="file" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="image/*" onChange={handleImageUpload} /></>
-                    )}
+                <div className="space-y-2">
+                  <Label>Product Images</Label>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {formData.imagePreviews.map((preview, index) => (
+                      <div key={index} className="relative aspect-square border border-border rounded-xl overflow-hidden group">
+                        <img src={preview} alt={`Preview ${index}`} className="w-full h-full object-cover" />
+                        <Button
+                          size="icon"
+                          variant="destructive"
+                          className="absolute top-1 right-1 h-6 w-6 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={() => removeImage(index)}
+                        >
+                          <X className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    ))}
+                    <label className="aspect-square border-2 border-dashed border-border rounded-xl flex flex-col items-center justify-center cursor-pointer hover:bg-secondary/30 transition-colors gap-1">
+                      <div className="p-2 bg-card rounded-full shadow-sm text-muted-foreground">
+                        <ImagePlus className="h-5 w-5" />
+                      </div>
+                      <span className="text-[10px] font-medium text-muted-foreground">Add Image</span>
+                      <input
+                        type="file"
+                        className="hidden"
+                        accept="image/*"
+                        multiple
+                        onChange={handleImageUpload}
+                      />
+                    </label>
                   </div>
                 </div>
                 <div className="space-y-2"><Label htmlFor="description">Description</Label><Textarea id="description" value={formData.description} onChange={(e) => setFormData({...formData, description: e.target.value})} className="rounded-xl border-border resize-none h-[100px] lg:h-[120px]" placeholder="Product details..." /></div>
