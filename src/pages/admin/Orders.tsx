@@ -1,16 +1,17 @@
 import { useEffect, useState } from "react";
-import { CheckCircle2, XCircle, Clock, User, Mail, Phone, MapPin, Package, CreditCard, ChevronRight } from "lucide-react";
+import { CheckCircle2, XCircle, Clock, User, Mail, Phone, MapPin, Package, CreditCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
-import { getAdminOrders, getAdminPendingOrders, AdminOrder } from "@/lib/api";
+import { getAdminOrders, getAdminPendingOrders, updateAdminOrderStatus, AdminOrder } from "@/lib/api";
 import { toast } from "sonner";
 
 export default function AdminOrders() {
   const [orders, setOrders] = useState<AdminOrder[]>([]);
   const [pendingOrders, setPendingOrders] = useState<AdminOrder[]>([]);
   const [isLoadingOrders, setIsLoadingOrders] = useState(false);
+  const [isUpdatingStatus, setIsUpdatingStatus] = useState<Record<string, boolean>>({});
 
   const [fetchedProducts, setFetchedProducts] = useState<Record<string, any>>({});
 
@@ -53,14 +54,91 @@ export default function AdminOrders() {
       .finally(() => setIsLoadingOrders(false));
   }, []);
 
-  const handleUpdateStatus = (id: string, newStatus: string) => {
-    setOrders(orders.map(order => order._id === id ? { ...order, orderStatus: newStatus } : order));
-    setPendingOrders(pendingOrders.filter(order => order._id !== id));
-    toast.success(`Order ${newStatus.toLowerCase()}`);
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case "ordered":
+      case "pending":
+        return "Pending";
+      case "approved":
+        return "Approved";
+      case "shipped":
+        return "Shipped";
+      case "out_for_delivery":
+        return "Out for delivery";
+      case "delivered":
+        return "Delivered";
+      case "completed":
+        return "Completed";
+      case "cancelled":
+        return "Cancelled";
+      default:
+        return status.replace(/_/g, " ");
+    }
+  };
+
+  const getStatusClasses = (status: string) => {
+    switch (status) {
+      case "approved":
+        return "bg-sky-100 text-sky-700 border-sky-200";
+      case "shipped":
+        return "bg-blue-100 text-blue-700 border-blue-200";
+      case "out_for_delivery":
+        return "bg-violet-100 text-violet-700 border-violet-200";
+      case "delivered":
+      case "completed":
+        return "bg-green-100 text-green-700 border-green-200";
+      case "cancelled":
+        return "bg-red-100 text-red-700 border-red-200";
+      default:
+        return "bg-amber-100 text-amber-700 border-amber-200";
+    }
+  };
+
+  const getNextStatusAction = (status: string) => {
+    switch (status) {
+      case "ordered":
+      case "pending":
+        return { label: "Accept Order", nextStatus: "approved" };
+      case "approved":
+        return { label: "Mark Shipped", nextStatus: "shipped" };
+      case "shipped":
+        return { label: "Mark Out for Delivery", nextStatus: "out_for_delivery" };
+      case "out_for_delivery":
+        return { label: "Mark Delivered", nextStatus: "delivered" };
+      default:
+        return null;
+    }
+  };
+
+  const handleUpdateStatus = async (id: string, newStatus: string) => {
+    const accessToken = localStorage.getItem("accessToken");
+    if (!accessToken) {
+      toast.error("Missing access token. Please login again.");
+      return;
+    }
+
+    setIsUpdatingStatus((prev) => ({ ...prev, [id]: true }));
+    try {
+      const response = await updateAdminOrderStatus(id, newStatus, accessToken);
+      setOrders((prev) => prev.map((order) => (order._id === id ? response.data : order)));
+      setPendingOrders((prev) => prev.filter((order) => order._id !== id));
+      toast.success(`Order ${getStatusLabel(newStatus)} successfully`);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to update order status");
+    } finally {
+      setIsUpdatingStatus((prev) => {
+        const next = { ...prev };
+        delete next[id];
+        return next;
+      });
+    }
   };
 
   const OrderCard = ({ order }: { order: AdminOrder }) => {
-    const statusLabel = order.orderStatus === 'ordered' ? 'Pending' : order.orderStatus === 'completed' ? 'Completed' : order.orderStatus === 'cancelled' ? 'Declined' : order.orderStatus;
+    const statusLabel = getStatusLabel(order.orderStatus);
+    const statusClassName = getStatusClasses(order.orderStatus);
+    const action = getNextStatusAction(order.orderStatus);
+    const isUpdating = !!isUpdatingStatus[order._id];
     
     const formattedAddress = typeof order.address === 'object' && order.address !== null 
       ? `${order.address.fullAddress}, ${order.address.city}, ${order.address.pincode}, ${order.address.country}`
@@ -82,14 +160,10 @@ export default function AdminOrders() {
                 </p>
               </div>
             </div>
-            <div className={`px-4 py-1.5 rounded-full text-xs font-bold flex items-center gap-2 border shadow-sm
-              ${statusLabel === 'Completed' ? 'bg-green-100 text-green-700 border-green-200' : ''}
-              ${statusLabel === 'Pending' ? 'bg-amber-100 text-amber-700 border-amber-200' : ''}
-              ${statusLabel === 'Declined' ? 'bg-red-100 text-red-700 border-red-200' : ''}
-            `}>
-              {statusLabel === 'Completed' && <CheckCircle2 className="w-3.5 h-3.5" />}
+            <div className={`px-4 py-1.5 rounded-full text-xs font-bold flex items-center gap-2 border shadow-sm ${statusClassName}`}>
+              {['Delivered', 'Completed', 'Approved', 'Shipped', 'Out for delivery'].includes(statusLabel) && <CheckCircle2 className="w-3.5 h-3.5" />}
               {statusLabel === 'Pending' && <Clock className="w-3.5 h-3.5" />}
-              {statusLabel === 'Declined' && <XCircle className="w-3.5 h-3.5" />}
+              {statusLabel === 'Cancelled' && <XCircle className="w-3.5 h-3.5" />}
               {statusLabel}
             </div>
           </div>
@@ -191,22 +265,26 @@ export default function AdminOrders() {
                     </div>
                   </div>
 
-                  {statusLabel === 'Pending' && (
-                    <div className="flex gap-2">
-                      <Button 
-                        variant="outline" 
+                  {action && (
+                    <div className="flex flex-wrap gap-2">
+                      {(order.orderStatus === 'ordered' || order.orderStatus === 'pending') && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="rounded-full border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 h-10 px-6 font-bold"
+                          onClick={() => handleUpdateStatus(order._id, 'cancelled')}
+                          disabled={isUpdating}
+                        >
+                          Decline
+                        </Button>
+                      )}
+                      <Button
                         size="sm"
-                        className="rounded-full border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 h-10 px-6 font-bold" 
-                        onClick={() => handleUpdateStatus(order._id, 'cancelled')}
+                        className="rounded-full bg-primary hover:bg-primary/90 text-primary-foreground h-10 px-6 font-bold shadow-soft"
+                        onClick={() => handleUpdateStatus(order._id, action.nextStatus)}
+                        disabled={isUpdating}
                       >
-                        Decline
-                      </Button>
-                      <Button 
-                        size="sm"
-                        className="rounded-full bg-primary hover:bg-primary/90 text-primary-foreground h-10 px-6 font-bold shadow-soft" 
-                        onClick={() => handleUpdateStatus(order._id, 'completed')}
-                      >
-                        Accept Order
+                        {isUpdating ? 'Updating...' : action.label}
                       </Button>
                     </div>
                   )}
@@ -234,8 +312,8 @@ export default function AdminOrders() {
           <TabsTrigger value="pending" className="rounded-xl px-6 py-2.5 text-sm font-bold data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all">
             Pending ({pendingOrders.length})
           </TabsTrigger>
-          <TabsTrigger value="completed" className="rounded-xl px-6 py-2.5 text-sm font-bold data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all">
-            Completed ({orders.filter(o => o.orderStatus === 'completed').length})
+          <TabsTrigger value="delivered" className="rounded-xl px-6 py-2.5 text-sm font-bold data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all">
+            Delivered ({orders.filter(o => ['completed', 'delivered'].includes(o.orderStatus)).length})
           </TabsTrigger>
         </TabsList>
 
@@ -267,12 +345,12 @@ export default function AdminOrders() {
                 )}
               </TabsContent>
 
-              <TabsContent value="completed" className="mt-0 outline-none">
-                {orders.filter(o => o.orderStatus === 'completed').map(order => <OrderCard key={order._id} order={order} />)}
-                {orders.filter(o => o.orderStatus === 'completed').length === 0 && (
+              <TabsContent value="delivered" className="mt-0 outline-none">
+                {orders.filter(o => ['completed', 'delivered'].includes(o.orderStatus)).map(order => <OrderCard key={order._id} order={order} />)}
+                {orders.filter(o => ['completed', 'delivered'].includes(o.orderStatus)).length === 0 && (
                   <div className="text-center py-20 bg-card rounded-3xl border border-dashed border-border/60">
                     <Clock className="w-16 h-16 text-muted-foreground/20 mx-auto mb-4" />
-                    <p className="text-muted-foreground font-serif text-xl italic">No completed orders found.</p>
+                    <p className="text-muted-foreground font-serif text-xl italic">No delivered orders found.</p>
                   </div>
                 )}
               </TabsContent>

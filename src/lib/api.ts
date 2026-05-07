@@ -181,6 +181,11 @@ export interface AdminOrdersResponse {
   data: AdminOrder[];
 }
 
+export interface AdminOrderResponse {
+  success: boolean;
+  data: AdminOrder;
+}
+
 export interface AdminDashboardData {
   totalOrders: number;
   totalRevenue: number;
@@ -304,6 +309,15 @@ export const getAdminPendingOrders = (accessToken: string) =>
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },
+  });
+
+export const updateAdminOrderStatus = (orderId: string, status: string, accessToken: string) =>
+  request<AdminOrderResponse>(`/admin/orders/${orderId}/status`, {
+    method: "PATCH",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+    body: { status },
   });
 
 export const getAdminDashboard = (accessToken: string) =>
