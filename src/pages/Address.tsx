@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { MapPin, CreditCard, Smartphone, Truck, CheckCircle2, Loader2, X, PartyPopper, Plus } from "lucide-react";
 import PageShell from "@/components/PageShell";
@@ -16,6 +16,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { loadRazorpayScript } from "@/lib/loadRazorpayScript";
+import {
+  createRazorpayOrder,
+  verifyRazorpayPayment,
+  handleRazorpayPayment,
+} from "@/lib/paymentService";
 
 const Field = ({
   label,
@@ -55,6 +61,8 @@ const Address = () => {
   // Order
   const [placing, setPlacing] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("Order Placed!");
+  const paymentSessionRef = useRef(false);
   
   // New Address Dialog
   const [isAddressDialogOpen, setIsAddressDialogOpen] = useState(false);
@@ -92,6 +100,10 @@ const Address = () => {
   const handlePlaceOrder = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (placing) {
+      return;
+    }
+
     if (!accessToken) {
       toast.error("Please log in to place an order");
       return;
@@ -105,8 +117,95 @@ const Address = () => {
       return;
     }
 
+    // COD flow: directly create order
+    if (paymentMethod === "COD") {
+      setPlacing(true);
+      try {
+        await createOrder(
+          {
+            contact: {
+              name: contactName.trim(),
+              mobile: contactMobile.trim(),
+              email: contactEmail.trim(),
+            },
+            addressId: selectedAddressId,
+            paymentMethod: "COD",
+          },
+          accessToken
+        );
+        clear();
+        refreshCart();
+        setSuccessMessage("Order Placed Successfully!");
+        setShowSuccess(true);
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : "Failed to place order");
+      } finally {
+        setPlacing(false);
+      }
+      return;
+    }
+
+    // UPI flow: initiate Razorpay payment
+    if (paymentMethod === "UPI") {
+      await handleUPIPayment();
+    }
+  };
+
+  /**
+   * Handle UPI payment flow:
+   * 1. Load Razorpay script
+   * 2. Create Razorpay order
+   * 3. Open Razorpay popup
+   * 4. Verify payment
+   * 5. Create ecommerce order
+   */
+  const handleUPIPayment = async () => {
+    if (paymentSessionRef.current) {
+      toast.error("Payment already in progress. Please wait.");
+      return;
+    }
+
+    paymentSessionRef.current = true;
     setPlacing(true);
+
     try {
+      // Step 1: Load Razorpay script
+      await loadRazorpayScript();
+
+      // Step 2: Calculate total amount in rupees (backend converts to paise)
+      const shipping = subtotal > 500 ? 0 : 49;
+      const totalAmount = subtotal + shipping;
+
+      // Step 3: Create Razorpay order
+      const orderResponse = await createRazorpayOrder(totalAmount, accessToken);
+
+      const { key, order } = orderResponse.data;
+
+      // Step 4: Open Razorpay payment popup
+      const paymentDetails = await handleRazorpayPayment({
+        key,
+        order_id: order.id,
+        amount: order.amount,
+        currency: order.currency,
+        name: "BugyBoo",
+        description: "Order Payment",
+        contact: contactMobile.trim(),
+        email: contactEmail.trim(),
+      });
+
+      // Step 5: Verify payment
+      const verificationResponse = await verifyRazorpayPayment(
+        paymentDetails,
+        accessToken
+      );
+
+      if (!verificationResponse.success) {
+        toast.error("Payment verification failed");
+        setPlacing(false);
+        return;
+      }
+
+      // Step 6: Create final ecommerce order
       await createOrder(
         {
           contact: {
@@ -115,17 +214,27 @@ const Address = () => {
             email: contactEmail.trim(),
           },
           addressId: selectedAddressId,
-          paymentMethod,
+          paymentMethod: "UPI",
+          paymentStatus: "paid",
+          transactionId: paymentDetails.razorpay_payment_id,
         },
         accessToken
       );
+
       clear();
       refreshCart();
+      setSuccessMessage("Payment Successful! Order Placed!");
       setShowSuccess(true);
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Failed to place order");
+      // Handle payment cancellation gracefully
+      if (error instanceof Error && error.message.includes("cancelled")) {
+        toast.error("Payment cancelled. Please try again.");
+      } else {
+        toast.error(error instanceof Error ? error.message : "Payment failed. Please try again.");
+      }
     } finally {
       setPlacing(false);
+      paymentSessionRef.current = false;
     }
   };
 
@@ -339,12 +448,12 @@ const Address = () => {
                   {placing ? (
                     <>
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Placing order...
+                      {paymentMethod === "UPI" ? "Processing Payment..." : "Placing order..."}
                     </>
                   ) : (
                     <>
                       <CheckCircle2 className="h-4 w-4 mr-2" />
-                      Confirm Order
+                      {paymentMethod === "UPI" ? "Proceed to Payment" : "Confirm Order"}
                     </>
                   )}
                 </Button>
@@ -386,7 +495,7 @@ const Address = () => {
               <PartyPopper className="absolute -top-1 -right-1 h-6 w-6 text-amber-500 animate-bounce" />
             </div>
 
-            <h2 className="font-serif text-2xl md:text-3xl mb-2">Order Placed!</h2>
+            <h2 className="font-serif text-2xl md:text-3xl mb-2">{successMessage}</h2>
             <p className="text-muted-foreground text-sm mb-6">
               Thank you for shopping with BugyBoo! Your order has been placed successfully. We'll send you updates on your order status.
             </p>

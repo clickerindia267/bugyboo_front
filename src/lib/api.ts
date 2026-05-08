@@ -694,6 +694,8 @@ export interface CreateOrderRequest {
   };
   addressId: string;
   paymentMethod: string;
+  paymentStatus?: string;
+  transactionId?: string;
 }
 
 export interface CreateOrderResponse {
