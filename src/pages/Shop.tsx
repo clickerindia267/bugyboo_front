@@ -37,10 +37,10 @@ const Shop = () => {
     let list = allProducts.filter(
       (p) =>
         (cat === "All" || p.category?.name === cat) &&
-        p.sellPrice <= maxPrice,
+        Math.min(...(p.variants?.map(v => v.sellPrice) || [0])) <= maxPrice,
     );
-    if (sort === "low") list = [...list].sort((a, b) => a.sellPrice - b.sellPrice);
-    if (sort === "high") list = [...list].sort((a, b) => b.sellPrice - a.sellPrice);
+    if (sort === "low") list = [...list].sort((a, b) => Math.min(...(a.variants?.map(v => v.sellPrice) || [0])) - Math.min(...(b.variants?.map(v => v.sellPrice) || [0])));
+    if (sort === "high") list = [...list].sort((a, b) => Math.min(...(b.variants?.map(v => v.sellPrice) || [0])) - Math.min(...(a.variants?.map(v => v.sellPrice) || [0])));
     return list;
   }, [allProducts, cat, sort, maxPrice]);
 
@@ -145,9 +145,9 @@ const Shop = () => {
                     loading="lazy"
                     className="w-full h-full object-contain md:object-cover transition-transform duration-1200 ease-out group-hover:scale-110"
                   />
-                  {p.basePrice > p.sellPrice && (
+                  {p.variants?.some(v => v.basePrice > v.sellPrice) && (
                     <span className="absolute top-3 left-3 px-3 py-1 rounded-full bg-background/80 backdrop-blur text-[10px] uppercase tracking-wider font-medium">
-                      {Math.round(((p.basePrice - p.sellPrice) / p.basePrice) * 100)}% off
+                      Sale
                     </span>
                   )}
                 </div>
@@ -155,10 +155,7 @@ const Shop = () => {
                   <p className="text-[11px] text-muted-foreground mb-1">{p.category?.name}</p>
                   <h3 className="font-serif text-base leading-tight mb-1">{p.name}</h3>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium">₹{p.sellPrice}</span>
-                    {p.basePrice > p.sellPrice && (
-                      <span className="text-xs text-muted-foreground line-through">₹{p.basePrice}</span>
-                    )}
+                    <span className="text-sm font-medium">Starting From ₹{Math.min(...(p.variants?.map(v => v.sellPrice) || [0]))}</span>
                   </div>
                 </div>
               </Link>

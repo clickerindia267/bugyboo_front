@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { ChevronRight, Heart, Minus, Plus, Truck, RefreshCw, ShieldCheck, ChevronLeft, Loader2 } from "lucide-react";
 import PageShell from "@/components/PageShell";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
-import { getProductById, getProducts, addToCart, type PublicProduct } from "@/lib/api";
+import { getProductById, getProducts, type PublicProduct, type ProductVariant } from "@/lib/api";
 import { useCart } from "@/store/cart";
 import { useAuth } from "@/store/auth";
 import { toast } from "@/hooks/use-toast";
@@ -19,6 +19,7 @@ const ProductDetails = () => {
   const [qty, setQty] = useState(1);
   const [zoom, setZoom] = useState(false);
   const [adding, setAdding] = useState(false);
+  const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null);
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["product", id],
@@ -35,6 +36,13 @@ const ProductDetails = () => {
   const related = (allProductsData?.data ?? [])
     .filter((p) => p._id !== id && !p.isPaused)
     .slice(0, 4);
+
+  // Set default selected variant when product loads
+  useEffect(() => {
+    if (product?.variants && product.variants.length > 0) {
+      setSelectedVariant(product.variants[0]);
+    }
+  }, [product]);
 
   if (isLoading) {
     return (
@@ -80,9 +88,22 @@ const ProductDetails = () => {
       return;
     }
 
+    if (!selectedVariant) {
+      toast({ title: "Please select an age group", description: "Choose an age group before adding to cart." });
+      return;
+    }
+
     setAdding(true);
     try {
-      await add(product._id, qty);
+      await add(
+        product._id,
+        qty,
+        selectedVariant.ageGroup,
+        selectedVariant.sellPrice,
+        selectedVariant,
+        selectedVariant.basePrice,
+        selectedVariant._id,
+      );
       if (goCart) navigate("/cart");
     } catch (err) {
       toast({ title: "Failed to add", description: err instanceof Error ? err.message : "Please try again." });
@@ -91,9 +112,7 @@ const ProductDetails = () => {
     }
   };
 
-  const discount = product.basePrice > product.sellPrice
-    ? Math.round(((product.basePrice - product.sellPrice) / product.basePrice) * 100)
-    : 0;
+  const discount = selectedVariant ? Math.round(((selectedVariant.basePrice - selectedVariant.sellPrice) / selectedVariant.basePrice) * 100) : 0;
 
   const images = product.images ?? [];
 
@@ -195,13 +214,13 @@ const ProductDetails = () => {
             {/* ── Info ── */}
             <div className="md:py-4">
               <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground mb-3">
-                {product.category?.name} · {product.size}
+                {product.category?.name}
               </p>
               <h1 className="font-serif text-4xl md:text-5xl mb-4">{product.name}</h1>
               <div className="flex items-center gap-3 mb-5">
-                <span className="text-3xl font-serif">₹{product.sellPrice}</span>
-                {product.basePrice > product.sellPrice && (
-                  <span className="text-lg text-muted-foreground line-through">₹{product.basePrice}</span>
+                <span className="text-3xl font-serif">₹{selectedVariant?.sellPrice || 0}</span>
+                {selectedVariant && selectedVariant.basePrice > selectedVariant.sellPrice && (
+                  <span className="text-lg text-muted-foreground line-through">₹{selectedVariant.basePrice}</span>
                 )}
                 {discount > 0 && (
                   <span className="text-sm font-semibold text-green-600 bg-green-50 px-2 py-0.5 rounded-full">
@@ -229,9 +248,24 @@ const ProductDetails = () => {
                 <p className="text-sm font-medium mb-3">Color: <span className="text-muted-foreground font-normal">{product.color}</span></p>
               </div>
 
-              {/* Size */}
+              {/* Age Group Selector */}
               <div className="mb-6">
-                <p className="text-sm font-medium mb-3">Size: <span className="text-muted-foreground font-normal">{product.size}</span></p>
+                <p className="text-sm font-medium mb-3">Select Age Group</p>
+                <div className="flex flex-wrap gap-2">
+                  {product.variants?.map((variant) => (
+                    <button
+                      key={variant._id}
+                      onClick={() => setSelectedVariant(variant)}
+                      className={`px-4 py-2 rounded-full border text-sm font-medium transition-all ${
+                        selectedVariant?._id === variant._id
+                          ? "border-primary bg-primary text-primary-foreground"
+                          : "border-border hover:border-primary/50"
+                      }`}
+                    >
+                      {variant.ageGroup} Years - ₹{variant.sellPrice}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               {/* Qty */}
@@ -262,7 +296,7 @@ const ProductDetails = () => {
                       Adding...
                     </span>
                   ) : (
-                    <span className="text-center">Add to bag · ₹{product.sellPrice * qty}</span>
+                    <span className="text-center">Add to bag · ₹{(selectedVariant?.sellPrice || 0) * qty}</span>
                   )}
                 </Button>
                 <Button
@@ -313,10 +347,7 @@ const ProductDetails = () => {
                   </div>
                   <h3 className="font-serif text-base">{p.name}</h3>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium">₹{p.sellPrice}</span>
-                    {p.basePrice > p.sellPrice && (
-                      <span className="text-xs text-muted-foreground line-through">₹{p.basePrice}</span>
-                    )}
+                    <span className="text-sm font-medium">Starting From ₹{Math.min(...(p.variants?.map(v => v.sellPrice) || [0]))}</span>
                   </div>
                 </Link>
               ))}

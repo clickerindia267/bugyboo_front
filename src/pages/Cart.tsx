@@ -114,7 +114,7 @@ const Cart = () => {
 
   const count = cartItems.length;
   const subtotal = cartItems.reduce((sum, item) => {
-    const price = item.product?.sellPrice ?? 0;
+    const price = (item as any).selectedPrice ?? item.product?.sellPrice ?? 0;
     return sum + price * item.quantity;
   }, 0);
   const shipping = subtotal > 500 || subtotal === 0 ? 0 : 49;
@@ -192,18 +192,15 @@ const Cart = () => {
                         </Link>
                         <div className="flex items-center gap-3 text-xs text-muted-foreground mt-1 mb-3">
                           {item.product?.color && <span>Color: {item.product.color}</span>}
-                          {item.product?.size && (
+                          {(item as any).selectedAgeGroup && (
                             <>
-                              <span>·</span>
-                              <span>Size: {item.product.size}</span>
+                              {item.product?.color && <span>·</span>}
+                              <span>Age Group: {(item as any).selectedAgeGroup}</span>
                             </>
                           )}
                         </div>
                         <div className="flex items-center gap-2 mb-3">
-                          <span className="text-base font-medium">₹{item.product?.sellPrice ?? 0}</span>
-                          {item.product && item.product.basePrice > item.product.sellPrice && (
-                            <span className="text-xs text-muted-foreground line-through">₹{item.product.basePrice}</span>
-                          )}
+                          <span className="text-base font-medium">₹{(item as any).selectedPrice ?? item.product?.sellPrice ?? 0}</span>
                         </div>
                       </>
                     )}

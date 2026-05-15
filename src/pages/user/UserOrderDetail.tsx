@@ -154,11 +154,16 @@ const UserOrderDetail = () => {
                           <p className="text-xs text-muted-foreground mb-2">
                             Quantity: {item.quantity}
                           </p>
+                          {(item.ageGroup || item.selectedAgeGroup) && (
+                            <p className="text-xs text-muted-foreground">
+                              Age Group: {item.ageGroup ?? item.selectedAgeGroup}
+                            </p>
+                          )}
                         </div>
-                        <p className="font-semibold text-foreground">₹{item.price * item.quantity}</p>
+                        <p className="font-semibold text-foreground">₹{((item.sellPrice ?? item.price ?? 0) * item.quantity).toLocaleString("en-IN")}</p>
                       </div>
                       <p className="text-xs text-muted-foreground">
-                        Price per unit: ₹{item.price}
+                        Price per unit: ₹{(item.sellPrice ?? item.price ?? 0).toLocaleString("en-IN")}
                       </p>
                     </div>
                   </div>

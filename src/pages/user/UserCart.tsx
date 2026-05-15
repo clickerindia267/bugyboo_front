@@ -78,8 +78,13 @@ export default function UserCart() {
                         </h3>
                       </Link>
                       <p className="font-serif text-base whitespace-nowrap text-foreground">
-                        ₹{(item.product?.sellPrice ?? 0) * item.quantity}
+                        ₹{((item.selectedPrice ?? item.product?.sellPrice ?? 0) * item.quantity).toLocaleString("en-IN")}
                       </p>
+                    </div>
+                    <div className="text-xs text-muted-foreground mb-2">
+                      {item.selectedAgeGroup && <span>Age Group: {item.selectedAgeGroup}</span>}
+                      {item.selectedAgeGroup && item.selectedPrice && <span className="mx-2">·</span>}
+                      {item.selectedPrice ? <span>₹{item.selectedPrice.toLocaleString("en-IN")} each</span> : null}
                     </div>
                     <div className="flex items-center justify-between mt-auto">
                       <div className="inline-flex items-center border border-border rounded-full">

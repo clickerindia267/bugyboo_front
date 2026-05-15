@@ -1,23 +1,35 @@
 import { createContext, useContext, useEffect, useMemo, useState, useCallback, ReactNode } from "react";
-import { addToCart, getUserCart, updateCart, removeFromCart, getProductById } from "@/lib/api";
+import { addToCart, getUserCart, updateCart, removeFromCart, getProductById, type ProductVariant } from "@/lib/api";
 import { useAuth } from "./auth";
 import type { PublicProduct } from "@/lib/api";
 
 export type CartItem = {
   productId: string;
   quantity: number;
+  variantId?: string;
+  selectedAgeGroup?: string;
+  selectedPrice?: number;
+  basePrice?: number;
+  variant?: ProductVariant;
   _id: string;
   product?: {
     _id: string;
     name: string;
-    sellPrice: number;
     images: string[];
   };
 };
 
 type CartCtx = {
   items: CartItem[];
-  add: (productId: string, quantity: number) => Promise<void>;
+  add: (
+    productId: string,
+    quantity: number,
+    ageGroup: string,
+    selectedPrice: number,
+    variant?: ProductVariant,
+    basePrice?: number,
+    variantId?: string,
+  ) => Promise<void>;
   update: (productId: string, quantity: number) => Promise<void>;
   remove: (productId: string) => Promise<void>;
   clear: () => void;
@@ -52,11 +64,15 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       const baseItems: CartItem[] = response.data.products.map((p: any) => ({
         productId: typeof p.productId === 'string' ? p.productId : p.productId._id,
         quantity: p.quantity,
+        variantId: p.variantId,
+        selectedAgeGroup: p.selectedAgeGroup,
+        selectedPrice: p.selectedPrice,
+        basePrice: p.basePrice,
+        variant: p.variant,
         _id: p._id,
         product: typeof p.productId === 'object' ? {
           _id: p.productId._id,
           name: p.productId.name,
-          sellPrice: p.productId.sellPrice,
           images: p.productId.images,
         } : undefined,
       }));
@@ -91,10 +107,23 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [accessToken]);
 
-  const add: CartCtx["add"] = async (productId, quantity) => {
+  const add: CartCtx["add"] = async (
+    productId,
+    quantity,
+    ageGroup,
+    selectedPrice,
+    variant,
+    basePrice,
+    variantId,
+  ) => {
     if (!accessToken) throw new Error('Not logged in');
     try {
-      await addToCart(productId, quantity, accessToken);
+      await addToCart(productId, quantity, ageGroup, accessToken, {
+        basePrice,
+        sellPrice: selectedPrice,
+        variantId,
+        variant,
+      });
       await fetchCart(); // Refresh cart
     } catch (error) {
       console.error('Failed to add to cart:', error);
@@ -139,7 +168,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   }, [fetchCart]);
 
   const count = items.reduce((s, i) => s + i.quantity, 0);
-  const subtotal = items.reduce((s, i) => s + i.quantity * (i.product?.sellPrice ?? 0), 0);
+  const subtotal = items.reduce((s, i) => s + i.quantity * (i.selectedPrice ?? 0), 0);
 
   return (
     <Ctx.Provider value={{ items, add, update, remove, clear, refreshCart, count, subtotal, loading }}>

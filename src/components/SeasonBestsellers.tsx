@@ -52,16 +52,19 @@ const ProductCard = ({ p, index }: { p: PublicProduct; index: number }) => {
       navigate("/login");
       return;
     }
+    if (!p.variants || p.variants.length === 0) {
+      toast({ title: "No variants available", description: "This product is not available", variant: "destructive" });
+      return;
+    }
+    const defaultVariant = p.variants[0];
     try {
-      await add(p._id, 1);
+      await add(p._id, 1, defaultVariant.ageGroup, defaultVariant.sellPrice);
     } catch (error) {
       toast({ title: "Failed to add to bag", description: "Please try again", variant: "destructive" });
     }
   };
 
-  const discount = p.basePrice > p.sellPrice
-    ? Math.round(((p.basePrice - p.sellPrice) / p.basePrice) * 100)
-    : 0;
+  const discount = p.variants?.some(v => v.basePrice > v.sellPrice) ? true : false;
 
   return (
     <Link
@@ -72,7 +75,7 @@ const ProductCard = ({ p, index }: { p: PublicProduct; index: number }) => {
       {/* Image */}
       <div className="sb-card-img">
         <img src={p.images?.[0] ?? ""} alt={p.name} loading="lazy" />
-        {discount > 0 && <span className="sb-tag">{discount}% off</span>}
+        {discount && <span className="sb-tag">Sale</span>}
         <button
           aria-label="Add to wishlist"
           onClick={(e) => e.preventDefault()}
@@ -97,13 +100,7 @@ const ProductCard = ({ p, index }: { p: PublicProduct; index: number }) => {
         <p className="text-[11px] text-muted-foreground mb-1">{p.category?.name}</p>
         <h3 className="sb-card-name">{p.name}</h3>
         <div className="sb-price-row">
-          <span className="sb-price">₹{p.sellPrice}</span>
-          {p.basePrice > p.sellPrice && (
-            <span className="sb-og-price">₹{p.basePrice}</span>
-          )}
-          {discount > 0 && (
-            <span className="sb-discount">{discount}% off</span>
-          )}
+          <span className="sb-price">Starting From ₹{Math.min(...(p.variants?.map(v => v.sellPrice) || [0]))}</span>
         </div>
       </div>
     </Link>

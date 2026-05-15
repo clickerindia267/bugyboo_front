@@ -25,8 +25,13 @@ const FeaturedProducts = () => {
       navigate("/login");
       return;
     }
+    if (!product.variants || product.variants.length === 0) {
+      toast({ title: "No variants available", description: "This product is not available", variant: "destructive" });
+      return;
+    }
+    const defaultVariant = product.variants[0];
     try {
-      await add(product._id, 1);
+      await add(product._id, 1, defaultVariant.ageGroup, defaultVariant.sellPrice);
     } catch (error) {
       toast({ title: "Failed to add to bag", description: "Please try again", variant: "destructive" });
     }
@@ -79,9 +84,9 @@ const FeaturedProducts = () => {
                     loading="lazy"
                     className="w-full h-full object-contain md:object-cover transition-transform duration-1200 ease-out group-hover:scale-110"
                   />
-                  {p.basePrice > p.sellPrice && (
+                  {p.variants?.some(v => v.basePrice > v.sellPrice) && (
                     <span className="absolute top-3 left-3 px-3 py-1 rounded-full bg-background/80 backdrop-blur text-[10px] uppercase tracking-wider font-medium">
-                      {Math.round(((p.basePrice - p.sellPrice) / p.basePrice) * 100)}% off
+                      Sale
                     </span>
                   )}
                   <button
@@ -106,10 +111,7 @@ const FeaturedProducts = () => {
                   <p className="text-[11px] text-muted-foreground mb-1">{p.category?.name}</p>
                   <h3 className="font-serif text-lg leading-tight mb-1">{p.name}</h3>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium">₹{p.sellPrice}</span>
-                    {p.basePrice > p.sellPrice && (
-                      <span className="text-xs text-muted-foreground line-through">₹{p.basePrice}</span>
-                    )}
+                    <span className="text-sm font-medium">Starting From ₹{Math.min(...(p.variants?.map(v => v.sellPrice) || [0]))}</span>
                   </div>
                 </div>
               </Link>

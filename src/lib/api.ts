@@ -92,18 +92,23 @@ export interface AdminCategoryCreateResponse {
   data: Category;
 }
 
+export interface ProductVariant {
+  _id: string;
+  ageGroup: string;
+  basePrice: number;
+  sellPrice: number;
+}
+
 export interface AdminProduct {
   _id?: string;
   id?: string;
   name: string;
   category: string | Category | null;
   color: string;
-  size: string;
   description: string;
-  basePrice: number;
-  sellPrice: number;
   gst: number;
   images: string[];
+  variants: ProductVariant[];
   isPaused: boolean;
   status?: string;
   createdAt?: string;
@@ -146,11 +151,18 @@ export interface OrderUser {
 export interface OrderProductItem {
   product: {
     _id?: string;
+    id?: string;
     name?: string;
     images?: string[];
-  } | null;
+  } | string | null;
+  productId?: string;
+  productName?: string;
   quantity: number;
   price: number;
+  sellPrice?: number;
+  basePrice?: number;
+  ageGroup?: string;
+  selectedAgeGroup?: string;
   _id: string;
 }
 
@@ -409,11 +421,9 @@ const buildAdminProductFormData = (
     name: string;
     category: string | Category | null;
     color: string;
-    size: string;
     description: string;
-    basePrice: number;
-    sellPrice: number;
     gst: number;
+    variants: ProductVariant[];
     isPaused: boolean;
     imageFiles?: File[];
   },
@@ -429,11 +439,9 @@ const buildAdminProductFormData = (
   formData.append("name", product.name);
   formData.append("category", categoryId);
   formData.append("color", product.color);
-  formData.append("size", product.size);
   formData.append("description", product.description);
-  formData.append("basePrice", product.basePrice.toString());
-  formData.append("sellPrice", product.sellPrice.toString());
   formData.append("gst", product.gst.toString());
+  formData.append("variants", JSON.stringify(product.variants));
   formData.append("isPaused", product.isPaused ? "true" : "false");
   if (product.imageFiles && product.imageFiles.length > 0) {
     product.imageFiles.forEach((file) => {
@@ -610,13 +618,32 @@ export const getUserCart = (accessToken: string) =>
     },
   });
 
-export const addToCart = (productId: string, quantity: number, accessToken: string) =>
+export const addToCart = (
+  productId: string,
+  quantity: number,
+  ageGroup: string,
+  accessToken: string,
+  options?: {
+    basePrice?: number;
+    sellPrice?: number;
+    variantId?: string;
+    variant?: ProductVariant;
+  },
+) =>
   request<UserCartResponse>("/cart/add", {
     method: "POST",
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },
-    body: { productId, quantity },
+    body: {
+      productId,
+      quantity,
+      selectedAgeGroup: ageGroup,
+      basePrice: options?.basePrice,
+      sellPrice: options?.sellPrice,
+      variantId: options?.variantId,
+      variant: options?.variant,
+    },
   });
 
 export const updateCart = (productId: string, quantity: number, accessToken: string) =>
@@ -759,12 +786,10 @@ export interface PublicProduct {
     name: string;
   };
   color: string;
-  size: string;
   description: string;
-  basePrice: number;
-  sellPrice: number;
   gst: number;
   images: string[];
+  variants: ProductVariant[];
   isPaused: boolean;
   createdAt: string;
   __v: number;

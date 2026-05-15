@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
-import { getAdminOrders, getAdminPendingOrders, updateAdminOrderStatus, AdminOrder } from "@/lib/api";
+import { getAdminOrders, getAdminPendingOrders, updateAdminOrderStatus, getProductById, AdminOrder } from "@/lib/api";
 import { toast } from "sonner";
 
 export default function AdminOrders() {
@@ -26,12 +26,20 @@ export default function AdminOrders() {
     ])
       .then(async ([allRes, pendingRes]) => {
         // Collect all unique product IDs that need detail fetching
-        const allItems = [...allRes.data, ...pendingRes.data].flatMap(o => o.products);
+        const allItems = [...allRes.data, ...pendingRes.data].flatMap((o) => o.products);
         const productIdsToFetch = new Set<string>();
-        
-        allItems.forEach(item => {
-          if (item.product?._id && (!item.product.images || item.product.images.length === 0)) {
-            productIdsToFetch.add(item.product._id);
+
+        allItems.forEach((item) => {
+          const productId = typeof item.product === "string"
+            ? item.product
+            : item.product
+              ? item.product._id ?? item.product.id ?? item.productId
+              : item.productId;
+
+          const hasImage = typeof item.product !== "string" && item.product?.images && item.product.images.length > 0;
+
+          if (productId && !hasImage) {
+            productIdsToFetch.add(productId);
           }
         });
 
@@ -218,9 +226,20 @@ export default function AdminOrders() {
                 </h4>
                 <div className="space-y-3">
                   {order.products.map((item, idx) => {
-                    const productData = item.product?._id ? fetchedProducts[item.product._id] || item.product : item.product;
-                    const productName = productData?.name || "Deleted Product";
+                    const productId = typeof item.product === "string"
+                      ? item.product
+                      : item.product
+                        ? item.product._id ?? item.product.id ?? item.productId
+                        : item.productId;
+
+                    const fallbackProduct = typeof item.product === "string" ? undefined : item.product;
+                    const productData = productId ? fetchedProducts[productId] || fallbackProduct : fallbackProduct;
+                    const productName = productData?.name || item.productName || (typeof item.product !== "string" && item.product?.name) || "Deleted Product";
                     const productImage = productData?.images?.[0];
+                    const itemPriceNumber = Number((item as any).sellPrice ?? item.price ?? 0);
+                    const itemQty = Number(item.quantity ?? 0);
+                    const subtotal = itemPriceNumber * itemQty;
+                    const itemAgeGroup = (item as any).ageGroup ?? (item as any).selectedAgeGroup;
 
                     return (
                       <div key={idx} className="flex items-center gap-4 p-3 rounded-2xl border border-border/30 bg-secondary/10 hover:bg-secondary/20 transition-colors group/item">
@@ -235,13 +254,16 @@ export default function AdminOrders() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="font-bold text-foreground text-sm lg:text-base truncate">{productName}</p>
-                          <div className="flex items-center gap-2 mt-1">
-                            <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full font-bold">Qty: {item.quantity}</span>
-                            <span className="text-xs text-muted-foreground font-medium">Price: ₹{item.price.toLocaleString("en-IN")}</span>
+                          <div className="flex flex-wrap items-center gap-2 mt-1">
+                            <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full font-bold">Qty: {itemQty}</span>
+                            <span className="text-xs text-muted-foreground font-medium">Price: ₹{itemPriceNumber.toLocaleString("en-IN")}</span>
+                            {itemAgeGroup && (
+                              <span className="text-xs bg-secondary/10 text-muted-foreground px-2 py-0.5 rounded-full">Age Group: {itemAgeGroup}</span>
+                            )}
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className="text-sm lg:text-base font-black text-primary">₹{(item.price * item.quantity).toLocaleString("en-IN")}</p>
+                          <p className="text-sm lg:text-base font-black text-primary">₹{subtotal.toLocaleString("en-IN")}</p>
                         </div>
                       </div>
                     );
@@ -261,7 +283,7 @@ export default function AdminOrders() {
                     </div>
                     <div className="flex flex-col">
                       <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-tighter">Total Revenue</span>
-                      <span className="text-xl font-black text-primary tracking-tighter">₹{order.totalAmount.toLocaleString("en-IN")}</span>
+                      <span className="text-xl font-black text-primary tracking-tighter">₹{Number(order.totalAmount ?? 0).toLocaleString("en-IN")}</span>
                     </div>
                   </div>
 

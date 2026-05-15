@@ -30,14 +30,18 @@ interface AdminProduct {
   name: string;
   category?: string | AdminCategory | null;
   color: string;
-  size: string;
   description: string;
-  basePrice: number;
-  sellPrice: number;
   gst: number;
   images: string[];
+  variants: ProductVariant[];
   isPaused?: boolean;
   status?: string;
+}
+
+interface ProductVariant {
+  ageGroup: string;
+  basePrice: string;
+  sellPrice: string;
 }
 
 interface ProductFormData {
@@ -45,11 +49,9 @@ interface ProductFormData {
   name: string;
   category: string;
   color: string;
-  size: string;
-  basePrice: string;
-  sellingPrice: string;
   gst: string;
   description: string;
+  variants: ProductVariant[];
   imageFiles: File[];
   imagePreviews: string[];
 }
@@ -66,6 +68,20 @@ const getProductCategoryName = (category?: string | AdminCategory | null) => {
   return category.name ?? category._id ?? "Uncategorized";
 };
 
+const parseAgeGroup = (value: string) => {
+  const match = value.trim().match(/^(\d+)\s*-\s*(\d+)$/);
+  return match ? [Number(match[1]), Number(match[2])] : null;
+};
+
+const isValidAgeGroup = (value: string) => {
+  const parsed = parseAgeGroup(value);
+  return parsed !== null && parsed[0] < parsed[1];
+};
+
+const rangesOverlap = (rangeA: number[], rangeB: number[]) => {
+  return rangeA[0] <= rangeB[1] && rangeB[0] <= rangeA[1];
+};
+
 export default function AdminProducts() {
   const [products, setProducts] = useState<AdminProduct[]>([]);
   const [categories, setCategories] = useState<AdminCategory[]>(mockCategories);
@@ -78,11 +94,9 @@ export default function AdminProducts() {
     name: "",
     category: "",
     color: "",
-    size: "",
-    basePrice: "",
-    sellingPrice: "",
     gst: "18",
     description: "",
+    variants: [{ ageGroup: "", basePrice: "", sellPrice: "" }],
     imageFiles: [],
     imagePreviews: [],
   });
@@ -99,11 +113,9 @@ export default function AdminProducts() {
       name: "",
       category: "",
       color: "",
-      size: "",
-      basePrice: "",
-      sellingPrice: "",
       gst: "18",
       description: "",
+      variants: [{ ageGroup: "", basePrice: "", sellPrice: "" }],
       imageFiles: [],
       imagePreviews: [],
     });
@@ -145,11 +157,13 @@ export default function AdminProducts() {
         name: product.name,
         category: getProductCategoryId(product.category),
         color: product.color,
-        size: product.size,
-        basePrice: product.basePrice?.toString() ?? "",
-        sellingPrice: product.sellPrice?.toString() ?? "",
         gst: product.gst?.toString() ?? "18",
         description: product.description,
+        variants: product.variants?.map(v => ({
+          ageGroup: v.ageGroup,
+          basePrice: v.basePrice.toString(),
+          sellPrice: v.sellPrice.toString(),
+        })) || [{ ageGroup: "", basePrice: "", sellPrice: "" }],
         imageFiles: [],
         imagePreviews: product.images ?? [],
       });
@@ -161,10 +175,62 @@ export default function AdminProducts() {
     setIsDialogOpen(true);
   };
 
+  const handleAddVariant = () => {
+    setFormData(prev => ({
+      ...prev,
+      variants: [...prev.variants, { ageGroup: "", basePrice: "", sellPrice: "" }]
+    }));
+  };
+
+  const handleRemoveVariant = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      variants: prev.variants.filter((_, i) => i !== index)
+    }));
+  };
+
+  const handleVariantChange = (index: number, field: keyof ProductVariant, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      variants: prev.variants.map((v, i) => i === index ? { ...v, [field]: value } : v)
+    }));
+  };
+
   const handleSaveProduct = async () => {
-    if (!formData.name || !formData.category || !formData.sellingPrice) {
-      toast.error("Please fill in the required fields: Name, Category, and Selling Price");
+    if (!formData.name || !formData.category || formData.variants.length === 0) {
+      toast.error("Please fill in the required fields: Name, Category, and at least one variant");
       return;
+    }
+
+    const cleanedVariants = formData.variants.map((v) => ({
+      ageGroup: v.ageGroup.trim(),
+      basePrice: Number(v.basePrice) || 0,
+      sellPrice: Number(v.sellPrice) || 0,
+    }));
+
+    const invalidVariant = cleanedVariants.find((variant) => {
+      if (!variant.ageGroup || !isValidAgeGroup(variant.ageGroup)) return true;
+      if (variant.basePrice <= 0 || variant.sellPrice <= 0) return true;
+      return false;
+    });
+
+    if (invalidVariant) {
+      toast.error("Each variant must have a valid age group like 1-3 and positive base/sell prices.");
+      return;
+    }
+
+    const parsedRanges = cleanedVariants.map((variant) => ({
+      ageGroup: variant.ageGroup,
+      range: parseAgeGroup(variant.ageGroup) as [number, number],
+    }));
+
+    for (let i = 0; i < parsedRanges.length; i += 1) {
+      for (let j = i + 1; j < parsedRanges.length; j += 1) {
+        if (rangesOverlap(parsedRanges[i].range, parsedRanges[j].range)) {
+          toast.error(`Age groups cannot overlap: ${parsedRanges[i].ageGroup} and ${parsedRanges[j].ageGroup}`);
+          return;
+        }
+      }
     }
 
     const accessToken = localStorage.getItem("accessToken");
@@ -178,11 +244,9 @@ export default function AdminProducts() {
       name: formData.name,
       category: formData.category,
       color: formData.color,
-      size: formData.size,
       description: formData.description,
-      basePrice: Number(formData.basePrice) || 0,
-      sellPrice: Number(formData.sellingPrice) || 0,
       gst: Number(formData.gst) || 0,
+      variants: cleanedVariants,
       imageFiles: formData.imageFiles,
       isPaused: isEditing ? existingProduct?.isPaused ?? false : false,
     };
@@ -334,12 +398,56 @@ export default function AdminProducts() {
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2"><Label htmlFor="color">Color</Label><Input id="color" value={formData.color} onChange={(e) => setFormData({...formData, color: e.target.value})} className="rounded-xl border-border" placeholder="e.g. Blue" /></div>
-                  <div className="space-y-2"><Label htmlFor="size">Size</Label><Input id="size" value={formData.size} onChange={(e) => setFormData({...formData, size: e.target.value})} className="rounded-xl border-border" placeholder="e.g. 0-3M" /></div>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div className="space-y-2"><Label htmlFor="basePrice">Base Price</Label><Input id="basePrice" type="number" value={formData.basePrice} onChange={(e) => setFormData({...formData, basePrice: e.target.value})} className="rounded-xl border-border" /></div>
-                  <div className="space-y-2"><Label htmlFor="sellingPrice">Selling Price *</Label><Input id="sellingPrice" type="number" value={formData.sellingPrice} onChange={(e) => setFormData({...formData, sellingPrice: e.target.value})} className="rounded-xl border-border" /></div>
                   <div className="space-y-2"><Label htmlFor="gst">GST (%)</Label><Input id="gst" type="number" value={formData.gst} onChange={(e) => setFormData({...formData, gst: e.target.value})} className="rounded-xl border-border" /></div>
+                </div>
+                <div className="space-y-4">
+                  <Label>Variants *</Label>
+                  {formData.variants.map((variant, index) => (
+                    <div key={index} className="grid grid-cols-4 gap-2 items-end">
+                      <div className="space-y-1">
+                        <Label className="text-xs">Age Group</Label>
+                        <Input
+                          value={variant.ageGroup}
+                          onChange={(e) => handleVariantChange(index, 'ageGroup', e.target.value)}
+                          placeholder="e.g. 1-3"
+                          className="rounded-lg"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs">Base Price</Label>
+                        <Input
+                          type="number"
+                          value={variant.basePrice}
+                          onChange={(e) => handleVariantChange(index, 'basePrice', e.target.value)}
+                          placeholder="0"
+                          className="rounded-lg"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs">Sell Price</Label>
+                        <Input
+                          type="number"
+                          value={variant.sellPrice}
+                          onChange={(e) => handleVariantChange(index, 'sellPrice', e.target.value)}
+                          placeholder="0"
+                          className="rounded-lg"
+                        />
+                      </div>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleRemoveVariant(index)}
+                        disabled={formData.variants.length === 1}
+                        className="rounded-lg"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                  <Button type="button" variant="outline" onClick={handleAddVariant} className="rounded-lg">
+                    <Plus className="h-4 w-4 mr-2" /> Add Variant
+                  </Button>
                 </div>
               </div>
               <div className="space-y-4">
@@ -428,16 +536,20 @@ export default function AdminProducts() {
                           </div>
                           <div className="min-w-0 flex-1">
                             <p className="font-medium text-foreground truncate">{product.name}</p>
-                            <p className="text-xs text-muted-foreground truncate">{product.color} • {product.size}</p>
+                            <p className="text-xs text-muted-foreground truncate">{product.color}</p>
                           </div>
                         </div>
                       </td>
                       <td className="px-4 lg:px-6 py-4 text-muted-foreground truncate">{getProductCategoryName(product.category)}</td>
                       <td className="px-4 lg:px-6 py-4">
                         <div className="flex flex-col">
-                          <p className="font-medium text-foreground">₹{product.sellPrice}</p>
-                          {product.basePrice > product.sellPrice && (
-                            <p className="text-xs text-muted-foreground line-through">₹{product.basePrice}</p>
+                          {product.variants && product.variants.length > 0 ? (
+                            <>
+                              <p className="text-xs text-muted-foreground font-medium">{product.variants.length} variant(s)</p>
+                              <p className="text-xs text-muted-foreground">₹{Math.min(...product.variants.map(v => v.sellPrice))} - ₹{Math.max(...product.variants.map(v => v.sellPrice))}</p>
+                            </>
+                          ) : (
+                            <p className="text-xs text-muted-foreground">No variants</p>
                           )}
                         </div>
                       </td>
