@@ -12,6 +12,8 @@ import Address from "./pages/Address.tsx";
 import Blog from "./pages/Blog.tsx";
 import BlogDetail from "./pages/BlogDetail.tsx";
 import Contact from "./pages/Contact.tsx";
+import About from "./pages/About.tsx";
+import Gallery from "./pages/Gallery.tsx";
 import Login from "./pages/Login.tsx";
 import Signup from "./pages/Signup.tsx";
 import AdminLayout from "./layouts/AdminLayout.tsx";
@@ -54,6 +56,8 @@ const App = () => (
                 <Route path="/blog" element={<Blog />} />
                 <Route path="/blog/:id" element={<BlogDetail />} />
                 <Route path="/contact" element={<Contact />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/gallery" element={<Gallery />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<Signup />} />
                 

@@ -45,8 +45,8 @@ const BabyLogo = ({ className }: { className?: string }) => (
 
 const Polaroid = ({ src, className, innerClassName }: { src: string, className?: string, innerClassName?: string }) => (
   <div className={`bg-white p-3 pb-8 shadow-lg ${className}`}>
-    <div className={`w-full h-full bg-blue-100 overflow-hidden ${innerClassName}`}>
-      <img src={src} alt="Product" className="w-full h-full object-cover" />
+    <div className={`w-full h-full bg-white overflow-hidden ${innerClassName}`}>
+      <img src={src} alt="Product" className="w-full h-full object-contain" />
     </div>
   </div>
 );

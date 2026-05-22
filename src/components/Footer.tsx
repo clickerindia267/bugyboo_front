@@ -42,8 +42,9 @@ const Footer = () => {
             <h4 className="font-serif text-base mb-4">Explore</h4>
             <ul className="space-y-2.5 text-sm text-muted-foreground">
               {[
-                { l: "About", to: "/contact" },
+                { l: "About Us", to: "/about" },
                 { l: "Shop", to: "/shop" },
+                { l: "Gallery", to: "/gallery" },
                 { l: "Blog", to: "/blog" },
                 { l: "Contact", to: "/contact" },
               ].map(({ l, to }) => (

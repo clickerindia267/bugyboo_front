@@ -75,14 +75,14 @@ const FeaturedProducts = () => {
                 className="group animate-slide-up block"
                 style={{ animationDelay: `${i * 80}ms`, animationFillMode: "backwards" }}
               >
-                <div className="relative overflow-hidden rounded-2xl bg-secondary aspect-[3/4] md:aspect-square mb-4 hover-lift">
+                <div className="relative overflow-hidden rounded-2xl bg-secondary aspect-[3/4] mb-4 hover-lift">
                   <img
                     src={p.images?.[0] ?? ""}
                     alt={p.name}
                     width={800}
                     height={1024}
                     loading="lazy"
-                    className="w-full h-full object-contain md:object-cover transition-transform duration-1200 ease-out group-hover:scale-110"
+                    className="w-full h-full object-contain transition-transform duration-1200 ease-out group-hover:scale-110"
                   />
                   {p.variants?.some(v => v.basePrice > v.sellPrice) && (
                     <span className="absolute top-3 left-3 px-3 py-1 rounded-full bg-background/80 backdrop-blur text-[10px] uppercase tracking-wider font-medium">

@@ -1,9 +1,10 @@
 import { Outlet } from "react-router-dom";
 import { UserSidebar } from "@/components/user/UserSidebar";
+import MobileBottomNav from "@/components/MobileBottomNav";
 
 export default function UserLayout() {
   return (
-    <div className="flex min-h-screen bg-white font-sans">
+    <div className="flex min-h-screen bg-white font-sans pb-16 md:pb-0">
       <UserSidebar />
       {/* Main content area — adds top padding on mobile for the fixed header bar */}
       <div className="flex-1 overflow-auto bg-white">
@@ -11,6 +12,7 @@ export default function UserLayout() {
           <Outlet />
         </main>
       </div>
+      <MobileBottomNav />
     </div>
   );
 }

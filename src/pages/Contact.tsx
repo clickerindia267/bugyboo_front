@@ -20,7 +20,7 @@ const Contact = () => {
   const channels = [
     { Icon: Mail, l: "Email us", v: "info@bugyboo.com", tone: "bg-pink" },
     { Icon: Phone, l: "Call us", v: "+91 8744953803", tone: "bg-lavender" },
-    { Icon: MapPin, l: "Visit us", v: "RDC Ghaziabaad uttar pradesh 201102", tone: "bg-blue" },
+    { Icon: MapPin, l: "Visit us", v: "Plot no. 987, near HP petrol pump NH 9, Shahpur Bamheta, Ghaziabad 201002", tone: "bg-blue" },
     { Icon: MessageCircle, l: "Live chat", v: "Mon–Fri · 9am–6pm CET", tone: "bg-beige" },
   ];
 
@@ -80,7 +80,7 @@ const Contact = () => {
           <div className="rounded-3xl overflow-hidden bg-gradient-soft aspect-[4/5] md:aspect-[4/4] relative">
             <iframe
               title="Atelier map"
-              src="https://www.google.com/maps?q=14+Rue+de+Rivoli,+Paris&output=embed"
+              src="https://www.google.com/maps?q=Plot+no.+987,+near+HP+petrol+pump+NH+9,+Shahpur+bamheta,+Ghaziabad+201002&output=embed"
               className="w-full h-full grayscale opacity-90"
               loading="lazy"
             />

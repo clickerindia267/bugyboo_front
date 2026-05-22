@@ -87,7 +87,7 @@ export function UserSidebar() {
       </div>
 
       {/* Footer */}
-      <div className="p-3 lg:p-4 border-t border-border/60 space-y-1">
+      <div className="px-3 pt-3 pb-24 lg:p-4 border-t border-border/60 space-y-1">
         <Link
           to="/"
           onClick={() => setMobileOpen(false)}
@@ -110,7 +110,7 @@ export function UserSidebar() {
   return (
     <>
       {/* Mobile top bar */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 h-14 bg-white border-b border-border/60 flex items-center px-4 gap-3">
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-[70] h-14 bg-white border-b border-border/60 flex items-center px-4 gap-3">
         <button
           onClick={() => setMobileOpen(!mobileOpen)}
           className="p-2 -ml-2 rounded-xl hover:bg-secondary transition-colors"
@@ -131,12 +131,12 @@ export function UserSidebar() {
 
       {/* Mobile overlay */}
       {mobileOpen && (
-        <div className="lg:hidden fixed inset-0 z-40 bg-black/30 backdrop-blur-sm" onClick={() => setMobileOpen(false)} />
+        <div className="lg:hidden fixed inset-0 z-[70] bg-black/30 backdrop-blur-sm" onClick={() => setMobileOpen(false)} />
       )}
 
       {/* Mobile sidebar */}
       <aside className={cn(
-        "lg:hidden fixed inset-y-0 left-0 z-40 w-72 bg-white border-r border-border/60 flex flex-col transition-transform duration-300 pt-14",
+        "lg:hidden fixed inset-y-0 left-0 z-[80] w-72 bg-white border-r border-border/60 flex flex-col transition-transform duration-300 pt-14",
         mobileOpen ? "translate-x-0" : "-translate-x-full"
       )}>
         {navContent}

@@ -9,10 +9,11 @@ import CompanyOverview from "@/components/CompanyOverview";
 import StepIntoWorld from "@/components/StepIntoWorld";
 import Footer from "@/components/Footer";
 import FloatingCart from "@/components/FloatingCart";
+import MobileBottomNav from "@/components/MobileBottomNav";
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-16 md:pb-0">
       <Header />
       <main>
         <Hero />
@@ -26,6 +27,7 @@ const Index = () => {
       </main>
       <Footer />
       <FloatingCart />
+      <MobileBottomNav />
     </div>
   );
 };

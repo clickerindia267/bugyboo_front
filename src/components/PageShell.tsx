@@ -2,6 +2,7 @@ import { ReactNode } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import FloatingCart from "@/components/FloatingCart";
+import MobileBottomNav from "@/components/MobileBottomNav";
 
 type Props = {
   children: ReactNode;
@@ -13,7 +14,7 @@ type Props = {
 
 const PageShell = ({ children, title, eyebrow, subtitle, hideHeaderSpacer }: Props) => {
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col pb-16 md:pb-0">
       <Header />
       <main className={`flex-1 ${hideHeaderSpacer ? "" : "pt-24 md:pt-28"}`}>
         {title && (
@@ -31,6 +32,7 @@ const PageShell = ({ children, title, eyebrow, subtitle, hideHeaderSpacer }: Pro
       </main>
       <Footer />
       <FloatingCart />
+      <MobileBottomNav />
     </div>
   );
 };

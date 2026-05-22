@@ -148,7 +148,7 @@ const ProductDetails = () => {
                 <img
                   src={images[activeImg] ?? ""}
                   alt={product.name}
-                  className={`w-full h-full object-contain md:object-cover transition-transform duration-700 ${
+                  className={`w-full h-full object-contain transition-transform duration-700 ${
                     zoom ? "scale-150" : "scale-100"
                   }`}
                 />
@@ -342,7 +342,7 @@ const ProductDetails = () => {
                       src={p.images?.[0] ?? ""}
                       alt={p.name}
                       loading="lazy"
-                      className="w-full h-full object-contain md:object-cover transition-transform duration-1200 ease-out group-hover:scale-110"
+                      className="w-full h-full object-contain transition-transform duration-1200 ease-out group-hover:scale-110"
                     />
                   </div>
                   <h3 className="font-serif text-base">{p.name}</h3>

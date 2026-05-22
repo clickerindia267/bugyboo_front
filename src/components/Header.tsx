@@ -18,8 +18,10 @@ import {
 const navItems = [
   { label: "Home", to: "/" },
   { label: "Shop", to: "/shop" },
+  { label: "Gallery", to: "/gallery" },
   { label: "Blog", to: "/blog" },
-  { label: "Contact", to: "/contact" },
+  { label: "About Us", to: "/about" },
+  { label: "Contact Us", to: "/contact" },
 ];
 
 const Header = () => {
