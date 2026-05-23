@@ -474,7 +474,7 @@ export const updateAdminProduct = (
   product: Partial<Omit<AdminProduct, "_id" | "id" | "createdAt" | "__v" | "images">> & { imageFiles?: File[] },
   accessToken: string,
 ) => {
-  const body = product.imageFiles && product.imageFiles.length > 0 ? buildAdminProductFormData(product as any, "images") : product;
+  const body = product.imageFiles && product.imageFiles.length > 0 ? buildAdminProductFormData(product as any, "media") : product;
   return request<AdminProductUpdateResponse>(`/admin/products/${productId}`, {
     method: "PATCH",
     headers: {
