@@ -93,7 +93,7 @@ export interface AdminCategoryCreateResponse {
 }
 
 export interface ProductVariant {
-  _id: string;
+  _id?: string;
   ageGroup: string;
   basePrice: number;
   sellPrice: number;
@@ -516,6 +516,11 @@ export interface UserDashboardResponse {
 export interface CartProduct {
   productId: string;
   quantity: number;
+  variantId?: string;
+  selectedAgeGroup?: string;
+  selectedPrice?: number;
+  basePrice?: number;
+  variant?: ProductVariant;
   _id: string;
 }
 
@@ -655,8 +660,8 @@ export const updateCart = (productId: string, quantity: number, accessToken: str
     body: { productId, quantity },
   });
 
-export const removeFromCart = (productId: string, accessToken: string) =>
-  request<UserCartResponse>(`/cart/remove/${productId}`, {
+export const removeFromCart = (productId: string, variantId: string, accessToken: string) =>
+  request<UserCartResponse>(`/cart/remove/${productId}/${variantId}`, {
     method: "DELETE",
     headers: {
       Authorization: `Bearer ${accessToken}`,

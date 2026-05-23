@@ -40,13 +40,14 @@ const Cart = () => {
   const normalizeProductId = (productId: string | { _id: string }) =>
     typeof productId === "object" && productId !== null ? productId._id : productId;
 
-  // Fetch product details for each cart item
   const fetchProductDetails = useCallback(async (cart: UserCart) => {
-    const items: CartItemWithProduct[] = cart.products.map((p) => ({
-      ...p,
-      productId: normalizeProductId(p.productId as any),
-      loadingProduct: true,
-    }));
+    const items: CartItemWithProduct[] = cart.products
+      .filter((p) => p.productId !== null && p.productId !== undefined)
+      .map((p) => ({
+        ...p,
+        productId: normalizeProductId(p.productId as any),
+        loadingProduct: true,
+      }));
     setCartItems(items);
 
     const updated = await Promise.all(
@@ -94,14 +95,14 @@ const Cart = () => {
   };
 
   // Remove item via dedicated cart remove API
-  const handleRemove = async (productId: string) => {
+  const handleRemove = async (productId: string, variantId: string) => {
     if (!accessToken || !cartData?._id) return;
     const normalizedId = normalizeProductId(productId as any);
     setUpdatingId(normalizedId);
     try {
-      const response = await removeFromCart(normalizedId, accessToken);
+      const response = await removeFromCart(normalizedId, variantId, accessToken);
       setCartData(response.data);
-      setCartItems((prev) => prev.filter((item) => item.productId !== normalizedId));
+      setCartItems((prev) => prev.filter((item) => !(item.productId === normalizedId && item.variantId === variantId)));
       toast.success("Item removed from cart");
       // Sync the global cart store
       refreshCart();
@@ -231,7 +232,7 @@ const Cart = () => {
                         </button>
                       </div>
                       <button
-                        onClick={() => handleRemove(item.productId)}
+                        onClick={() => handleRemove(item.productId, item.variantId ?? "")}
                         disabled={updatingId === item.productId}
                         className="text-muted-foreground hover:text-destructive transition-colors p-2 disabled:opacity-40"
                         aria-label="Remove item"

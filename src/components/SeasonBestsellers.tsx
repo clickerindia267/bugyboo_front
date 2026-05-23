@@ -6,7 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getProducts, type PublicProduct } from "@/lib/api";
 import { useCart } from "@/store/cart";
 import { useAuth } from "@/store/auth";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 /* ─── Season config ─── */
 const seasons = [
@@ -45,65 +45,138 @@ const ProductCard = ({ p, index }: { p: PublicProduct; index: number }) => {
   const { add } = useCart();
   const { isLoggedIn } = useAuth();
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+
+  // Requirement 2: Auto-select first variant by default
+  const [selectedVariant, setSelectedVariant] = useState(
+    p?.variants?.[0] || null
+  );
 
   const quickAdd = async (e: React.MouseEvent) => {
     e.preventDefault();
+    e.stopPropagation();
+
     if (!isLoggedIn) {
       navigate("/login");
       return;
     }
-    if (!p.variants || p.variants.length === 0) {
-      toast({ title: "No variants available", description: "This product is not available", variant: "destructive" });
+
+    // Requirement 6: Prevent add to cart if no variant selected
+    if (!selectedVariant?._id) {
+      toast.error("Please select an age group");
       return;
     }
-    const defaultVariant = p.variants[0];
+
+    setLoading(true);
     try {
-      await add(p._id, 1, defaultVariant.ageGroup, defaultVariant.sellPrice);
-    } catch (error) {
-      toast({ title: "Failed to add to bag", description: "Please try again", variant: "destructive" });
+      // Requirement 5: Update Add to Cart payload
+      await add(
+        p._id,
+        1,
+        selectedVariant.ageGroup,
+        selectedVariant.sellPrice,
+        selectedVariant,
+        selectedVariant.basePrice,
+        selectedVariant._id
+      );
+      toast.success("Added to bag!");
+    } catch (error: any) {
+      // Requirement 8: Show toast if backend response returns variantId is required
+      const isVariantReq = 
+        error?.message?.includes("variantId is required") || 
+        error?.errors?.some((err: any) => err.message?.includes("variantId is required"));
+      if (isVariantReq) {
+        toast.error("Please select an age group");
+      } else {
+        toast.error(error instanceof Error ? error.message : "Failed to add to bag");
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
   const discount = p.variants?.some(v => v.basePrice > v.sellPrice) ? true : false;
 
   return (
-    <Link
-      to={`/product/${p._id}`}
-      className="sb-card group"
+    <div
+      className="sb-card group animate-fade-in"
       style={{ animationDelay: `${index * 100}ms` }}
     >
-      {/* Image */}
-      <div className="sb-card-img">
-        <img src={p.images?.[0] ?? ""} alt={p.name} loading="lazy" />
-        {discount && <span className="sb-tag">Sale</span>}
-        <button
-          aria-label="Add to wishlist"
-          onClick={(e) => e.preventDefault()}
-          className="sb-wish"
-        >
-          <Heart className="h-4 w-4" />
-        </button>
-        <div className="sb-quick-add">
-          <Button
-            size="sm"
-            className="w-full rounded-full bg-[#3f646f] text-white hover:bg-[#3f646f]/90 shadow-soft"
-            onClick={quickAdd}
+      <Link to={`/product/${p._id}`}>
+        {/* Image */}
+        <div className="sb-card-img">
+          <img src={p.images?.[0] ?? ""} alt={p.name} loading="lazy" />
+          {discount && <span className="sb-tag">Sale</span>}
+          <button
+            aria-label="Add to wishlist"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+            }}
+            className="sb-wish"
           >
-            <ShoppingBag className="h-3.5 w-3.5 mr-2" />
-            Add to bag
-          </Button>
+            <Heart className="h-4 w-4" />
+          </button>
+          <div className="sb-quick-add">
+            <Button
+              size="sm"
+              className="w-full rounded-full bg-[#3f646f] text-white hover:bg-[#3f646f]/90 shadow-soft"
+              onClick={quickAdd}
+              disabled={loading}
+            >
+              <ShoppingBag className="h-3.5 w-3.5 mr-2" />
+              {loading ? "Adding..." : "Add to bag"}
+            </Button>
+          </div>
         </div>
-      </div>
+      </Link>
 
       {/* Info */}
       <div className="sb-card-info">
         <p className="text-[11px] text-muted-foreground mb-1">{p.category?.name}</p>
-        <h3 className="sb-card-name">{p.name}</h3>
+        <Link to={`/product/${p._id}`}>
+          <h3 className="sb-card-name hover:text-[#3f646f] transition-colors">{p.name}</h3>
+        </Link>
         <div className="sb-price-row">
-          <span className="sb-price">Starting From ₹{Math.min(...(p.variants?.map(v => v.sellPrice) || [0]))}</span>
+          {selectedVariant ? (
+            <>
+              <span className="sb-price">₹{selectedVariant.sellPrice}</span>
+              {selectedVariant.basePrice > selectedVariant.sellPrice && (
+                <span className="sb-og-price">₹{selectedVariant.basePrice}</span>
+              )}
+            </>
+          ) : (
+            <span className="sb-price">Starting From ₹{Math.min(...(p.variants?.map(v => v.sellPrice) || [0]))}</span>
+          )}
         </div>
+
+        {/* Age Group / Variant Selector */}
+        {p.variants && p.variants.length > 0 && (
+          <div className="mt-2.5">
+            <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1.5 font-medium font-sans">Select Size:</p>
+            <div className="flex flex-wrap gap-1.5">
+              {p.variants.map((variant) => (
+                <button
+                  key={variant._id}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setSelectedVariant(variant);
+                  }}
+                  className={`px-2.5 py-1 text-[11px] font-sans font-medium rounded-full border transition-all duration-300 hover:scale-105 ${
+                    selectedVariant?._id === variant._id
+                      ? "border-[#3f646f] bg-[#3f646f] text-white shadow-sm"
+                      : "border-border bg-white text-foreground hover:border-[#3f646f]/50"
+                  }`}
+                >
+                  {variant.ageGroup}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
-    </Link>
+    </div>
   );
 };
 

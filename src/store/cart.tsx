@@ -31,7 +31,7 @@ type CartCtx = {
     variantId?: string,
   ) => Promise<void>;
   update: (productId: string, quantity: number) => Promise<void>;
-  remove: (productId: string) => Promise<void>;
+  remove: (productId: string, variantId: string) => Promise<void>;
   clear: () => void;
   refreshCart: () => Promise<void>;
   count: number;
@@ -61,21 +61,23 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       setLoading(true);
       const response = await getUserCart(accessToken);
       setCartId(response.data._id);
-      const baseItems: CartItem[] = response.data.products.map((p: any) => ({
-        productId: typeof p.productId === 'string' ? p.productId : p.productId._id,
-        quantity: p.quantity,
-        variantId: p.variantId,
-        selectedAgeGroup: p.selectedAgeGroup,
-        selectedPrice: p.selectedPrice,
-        basePrice: p.basePrice,
-        variant: p.variant,
-        _id: p._id,
-        product: typeof p.productId === 'object' ? {
-          _id: p.productId._id,
-          name: p.productId.name,
-          images: p.productId.images,
-        } : undefined,
-      }));
+      const baseItems: CartItem[] = response.data.products
+        .filter((p: any) => p.productId !== null && p.productId !== undefined)
+        .map((p: any) => ({
+          productId: typeof p.productId === 'string' ? p.productId : p.productId._id,
+          quantity: p.quantity,
+          variantId: p.variantId,
+          selectedAgeGroup: p.selectedAgeGroup,
+          selectedPrice: p.selectedPrice,
+          basePrice: p.basePrice,
+          variant: p.variant,
+          _id: p._id,
+          product: typeof p.productId === 'object' && p.productId !== null ? {
+            _id: p.productId._id,
+            name: p.productId.name,
+            images: p.productId.images,
+          } : undefined,
+        }));
 
       // Fetch product details for items that don't have them
       const itemsWithProducts = await Promise.all(
@@ -142,18 +144,20 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const remove: CartCtx["remove"] = async (productId) => {
+  const remove: CartCtx["remove"] = async (productId, variantId) => {
     if (!accessToken) throw new Error('Not logged in');
     if (!cartId) throw new Error('Cart not loaded');
     try {
-      // Use the dedicated remove endpoint (DELETE /cart/remove/:cartId)
-      await removeFromCart(productId, accessToken);
       // Optimistically remove from local state
-      setItems((prev) => prev.filter((item) => item.productId !== productId));
+      setItems((prev) => prev.filter((item) => !(item.productId === productId && item.variantId === variantId)));
+      // Use the dedicated remove endpoint (DELETE /cart/remove/:productId/:variantId)
+      await removeFromCart(productId, variantId, accessToken);
       // Then refresh from server to ensure consistency
       await fetchCart();
     } catch (error) {
       console.error('Failed to remove from cart:', error);
+      // Re-fetch cart on error to restore the UI
+      await fetchCart();
       throw error;
     }
   };

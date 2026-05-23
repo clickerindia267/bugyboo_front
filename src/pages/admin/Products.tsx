@@ -16,29 +16,19 @@ import {
 } from "@/components/ui/select";
 import { mockCategories } from "@/data/mockAdminData";
 import { toast } from "sonner";
-import { createAdminProduct, deleteAdminProduct, getAdminCategories, getAdminProducts, pauseAdminProduct, updateAdminProduct } from "@/lib/api";
+import { 
+  createAdminProduct, 
+  deleteAdminProduct, 
+  getAdminCategories, 
+  getAdminProducts, 
+  pauseAdminProduct, 
+  updateAdminProduct,
+  type AdminProduct,
+  type Category as AdminCategory,
+  type ProductVariant as ApiProductVariant
+} from "@/lib/api";
 
-interface AdminCategory {
-  _id?: string;
-  id?: string;
-  name: string;
-}
-
-interface AdminProduct {
-  _id?: string;
-  id?: string;
-  name: string;
-  category?: string | AdminCategory | null;
-  color: string;
-  description: string;
-  gst: number;
-  images: string[];
-  variants: ProductVariant[];
-  isPaused?: boolean;
-  status?: string;
-}
-
-interface ProductVariant {
+interface FormProductVariant {
   ageGroup: string;
   basePrice: string;
   sellPrice: string;
@@ -51,7 +41,7 @@ interface ProductFormData {
   color: string;
   gst: string;
   description: string;
-  variants: ProductVariant[];
+  variants: FormProductVariant[];
   imageFiles: File[];
   imagePreviews: string[];
 }
@@ -79,7 +69,7 @@ const isValidAgeGroup = (value: string) => {
 };
 
 const rangesOverlap = (rangeA: number[], rangeB: number[]) => {
-  return rangeA[0] <= rangeB[1] && rangeB[0] <= rangeA[1];
+  return rangeA[0] < rangeB[1] && rangeB[0] < rangeA[1];
 };
 
 export default function AdminProducts() {
@@ -189,7 +179,7 @@ export default function AdminProducts() {
     }));
   };
 
-  const handleVariantChange = (index: number, field: keyof ProductVariant, value: string) => {
+  const handleVariantChange = (index: number, field: keyof FormProductVariant, value: string) => {
     setFormData(prev => ({
       ...prev,
       variants: prev.variants.map((v, i) => i === index ? { ...v, [field]: value } : v)

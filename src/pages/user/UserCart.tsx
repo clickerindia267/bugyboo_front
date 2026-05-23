@@ -8,9 +8,9 @@ import { toast } from "sonner";
 export default function UserCart() {
   const { items, update, remove, subtotal, count, clear, loading } = useCart();
 
-  const handleRemove = async (productId: string) => {
+  const handleRemove = async (productId: string, variantId: string) => {
     try {
-      await remove(productId);
+      await remove(productId, variantId);
       toast.success("Item removed from cart");
     } catch (error) {
       toast.error("Failed to remove item");
@@ -104,7 +104,7 @@ export default function UserCart() {
                         </button>
                       </div>
                       <button 
-                        onClick={() => handleRemove(item.productId)} 
+                        onClick={() => handleRemove(item.productId, item.variantId ?? "")} 
                         className="text-xs text-muted-foreground hover:text-destructive flex items-center gap-1.5 transition-colors"
                       >
                         <Trash2 className="h-3.5 w-3.5" /> Remove
