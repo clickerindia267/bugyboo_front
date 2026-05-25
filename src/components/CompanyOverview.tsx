@@ -2,6 +2,9 @@ import { useState, useEffect, useRef } from "react";
 import { Leaf, Heart, Shield, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import frok1 from "@/assets/frok1.jpeg";
+import nightwear2 from "@/assets/nightwear2.jpeg";
+import pinktop1 from "@/assets/pinktop1.jpeg";
 
 const stats = [
   { value: "50K+", label: "Happy Families" },
@@ -75,21 +78,21 @@ const CompanyOverview = () => {
           <div className="co-image-grid">
             <div className="co-img co-img-main">
               <img
-                src="https://images.unsplash.com/photo-1596870230751-ebdfce98ec42?w=600&h=750&fit=crop&crop=faces"
+                src={frok1}
                 alt="Happy child in BugyBoo clothing"
                 loading="lazy"
               />
             </div>
             <div className="co-img co-img-top">
               <img
-                src="https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=400&h=400&fit=crop&crop=faces"
+                src={nightwear2}
                 alt="Child playing outdoors"
                 loading="lazy"
               />
             </div>
             <div className="co-img co-img-bottom">
               <img
-                src="https://images.unsplash.com/photo-1519238263530-99bdd11df2ea?w=400&h=400&fit=crop&crop=center"
+                src={pinktop1}
                 alt="Sustainable kids fashion"
                 loading="lazy"
               />
