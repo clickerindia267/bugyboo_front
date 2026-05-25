@@ -7,6 +7,7 @@ import BabyBanners from "@/components/BabyBanners";
 import Testimonials from "@/components/Testimonials";
 import CompanyOverview from "@/components/CompanyOverview";
 import StepIntoWorld from "@/components/StepIntoWorld";
+import OnPageSeo from "@/components/OnPageSeo";
 import Footer from "@/components/Footer";
 import FloatingCart from "@/components/FloatingCart";
 import MobileBottomNav from "@/components/MobileBottomNav";
@@ -24,6 +25,7 @@ const Index = () => {
         <Testimonials />
         <CompanyOverview />
         <StepIntoWorld />
+        <OnPageSeo />
       </main>
       <Footer />
       <FloatingCart />
