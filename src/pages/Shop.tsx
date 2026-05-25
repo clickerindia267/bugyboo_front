@@ -5,6 +5,7 @@ import PageShell from "@/components/PageShell";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { getProducts, type PublicProduct } from "@/lib/api";
+import SEO from "@/components/SEO";
 
 const sortOptions = [
   { v: "featured", l: "Featured" },
@@ -54,14 +55,14 @@ const Shop = () => {
   const Filters = (
     <div className="space-y-8">
       <div>
-        <h4 className="font-serif text-lg mb-3">Category</h4>
+        <h4 className="font-serif text-lg mb-3 font-bold">Category</h4>
         <div className="space-y-1.5">
           {categories.map((c) => (
             <button
               key={c}
               onClick={() => updateCat(c)}
               className={`block w-full text-left text-sm py-1.5 transition-colors ${
-                cat === c ? "text-foreground font-medium" : "text-muted-foreground hover:text-foreground"
+                cat === c ? "text-foreground font-semibold" : "text-muted-foreground hover:text-foreground"
               }`}
             >
               {c}
@@ -70,7 +71,7 @@ const Shop = () => {
         </div>
       </div>
       <div>
-        <h4 className="font-serif text-lg mb-3">Max price</h4>
+        <h4 className="font-serif text-lg mb-3 font-bold">Max price</h4>
         <input
           type="range"
           min={100}
@@ -79,17 +80,59 @@ const Shop = () => {
           value={maxPrice}
           onChange={(e) => setMaxPrice(Number(e.target.value))}
           className="w-full accent-primary"
+          aria-label="Filter by maximum price"
         />
-        <p className="text-sm text-muted-foreground mt-2">Up to ₹{maxPrice.toLocaleString("en-IN")}</p>
+        <p className="text-sm text-muted-foreground mt-2 font-medium">Up to ₹{maxPrice.toLocaleString("en-IN")}</p>
       </div>
     </div>
   );
 
+  // E-commerce Schemas for collection categories and list item indexing
+  const breadcrumbSchema = {
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": `${window.location.origin}/`
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": cat === "All" ? "Shop" : cat,
+        "item": window.location.href
+      }
+    ]
+  };
+
+  const collectionSchema = {
+    "@type": "CollectionPage",
+    "name": cat === "All" ? "The Bugyboo Collection" : `Buy ${cat} Online India`,
+    "description": `Shop ${cat === "All" ? "the complete" : cat} premium kids wear collection at Bugyboo. Soft, breathable organic cotton fabrics.`,
+    "url": window.location.href,
+    "numberOfItems": filtered.length,
+    "itemListElement": filtered.map((p, idx) => ({
+      "@type": "ListItem",
+      "position": idx + 1,
+      "url": `${window.location.origin}/product/${p._id}`,
+      "name": p.name
+    }))
+  };
+
   return (
     <PageShell title="The Collection" eyebrow="Shop" subtitle="Curated little wardrobes for your little ones.">
-      <section className="container mx-auto pb-24 px-4">
+      <SEO 
+        title={cat === "All" ? "Shop the Collection — Buy Kids Wear Online India | Bugyboo" : `Buy ${cat} Online — Premium Kids Wear India | Bugyboo`}
+        description={`Explore the ${cat === "All" ? "entire" : cat} kids clothing collection at Bugyboo. Breathable long-staple cotton, stylish casual wear, and daily wear essentials for babies, boys, and girls.`}
+        keywords={`Buy ${cat === "All" ? "kids wear" : cat} online, kids clothing brand, cotton kids wear manufacturer, Bugyboo shop ${cat}`}
+        ogType="website"
+        schemaData={[breadcrumbSchema, collectionSchema]}
+      />
+
+      <section className="container mx-auto pb-24 px-4" aria-label="Product Catalog">
         <div className="flex items-center justify-between gap-4 mb-8 flex-wrap">
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-muted-foreground font-medium">
             {isLoading ? "Loading..." : `${filtered.length} pieces`}
           </p>
           <div className="flex items-center gap-2">
@@ -105,7 +148,8 @@ const Shop = () => {
             <select
               value={sort}
               onChange={(e) => setSort(e.target.value)}
-              className="text-sm h-9 rounded-full px-4 bg-background border border-border focus:outline-none focus:ring-2 focus:ring-ring/30"
+              className="text-sm h-9 rounded-full px-4 bg-background border border-border focus:outline-none focus:ring-2 focus:ring-ring/30 font-medium"
+              aria-label="Sort products list"
             >
               {sortOptions.map((s) => (
                 <option key={s.v} value={s.v}>
@@ -117,7 +161,7 @@ const Shop = () => {
         </div>
 
         <div className="grid lg:grid-cols-[240px_1fr] gap-10">
-          <aside className="hidden lg:block">{Filters}</aside>
+          <aside className="hidden lg:block" aria-label="Sidebar Filters">{Filters}</aside>
 
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
             {isLoading && (
@@ -141,7 +185,7 @@ const Shop = () => {
                 <div className="relative overflow-hidden rounded-2xl bg-secondary aspect-[4/5] mb-3 hover-lift">
                   <img
                     src={p.images?.[0] ?? ""}
-                    alt={p.name}
+                    alt={`${p.name} — ${p.category?.name || 'kids wear'}`}
                     loading="lazy"
                     className="w-full h-full object-contain transition-transform duration-1200 ease-out group-hover:scale-110"
                   />
@@ -152,8 +196,8 @@ const Shop = () => {
                   )}
                 </div>
                 <div className="px-1">
-                  <p className="text-[11px] text-muted-foreground mb-1">{p.category?.name}</p>
-                  <h3 className="font-serif text-base leading-tight mb-1">{p.name}</h3>
+                  <p className="text-[11px] text-rose-600 dark:text-rose-400 font-bold mb-1">{p.category?.name}</p>
+                  <h3 className="font-serif text-base leading-tight mb-1 font-bold">{p.name}</h3>
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-medium">Starting From ₹{Math.min(...(p.variants?.map(v => v.sellPrice) || [0]))}</span>
                   </div>
@@ -161,7 +205,7 @@ const Shop = () => {
               </Link>
             ))}
             {!isLoading && filtered.length === 0 && (
-              <p className="col-span-full text-center text-muted-foreground py-20">
+              <p className="col-span-full text-center text-muted-foreground py-20 font-medium">
                 No pieces match your filters yet.
               </p>
             )}
@@ -179,8 +223,8 @@ const Shop = () => {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-6">
-              <h3 className="font-serif text-2xl">Filters</h3>
-              <button onClick={() => setFiltersOpen(false)} className="w-9 h-9 rounded-full hover:bg-secondary flex items-center justify-center">
+              <h3 className="font-serif text-2xl font-bold">Filters</h3>
+              <button onClick={() => setFiltersOpen(false)} className="w-9 h-9 rounded-full hover:bg-secondary flex items-center justify-center" aria-label="Close filters">
                 <X className="h-4 w-4" />
               </button>
             </div>
