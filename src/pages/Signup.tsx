@@ -150,10 +150,7 @@ const Signup = () => {
 
       <div className="flex flex-col gap-3">
         <GoogleAuthButton />
-        <Button variant="outline" className="rounded-full h-12">
-          <Apple className="h-4 w-4 mr-2" />
-          Apple
-        </Button>
+        
       </div>
 
     </AuthLayout>
