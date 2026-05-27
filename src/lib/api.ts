@@ -262,6 +262,12 @@ export const signup = (name: string, email: string, mobile: string, password: st
     body: { name, email, mobile, password },
   });
 
+export const googleLogin = (token: string) =>
+  request<LoginResponse>("/auth/google", {
+    method: "POST",
+    body: { token },
+  });
+
 export const refreshToken = (refreshToken: string) =>
   request<RefreshTokenResponse>("/auth/refresh-token", {
     method: "POST",
