@@ -24,10 +24,13 @@ export default function AdminOrders() {
 
     setIsLoadingOrders(true);
     Promise.all([
-      getAdminOrders(accessToken).then((response) => setOrders(response.data)),
-      getAdminPendingOrders(accessToken).then((response) => setPendingOrders(response.data)),
+      getAdminOrders(accessToken),
+      getAdminPendingOrders(accessToken),
     ])
       .then(async ([allRes, pendingRes]) => {
+        setOrders(allRes.data);
+        setPendingOrders(pendingRes.data);
+
         // Collect all unique product IDs that need detail fetching
         const allItems = [...allRes.data, ...pendingRes.data].flatMap((o) => o.products);
         const productIdsToFetch = new Set<string>();
