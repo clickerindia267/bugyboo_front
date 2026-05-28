@@ -62,7 +62,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       const response = await getUserCart(accessToken);
       setCartId(response.data._id);
       const baseItems: CartItem[] = response.data.products
-        .filter((p: any) => p.productId !== null && p.productId !== undefined)
+        .filter((p: any) => p.productId !== null && p.productId !== undefined && p.productId !== 'null' && (typeof p.productId === 'string' || p.productId?._id))
         .map((p: any) => ({
           productId: typeof p.productId === 'string' ? p.productId : p.productId._id,
           quantity: p.quantity,

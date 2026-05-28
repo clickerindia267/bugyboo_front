@@ -157,6 +157,7 @@ export interface OrderProductItem {
   } | string | null;
   productId?: string;
   productName?: string;
+  productImage?: string;
   quantity: number;
   price: number;
   sellPrice?: number;

@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
-import { CheckCircle2, XCircle, Clock, User, Mail, Phone, MapPin, Package, CreditCard } from "lucide-react";
+import { CheckCircle2, XCircle, Clock, User, Mail, Phone, MapPin, Package, CreditCard, Truck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { getAdminOrders, getAdminPendingOrders, updateAdminOrderStatus, getProductById, AdminOrder } from "@/lib/api";
 import { toast } from "sonner";
+import ShipmentBadge from "@/components/shipping/ShipmentBadge";
+import ShipmentActions from "@/components/shipping/ShipmentActions";
+
 
 export default function AdminOrders() {
   const [orders, setOrders] = useState<AdminOrder[]>([]);
@@ -148,10 +151,6 @@ export default function AdminOrders() {
     const action = getNextStatusAction(order.orderStatus);
     const isUpdating = !!isUpdatingStatus[order._id];
     
-    const formattedAddress = typeof order.address === 'object' && order.address !== null 
-      ? `${order.address.fullAddress}, ${order.address.city}, ${order.address.pincode}, ${order.address.country}`
-      : order.address || "No address provided";
-
     return (
       <Card className="border-none shadow-soft rounded-3xl bg-card mb-6 overflow-hidden hover:shadow-elegant transition-all duration-300 group">
         <CardContent className="p-0 font-sans">
@@ -189,19 +188,19 @@ export default function AdminOrders() {
                       <div className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center text-primary/70 shrink-0">
                         <User className="w-4 h-4" />
                       </div>
-                      <span className="text-sm font-semibold">{order.user.name}</span>
+                      <span className="text-sm font-semibold">{order.user?.name || order.contact?.name || "Guest / Deleted User"}</span>
                     </div>
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center text-primary/70 shrink-0">
                         <Mail className="w-4 h-4" />
                       </div>
-                      <span className="text-sm text-muted-foreground truncate">{order.user.email}</span>
+                      <span className="text-sm text-muted-foreground truncate">{order.user?.email || order.contact?.email || "No email provided"}</span>
                     </div>
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center text-primary/70 shrink-0">
                         <Phone className="w-4 h-4" />
                       </div>
-                      <span className="text-sm text-muted-foreground">{order.contact.mobile}</span>
+                      <span className="text-sm text-muted-foreground">{order.contact?.mobile || order.user?.mobile || "No phone provided"}</span>
                     </div>
                   </div>
                 </div>
@@ -214,10 +213,73 @@ export default function AdminOrders() {
                     <div className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center text-primary/70 shrink-0 mt-0.5">
                       <MapPin className="w-4 h-4" />
                     </div>
-                    <p className="text-sm text-muted-foreground leading-relaxed">{formattedAddress}</p>
+                    <div className="text-sm text-muted-foreground leading-relaxed">
+                      {order.address && typeof order.address === 'object' ? (
+                        <>
+                          <strong className="block text-foreground font-semibold mb-1">{order.contact?.name || "No name provided"}</strong>
+                          <span className="block">{order.address.fullAddress}</span>
+                          <span className="block">{order.address.city}, {order.address.pincode}</span>
+                          {order.address.country && <span className="block">{order.address.country}</span>}
+                          <span className="block text-xs mt-1 font-semibold text-primary/75">Phone: {order.contact?.mobile || "No phone provided"}</span>
+                        </>
+                      ) : (
+                        <span>Address unavailable</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-4 flex items-center gap-2">
+                    <Truck className="w-3 h-3 text-primary" /> DTDC Shipment Management
+                  </h4>
+                  <div className="bg-background/50 rounded-2xl p-4 border border-border/40 space-y-4 shadow-sm">
+                    <div className="grid grid-cols-2 gap-3 text-xs">
+                      <div>
+                        <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider block mb-0.5">Courier</span>
+                        <p className="text-sm font-bold text-foreground">
+                          {order.courier || (order as any).shipment?.courier || "DTDC Express"}
+                        </p>
+                      </div>
+                      <div>
+                        <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider block mb-0.5">Shipment Status</span>
+                        <div className="mt-0.5">
+                          <ShipmentBadge status={order.shipmentStatus || (order as any).shippingStatus || (order as any).shipment?.status || (!(order.awbNumber || (order as any).awb || (order as any).shipment?.awbNumber || (order as any).shipment?.awb) ? "Not Created" : "booked")} />
+                        </div>
+                      </div>
+                      <div className="col-span-2">
+                        <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider block mb-0.5">AWB Number</span>
+                        <p className="text-sm font-bold text-foreground font-mono bg-secondary/30 px-2 py-1 rounded border border-border/10 select-all w-fit">
+                          {order.awbNumber || (order as any).awb || (order as any).shipment?.awbNumber || (order as any).shipment?.awb || "Not Assigned"}
+                        </p>
+                      </div>
+                    </div>
+
+                    <Separator className="bg-border/30 my-2" />
+
+                    <ShipmentActions
+                      orderId={order._id}
+                      awbNumber={order.awbNumber || (order as any).awb || (order as any).shipment?.awbNumber || (order as any).shipment?.awb}
+                      onActionSuccess={async () => {
+                        const accessToken = localStorage.getItem("accessToken");
+                        if (accessToken) {
+                          try {
+                            const [allRes, pendingRes] = await Promise.all([
+                              getAdminOrders(accessToken),
+                              getAdminPendingOrders(accessToken)
+                            ]);
+                            setOrders(allRes.data);
+                            setPendingOrders(pendingRes.data);
+                          } catch (err) {
+                            console.error("Refetch error after shipment action:", err);
+                          }
+                        }
+                      }}
+                    />
                   </div>
                 </div>
               </div>
+
 
               {/* Items Section */}
               <div className="lg:col-span-7">
@@ -234,8 +296,8 @@ export default function AdminOrders() {
 
                     const fallbackProduct = typeof item.product === "string" ? undefined : item.product;
                     const productData = productId ? fetchedProducts[productId] || fallbackProduct : fallbackProduct;
-                    const productName = productData?.name || item.productName || (typeof item.product !== "string" && item.product?.name) || "Deleted Product";
-                    const productImage = productData?.images?.[0];
+                    const productName = productData?.name || item.productName || (typeof item.product !== "string" && item.product?.name) || "Product (Snapshot unavailable)";
+                    const productImage = productData?.images?.[0] || item.productImage || (typeof item.product !== "string" && item.product?.images?.[0]) || undefined;
                     const itemPriceNumber = Number((item as any).sellPrice ?? item.price ?? 0);
                     const itemQty = Number(item.quantity ?? 0);
                     const subtotal = itemPriceNumber * itemQty;
