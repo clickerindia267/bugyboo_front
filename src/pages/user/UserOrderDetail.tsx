@@ -20,6 +20,9 @@ import { Separator } from "@/components/ui/separator";
 import { getUserOrder, type UserOrder } from "@/lib/api";
 import { toast } from "sonner";
 import { useAuth } from "@/store/auth";
+import ShipmentCard from "@/components/shipping/ShipmentCard";
+import ShipmentActions from "@/components/shipping/ShipmentActions";
+
 
 const UserOrderDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -245,6 +248,41 @@ const UserOrderDetail = () => {
               </div>
             </CardContent>
           </Card>
+
+          {/* Shipment info card */}
+          {order.awbNumber || (order as any).awb || (order as any).shipment?.awbNumber || (order as any).shipment?.awb ? (
+            <ShipmentCard
+              courierName={order.courier || (order as any).shipment?.courier || "DTDC Express"}
+              awbNumber={order.awbNumber || (order as any).awb || (order as any).shipment?.awbNumber || (order as any).shipment?.awb || ""}
+              shipmentStatus={order.shipmentStatus || (order as any).shippingStatus || (order as any).shipment?.status || "booked"}
+              estimatedDelivery={(order as any).estimatedDelivery || (order as any).shipment?.expectedDelivery}
+              lastUpdated={(order as any).shipmentLastUpdated || (order as any).shipment?.lastUpdated}
+              actions={
+                <ShipmentActions
+                  orderId={order._id}
+                  awbNumber={order.awbNumber || (order as any).awb || (order as any).shipment?.awbNumber || (order as any).shipment?.awb}
+                  variant="customer"
+                />
+              }
+            />
+          ) : (
+            <Card className="border-none shadow-soft rounded-3xl bg-card">
+              <CardHeader className="pb-3">
+                <CardTitle className="font-serif text-lg flex items-center gap-2">
+                  <Truck className="h-4 w-4 text-primary" /> Shipment Details
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="font-sans text-sm py-4 flex flex-col items-center justify-center text-center gap-2">
+                <Package className="h-8 w-8 text-muted-foreground/30" />
+                <p className="text-muted-foreground font-medium italic">
+                  Shipment not generated yet
+                </p>
+                <p className="text-[11px] text-muted-foreground/80 leading-relaxed max-w-[200px]">
+                  Our logistics team will dispatch your soft cotton treasures shortly!
+                </p>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Help button */}
           <Button variant="outline" className="w-full rounded-full border-primary/20 hover:bg-primary/5 text-primary" asChild>
