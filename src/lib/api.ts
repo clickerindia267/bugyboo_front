@@ -187,6 +187,9 @@ export interface AdminOrder {
   createdAt: string;
   updatedAt: string;
   __v: number;
+  courier?: string;
+  shipmentStatus?: string;
+  awbNumber?: string;
 }
 
 export interface AdminOrdersResponse {
