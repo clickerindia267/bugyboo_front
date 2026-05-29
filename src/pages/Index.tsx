@@ -1,17 +1,20 @@
+import { lazy, Suspense } from "react";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
-import FeaturedProducts from "@/components/FeaturedProducts";
-import SeasonBestsellers from "@/components/SeasonBestsellers";
-import ShopByOccasion from "@/components/ShopByOccasion";
-import BabyBanners from "@/components/BabyBanners";
-import Testimonials from "@/components/Testimonials";
-import CompanyOverview from "@/components/CompanyOverview";
-import StepIntoWorld from "@/components/StepIntoWorld";
-import OnPageSeo from "@/components/OnPageSeo";
 import Footer from "@/components/Footer";
 import FloatingCart from "@/components/FloatingCart";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import SEO from "@/components/SEO";
+
+// Lazy load below-the-fold components
+const ShopByOccasion = lazy(() => import("@/components/ShopByOccasion"));
+const BabyBanners = lazy(() => import("@/components/BabyBanners"));
+const FeaturedProducts = lazy(() => import("@/components/FeaturedProducts"));
+const SeasonBestsellers = lazy(() => import("@/components/SeasonBestsellers"));
+const Testimonials = lazy(() => import("@/components/Testimonials"));
+const CompanyOverview = lazy(() => import("@/components/CompanyOverview"));
+const StepIntoWorld = lazy(() => import("@/components/StepIntoWorld"));
+const OnPageSeo = lazy(() => import("@/components/OnPageSeo"));
 
 const Index = () => {
   // Homepage B2B/B2C Organization & Website Searchbox Schemas
@@ -66,14 +69,16 @@ const Index = () => {
       <Header />
       <main>
         <Hero />
-        <ShopByOccasion />
-        <BabyBanners />
-        <FeaturedProducts />
-        <SeasonBestsellers />
-        <Testimonials />
-        <CompanyOverview />
-        <StepIntoWorld />
-        <OnPageSeo />
+        <Suspense fallback={<div className="h-40 w-full animate-pulse bg-secondary/20 rounded-2xl my-8" />}>
+          <ShopByOccasion />
+          <BabyBanners />
+          <FeaturedProducts />
+          <SeasonBestsellers />
+          <Testimonials />
+          <CompanyOverview />
+          <StepIntoWorld />
+          <OnPageSeo />
+        </Suspense>
       </main>
       <Footer />
       <FloatingCart />

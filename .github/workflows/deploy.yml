@@ -25,27 +25,18 @@ jobs:
         run: npm run build
 
       - name: Deploy static assets to S3 (Immutable assets)
-        uses: jakejarvis/s3-sync-action@master
-        with:
-          args: --cache-control "public,max-age=31536000,immutable"
+        run: aws s3 sync dist/assets s3://${{ secrets.S3_BUCKET_NAME }}/assets --cache-control "public,max-age=31536000,immutable"
         env:
-          AWS_S3_BUCKET: ${{ secrets.S3_BUCKET_NAME }}
-          AWS_REGION: ${{ secrets.AWS_REGION }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          SOURCE_DIR: "dist/assets"
-          DEST_DIR: "assets"
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
 
       - name: Deploy HTML and root files to S3 (No cache)
-        uses: jakejarvis/s3-sync-action@master
-        with:
-          args: --delete --exclude "assets/*" --cache-control "public,max-age=0,must-revalidate"
+        run: aws s3 sync dist s3://${{ secrets.S3_BUCKET_NAME }} --exclude "assets/*" --delete --cache-control "public,max-age=0,must-revalidate"
         env:
-          AWS_S3_BUCKET: ${{ secrets.S3_BUCKET_NAME }}
-          AWS_REGION: ${{ secrets.AWS_REGION }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          SOURCE_DIR: "dist"
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
 
       - name: Invalidate CloudFront Cache
         uses: chetan/invalidate-cloudfront-action@v2
