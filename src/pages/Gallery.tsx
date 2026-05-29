@@ -3,6 +3,7 @@ import PageShell from "@/components/PageShell";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { X, ChevronLeft, ChevronRight, ShoppingBag, ZoomIn } from "lucide-react";
+import SEO from "@/components/SEO";
 
 // Import real local assets
 import frok1 from "@/assets/frok1.jpeg";
@@ -195,12 +196,37 @@ const Gallery = () => {
 
   const currentItem = lightboxIndex !== null ? filteredItems[lightboxIndex] : null;
 
+  const breadcrumbSchema = {
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://bugyboo.com/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Lookbook & Gallery",
+        "item": "https://bugyboo.com/gallery"
+      }
+    ]
+  };
+
   return (
     <PageShell
       title="Captured Moments of Joy"
       eyebrow="BugyBoo Lookbooks"
       subtitle="Exquisite playwear, cozy pajamas, and grand occasion wear captured in real life. Click on any outfit to view its craft details."
     >
+      <SEO 
+        title="Lookbook & Gallery | Premium Kids Wear Joy | Bugyboo"
+        description="Explore the Bugyboo Lookbooks. View captured real-life moments of children wearing our GOTS-certified organic cotton clothing, cozy pajama sets, and festive dresses."
+        keywords="Bugyboo lookbook, kids wear lookbook India, organic baby clothes gallery, children playwear photographs"
+        ogType="website"
+        schemaData={breadcrumbSchema}
+      />
       <section className="container mx-auto pb-24 px-4">
         
         {/* ── Filter Tabs ── */}

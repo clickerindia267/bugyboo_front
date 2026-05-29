@@ -133,6 +133,7 @@ const ProductDetails = () => {
     "image": images,
     "description": product.description,
     "sku": product._id,
+    "url": window.location.href,
     "color": product.color,
     "brand": {
       "@type": "Brand",
@@ -217,7 +218,7 @@ const ProductDetails = () => {
   return (
     <PageShell hideHeaderSpacer>
       <SEO 
-        title={`${product.name} — Buy Kids Wear Online India | Bugyboo`}
+        title={`${product.name} | Bugyboo`}
         description={`Shop ${product.name} online at Bugyboo. Made from premium, skin-friendly cotton fabric. Soft, breathable, and affordable clothing for babies, boys, and girls.`}
         keywords={`${product.name}, Buy ${product.name} online, premium kids clothes, cotton baby wear, Bugyboo ${product.category?.name}`}
         ogImage={images[0] ?? "/favicon.jpg"}

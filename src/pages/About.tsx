@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import SEO from "@/components/SEO";
 import PageShell from "@/components/PageShell";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -35,6 +35,7 @@ import catCasual from "@/assets/cat-casual.jpg";
 import catParty from "@/assets/cat-party.jpg";
 import nightwear1 from "@/assets/nightwear1.jpeg";
 
+// visions data...
 const visions = [
   {
     icon: Heart,
@@ -156,20 +157,33 @@ const seoTags = [
 ];
 
 const About = () => {
-  useEffect(() => {
-    document.title = "Bugyboo – Kids Wear Manufacturer & Wholesale Supplier in Ghaziabad, Delhi NCR";
-    
-    const metaDescription = document.querySelector('meta[name="description"]');
-    if (metaDescription) {
-      metaDescription.setAttribute(
-        "content",
-        "Bugyboo is a trusted kids wear manufacturer and wholesale supplier in Ghaziabad, Delhi NCR. Explore stylish, comfortable, affordable kids clothing for boys, girls, and babies across India."
-      );
-    }
-  }, []);
+  const breadcrumbSchema = {
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://bugyboo.com/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "About Us",
+        "item": "https://bugyboo.com/about"
+      }
+    ]
+  };
 
   return (
     <PageShell hideHeaderSpacer>
+      <SEO 
+        title="About Us | Kids Wear Manufacturer & Wholesale Supplier | Bugyboo"
+        description="Bugyboo is a trusted kids wear manufacturer and wholesale supplier in Ghaziabad, Delhi NCR. Explore stylish, comfortable, affordable kids clothing for boys, girls, and babies across India."
+        keywords="About Bugyboo, kids wear manufacturer Ghaziabad, wholesale kids wear Delhi NCR, cotton baby clothes supplier"
+        ogType="website"
+        schemaData={breadcrumbSchema}
+      />
       
       {/* ── SECTION 1: CUSTOM LUXURY HERO SECTION ── */}
       <section className="relative pt-32 pb-24 overflow-hidden bg-gradient-to-b from-pink/20 via-lavender/10 to-transparent">

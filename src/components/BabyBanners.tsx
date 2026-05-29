@@ -43,10 +43,10 @@ const BabyLogo = ({ className }: { className?: string }) => (
   </div>
 );
 
-const Polaroid = ({ src, className, innerClassName }: { src: string, className?: string, innerClassName?: string }) => (
+const Polaroid = ({ src, className, innerClassName, alt = "Product", loading = "lazy" }: { src: string, className?: string, innerClassName?: string, alt?: string, loading?: "lazy" | "eager" }) => (
   <div className={`bg-white p-3 pb-8 shadow-lg ${className}`}>
     <div className={`w-full h-full bg-white overflow-hidden ${innerClassName}`}>
-      <img src={src} alt="Product" className="w-full h-full object-contain" />
+      <img src={src} alt={alt} loading={loading} className="w-full h-full object-contain" />
     </div>
   </div>
 );
@@ -82,6 +82,8 @@ const BabyBanners = () => {
               <div className="w-[75%] sm:w-[65%] max-w-[400px]">
                 <Polaroid 
                   src={imgNewborn} 
+                  alt="Bugyboo Newborn organic cotton baby clothes collection"
+                  loading="eager"
                   className="w-full aspect-square transform -rotate-3 group-hover:rotate-0 group-hover:scale-105 transition-all duration-300 mx-auto shadow-xl" 
                 />
               </div>
@@ -90,7 +92,7 @@ const BabyBanners = () => {
               </h3>
             </div>
           </Link>
-
+ 
           {/* Right Blocks Grid */}
           <div className="w-full lg:w-1/2 grid grid-cols-2 grid-rows-2 gap-4">
             
@@ -108,11 +110,15 @@ const BabyBanners = () => {
               <div className="z-10 text-center w-full h-full flex flex-col items-center justify-between">
                 <h3 className="text-3xl sm:text-4xl mt-2 text-[#4a4a4a]" style={{ fontFamily: "'Dancing Script', cursive" }}>Baby Shop</h3>
                 <div className="w-[75%] max-w-[220px] my-auto">
-                  <Polaroid src={imgFrok} className="w-full aspect-square mx-auto group-hover:scale-105 transition-transform shadow-lg" />
+                  <Polaroid 
+                    src={imgFrok} 
+                    alt="Bugyboo premium cotton baby frock collection"
+                    className="w-full aspect-square mx-auto group-hover:scale-105 transition-transform shadow-lg" 
+                  />
                 </div>
               </div>
             </Link>
-
+ 
             {/* Top Right */}
             <Link to="/shop?category=Newborn" className="relative bg-[#ffeb8e] aspect-square rounded-xl overflow-hidden text-[#5e5e5e] p-4 flex items-center hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
               <div className="absolute top-0 right-0 w-[50%] h-[30%] bg-[#8ebbe8] rounded-bl-full" />
@@ -126,11 +132,15 @@ const BabyBanners = () => {
                   <h3 className="text-3xl sm:text-4xl text-[#4a4a4a]" style={{ fontFamily: "'Dancing Script', cursive" }}>New Born</h3>
                 </div>
                 <div className="w-[55%] max-w-[180px] my-auto">
-                  <Polaroid src={imgNightwear} className="w-full aspect-square transform rotate-3 group-hover:rotate-0 group-hover:scale-105 transition-transform shadow-lg" />
+                  <Polaroid 
+                    src={imgNightwear} 
+                    alt="Bugyboo newborn soft cotton nightwear sleep suit"
+                    className="w-full aspect-square transform rotate-3 group-hover:rotate-0 group-hover:scale-105 transition-transform shadow-lg" 
+                  />
                 </div>
               </div>
             </Link>
-
+ 
             {/* Bottom Middle */}
             <Link to="/shop" className="relative bg-[#ffeb8e] aspect-square rounded-xl overflow-hidden text-[#5e5e5e] p-4 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
               <div className="absolute top-0 right-0 w-[50%] h-[50%] bg-[#f6a9c0] rounded-bl-full" />
@@ -141,11 +151,15 @@ const BabyBanners = () => {
               <div className="z-10 relative w-full h-full flex flex-col items-center justify-between">
                 <h3 className="text-3xl sm:text-4xl mt-2 text-[#4a4a4a]" style={{ fontFamily: "'Dancing Script', cursive" }}>Just Arrived</h3>
                 <div className="w-[75%] max-w-[220px] my-auto">
-                  <Polaroid src={imgPinktop} className="w-full aspect-square transform -rotate-3 group-hover:rotate-0 group-hover:scale-105 transition-transform shadow-lg" />
+                  <Polaroid 
+                    src={imgPinktop} 
+                    alt="Bugyboo designer pink top for girls"
+                    className="w-full aspect-square transform -rotate-3 group-hover:rotate-0 group-hover:scale-105 transition-transform shadow-lg" 
+                  />
                 </div>
               </div>
             </Link>
-
+ 
             {/* Bottom Right */}
             <Link to="/shop?category=Boys" className="relative bg-[#ffeb8e] aspect-square rounded-xl overflow-hidden text-[#5e5e5e] p-4 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
               <div className="absolute bottom-0 right-0 w-[60%] h-[35%] bg-[#8ebbe8] rounded-tl-full" />
@@ -153,7 +167,11 @@ const BabyBanners = () => {
               
               <div className="z-10 flex w-full h-full justify-between items-center text-left">
                 <div className="w-[55%] max-w-[180px] my-auto">
-                  <Polaroid src={imgProduct1} className="w-full aspect-square transform -rotate-3 group-hover:rotate-0 group-hover:scale-105 transition-transform shadow-lg" />
+                  <Polaroid 
+                    src={imgProduct1} 
+                    alt="Bugyboo cute baby boy romper collection"
+                    className="w-full aspect-square transform -rotate-3 group-hover:rotate-0 group-hover:scale-105 transition-transform shadow-lg" 
+                  />
                 </div>
                 <div className="w-[45%] flex flex-col justify-center h-full pb-8 pl-3">
                   <h3 className="text-3xl sm:text-4xl text-[#4a4a4a]" style={{ fontFamily: "'Dancing Script', cursive" }}>Cute Baby</h3>

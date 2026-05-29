@@ -123,7 +123,7 @@ const Shop = () => {
   return (
     <PageShell title="The Collection" eyebrow="Shop" subtitle="Curated little wardrobes for your little ones.">
       <SEO 
-        title={cat === "All" ? "Shop the Collection — Buy Kids Wear Online India | Bugyboo" : `Buy ${cat} Online — Premium Kids Wear India | Bugyboo`}
+        title={cat === "All" ? "Buy Kids Wear Online India | Baby Clothes & Kids Fashion | Bugyboo" : `${cat} | Kids Wear Online | Bugyboo`}
         description={`Explore the ${cat === "All" ? "entire" : cat} kids clothing collection at Bugyboo. Breathable long-staple cotton, stylish casual wear, and daily wear essentials for babies, boys, and girls.`}
         keywords={`Buy ${cat === "All" ? "kids wear" : cat} online, kids clothing brand, cotton kids wear manufacturer, Bugyboo shop ${cat}`}
         ogType="website"

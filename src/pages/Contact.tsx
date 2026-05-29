@@ -3,6 +3,7 @@ import { Mail, MapPin, Phone, MessageCircle, Send } from "lucide-react";
 import PageShell from "@/components/PageShell";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
+import SEO from "@/components/SEO";
 
 const Contact = () => {
   const [sending, setSending] = useState(false);
@@ -24,8 +25,33 @@ const Contact = () => {
     { Icon: MessageCircle, l: "Live chat", v: "Mon–Fri · 9am–6pm CET", tone: "bg-beige" },
   ];
 
+  const breadcrumbSchema = {
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://bugyboo.com/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Contact Us",
+        "item": "https://bugyboo.com/contact"
+      }
+    ]
+  };
+
   return (
     <PageShell title="Say hello" eyebrow="Contact" subtitle="We adore hearing from our little circle. We reply softly and quickly.">
+      <SEO 
+        title="Contact Us | Premium Kids Wear Brand & Wholesaler | Bugyboo"
+        description="Get in touch with Bugyboo, Ghaziabad's premier kidswear wholesaler and manufacturer. Contact us for B2B bulk orders, retail inquiries, or customer support."
+        keywords="Contact Bugyboo, kids wear wholesaler Ghaziabad, contact kidswear manufacturer Delhi NCR, customer care Bugyboo"
+        ogType="website"
+        schemaData={breadcrumbSchema}
+      />
       <section className="container mx-auto pb-24">
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-14">
           {channels.map((c) => (

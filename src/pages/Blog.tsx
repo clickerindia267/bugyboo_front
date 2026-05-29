@@ -4,6 +4,7 @@ import PageShell from "@/components/PageShell";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { getBlogs, type PublicBlog } from "@/lib/api";
+import SEO from "@/components/SEO";
 
 const BlogSkeleton = () => (
   <div className="animate-pulse">
@@ -33,12 +34,37 @@ const Blog = () => {
   const blogs: PublicBlog[] = data?.blog?.filter((b) => b.isPublished) ?? [];
   const [feature, ...rest] = blogs;
 
+  const breadcrumbSchema = {
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://bugyboo.com/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Blog",
+        "item": "https://bugyboo.com/blog"
+      }
+    ]
+  };
+
   return (
     <PageShell
       title="Our Blog"
       eyebrow="Journal"
       subtitle="Stories, updates, and inspiration from BugyBoo."
     >
+      <SEO 
+        title="Our Journal & Blog | Kids Fashion & Parenting | Bugyboo"
+        description="Explore the Bugyboo Blog for kids clothing styling tips, benefits of GOTS-certified organic cotton, fabric care guides, and design studio updates."
+        keywords="kids clothing blog, baby fashion blog India, organic cotton baby clothes tips, parenting blogs"
+        ogType="website"
+        schemaData={breadcrumbSchema}
+      />
       <section className="container mx-auto pb-24 px-4">
         {isLoading && (
           <>

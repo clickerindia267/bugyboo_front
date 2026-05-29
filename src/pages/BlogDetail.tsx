@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { getBlogById } from "@/lib/api";
 import { useState } from "react";
+import SEO from "@/components/SEO";
 
 const formatDate = (dateStr: string) => {
   const d = new Date(dateStr);
@@ -84,9 +85,59 @@ const BlogDetail = () => {
           </div>
         )}
 
-        {/* Blog content */}
         {!isLoading && !isError && blog && (
           <article className="animate-fade-in">
+            <SEO 
+              title={`${blog.title} | Bugyboo`}
+              description={blog.description.slice(0, 155).trim() + "..."}
+              keywords={`${blog.title}, Bugyboo blog post, kids fashion journal`}
+              ogImage={blog.images?.[0] ?? "/favicon.jpg"}
+              ogType="article"
+              schemaData={[
+                {
+                  "@type": "BreadcrumbList",
+                  "itemListElement": [
+                    {
+                      "@type": "ListItem",
+                      "position": 1,
+                      "name": "Home",
+                      "item": "https://bugyboo.com/"
+                    },
+                    {
+                      "@type": "ListItem",
+                      "position": 2,
+                      "name": "Blog",
+                      "item": "https://bugyboo.com/blog"
+                    },
+                    {
+                      "@type": "ListItem",
+                      "position": 3,
+                      "name": blog.title,
+                      "item": `https://bugyboo.com/blog/${blog._id}`
+                    }
+                  ]
+                },
+                {
+                  "@type": "BlogPosting",
+                  "headline": blog.title,
+                  "image": blog.images && blog.images.length > 0 ? blog.images : ["https://bugyboo.com/favicon.jpg"],
+                  "datePublished": blog.createdAt,
+                  "description": blog.description.slice(0, 155).trim(),
+                  "author": {
+                    "@type": "Person",
+                    "name": typeof blog.createdBy === "object" ? blog.createdBy?.name || "Bugyboo Editor" : "Bugyboo Editor"
+                  },
+                  "publisher": {
+                    "@type": "Organization",
+                    "name": "Bugyboo",
+                    "logo": {
+                      "@type": "ImageObject",
+                      "url": "https://bugyboo.com/favicon.jpg"
+                    }
+                  }
+                }
+              ]}
+            />
             {/* Title */}
             <h1 className="font-serif text-3xl md:text-5xl lg:text-6xl mb-6 text-balance leading-tight">
               {blog.title}

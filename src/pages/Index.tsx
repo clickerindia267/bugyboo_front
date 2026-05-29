@@ -56,7 +56,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background pb-16 md:pb-0">
       <SEO 
-        title="Bugyboo Baby Shop — Buy Kids Wear Online India & Kids Clothing"
+        title="Buy Kids Wear Online India | Baby Clothes & Kids Fashion | Bugyboo"
         description="Discover Bugyboo, the best kids clothing brand in India. Buy kids wear online, cotton baby clothes, and trendy kids fashion. Premium and daily wear for boys & girls."
         keywords="Buy Kids Wear Online India, Best Kids Clothing Brand in India, Kids Wear Online Shopping India, Affordable Kids Wear Online, Premium Kids Fashion, Cotton Kids Wear Manufacturer"
         ogType="website"

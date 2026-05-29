@@ -40,19 +40,31 @@ const SEO = ({
     setMetaTag("name", "robots", "index, follow");
 
     // 3. Open Graph Metadata
-    const currentUrl = canonicalUrl || window.location.href;
+    // Canonical URLs must use preferred non-www domain
+    let absoluteUrl = canonicalUrl;
+    if (!absoluteUrl) {
+      const relativePath = window.location.pathname + window.location.search;
+      absoluteUrl = `https://bugyboo.com${relativePath}`;
+    } else if (absoluteUrl.startsWith("/")) {
+      absoluteUrl = `https://bugyboo.com${absoluteUrl}`;
+    } else if (absoluteUrl.includes("www.bugyboo.com")) {
+      absoluteUrl = absoluteUrl.replace("www.bugyboo.com", "bugyboo.com");
+    }
+
     setMetaTag("property", "og:title", title);
     setMetaTag("property", "og:description", description);
-    setMetaTag("property", "og:image", ogImage.startsWith("http") ? ogImage : `${window.location.origin}${ogImage}`);
+    setMetaTag("property", "og:image", ogImage.startsWith("http") ? ogImage : `https://bugyboo.com${ogImage}`);
     setMetaTag("property", "og:type", ogType);
-    setMetaTag("property", "og:url", currentUrl);
+    setMetaTag("property", "og:url", absoluteUrl);
     setMetaTag("property", "og:site_name", "Bugyboo");
 
     // 4. Twitter Cards
     setMetaTag("name", "twitter:card", "summary_large_image");
     setMetaTag("name", "twitter:title", title);
     setMetaTag("name", "twitter:description", description);
-    setMetaTag("name", "twitter:image", ogImage.startsWith("http") ? ogImage : `${window.location.origin}${ogImage}`);
+    setMetaTag("name", "twitter:image", ogImage.startsWith("http") ? ogImage : `https://bugyboo.com${ogImage}`);
+    setMetaTag("name", "twitter:site", "@bugyboo");
+    setMetaTag("name", "twitter:creator", "@bugyboo");
 
     // 5. Canonical Link
     let canonicalLink = document.querySelector("link[rel='canonical']");
@@ -61,7 +73,7 @@ const SEO = ({
       canonicalLink.setAttribute("rel", "canonical");
       document.head.appendChild(canonicalLink);
     }
-    canonicalLink.setAttribute("href", currentUrl);
+    canonicalLink.setAttribute("href", absoluteUrl);
 
     // 6. JSON-LD Schema Structured Data Injection
     const existingScript = document.getElementById("bugyboo-jsonld-schema");
