@@ -1,11 +1,15 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { Link } from "react-router-dom";
-import heroBannerNew1 from "@/assets/hero-banner-new-1.jpg";
-import heroBannerNew2 from "@/assets/hero-banner-new-2.jpg";
-import heroBannerNew3 from "@/assets/hero-banner-new-3.jpg";
+import heroBannerNew1Desktop from "@/assets/hero-banner-new-1-desktop.webp";
+import heroBannerNew1Mobile from "@/assets/hero-banner-new-1-mobile.webp";
+import heroBannerNew2Desktop from "@/assets/hero-banner-new-2-desktop.webp";
+import heroBannerNew2Mobile from "@/assets/hero-banner-new-2-mobile.webp";
+import heroBannerNew3Desktop from "@/assets/hero-banner-new-3-desktop.webp";
+import heroBannerNew3Mobile from "@/assets/hero-banner-new-3-mobile.webp";
 
 interface Slide {
-  img: string;
+  desktopImg: string;
+  mobileImg: string;
   title: string;
   ctaLink: string;
   fitClass: string;
@@ -14,21 +18,24 @@ interface Slide {
 
 const slides: Slide[] = [
   {
-    img: heroBannerNew1,
+    desktopImg: heroBannerNew1Desktop,
+    mobileImg: heroBannerNew1Mobile,
     title: "Little Dreams in Style",
     ctaLink: "/shop",
     fitClass: "object-cover object-top",
     bgClass: "bg-[#cbe3fc]", // Beautiful matching sky-blue background for Slide 1
   },
   {
-    img: heroBannerNew2,
+    desktopImg: heroBannerNew2Desktop,
+    mobileImg: heroBannerNew2Mobile,
     title: "Tiny Fashion, Big Smiles",
     ctaLink: "/shop",
     fitClass: "object-cover",
     bgClass: "bg-background",
   },
   {
-    img: heroBannerNew3,
+    desktopImg: heroBannerNew3Desktop,
+    mobileImg: heroBannerNew3Mobile,
     title: "Tiny Trends for Little Stars",
     ctaLink: "/shop",
     fitClass: "object-cover",
@@ -120,14 +127,19 @@ const Hero = () => {
             }`}
           >
             <div className="w-full h-full overflow-hidden relative">
-              <img
-                src={s.img}
-                alt={s.title}
-                loading={i === 0 ? "eager" : "lazy"}
-                className={`w-full h-full ${s.fitClass} transition-transform duration-6000 ease-out ${
-                  isActive ? "scale-103" : "scale-100"
-                }`}
-              />
+              <picture>
+                <source srcSet={s.mobileImg} media="(max-width: 767px)" />
+                <source srcSet={s.desktopImg} media="(min-width: 768px)" />
+                <img
+                  src={s.desktopImg}
+                  alt={s.title}
+                  loading={i === 0 ? "eager" : "lazy"}
+                  {...(i === 0 ? { fetchPriority: "high" } : {})}
+                  className={`w-full h-full ${s.fitClass} transition-transform duration-6000 ease-out ${
+                    isActive ? "scale-103" : "scale-100"
+                  }`}
+                />
+              </picture>
               {/* Soft overlay to give high-quality look */}
               <div className="absolute inset-0 bg-black/[0.02] pointer-events-none" />
             </div>

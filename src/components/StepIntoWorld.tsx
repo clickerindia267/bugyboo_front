@@ -73,7 +73,8 @@ const StepIntoWorld = () => {
               style={{ animationDelay: `${i * 150}ms` }}
             >
               <video
-                src={vid.src}
+                src={isVisible ? vid.src : undefined}
+                preload="none"
                 autoPlay
                 loop
                 muted

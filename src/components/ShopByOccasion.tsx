@@ -1,13 +1,13 @@
 import { Link } from "react-router-dom";
-import occasionNewIn from "@/assets/occasion-new-in.png";
-import occasionBirthday from "@/assets/occasion-birthday.png";
-import occasionStepOut from "@/assets/occasion-step-out.png";
-import occasionVacation from "@/assets/occasion-vacation.png";
-import occasionGirls from "@/assets/occasion-girls-wardrobe.png";
-import occasionBoys from "@/assets/occasion-boys-wardrobe.png";
-import occasionBaby from "@/assets/occasion-baby-wardrobe.png";
-import occasionGirlsNew from "@/assets/occasion-girls.png";
-import occasionBoysNew from "@/assets/occasion-boys.png";
+import occasionNewIn from "@/assets/occasion-new-in.webp";
+import occasionBirthday from "@/assets/occasion-birthday.webp";
+import occasionStepOut from "@/assets/occasion-step-out.webp";
+import occasionVacation from "@/assets/occasion-vacation.webp";
+import occasionGirls from "@/assets/occasion-girls-wardrobe.webp";
+import occasionBoys from "@/assets/occasion-boys-wardrobe.webp";
+import occasionBaby from "@/assets/occasion-baby-wardrobe.webp";
+import occasionGirlsNew from "@/assets/occasion-girls.webp";
+import occasionBoysNew from "@/assets/occasion-boys.webp";
 
 const occasions = [
   { key: "New In", label: "NEW IN!", img: occasionNewIn },
@@ -54,6 +54,8 @@ const ShopByOccasion = () => {
                   src={o.img}
                   alt={`Shop ${o.label} collection`}
                   loading="lazy"
+                  width={96}
+                  height={96}
                   className="w-full h-full rounded-full object-cover object-top"
                 />
               </div>

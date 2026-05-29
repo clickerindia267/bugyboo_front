@@ -24,10 +24,22 @@ jobs:
       - name: Build Vite project
         run: npm run build
 
-      - name: Deploy to S3
+      - name: Deploy static assets to S3 (Immutable assets)
         uses: jakejarvis/s3-sync-action@master
         with:
-          args: --delete
+          args: --cache-control "public, max-age=31536000, immutable"
+        env:
+          AWS_S3_BUCKET: ${{ secrets.S3_BUCKET_NAME }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          SOURCE_DIR: "dist/assets"
+          DEST_DIR: "assets"
+
+      - name: Deploy HTML and root files to S3 (No cache)
+        uses: jakejarvis/s3-sync-action@master
+        with:
+          args: --delete --exclude "assets/*" --cache-control "public, max-age=0, must-revalidate"
         env:
           AWS_S3_BUCKET: ${{ secrets.S3_BUCKET_NAME }}
           AWS_REGION: ${{ secrets.AWS_REGION }}

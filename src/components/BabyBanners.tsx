@@ -83,7 +83,7 @@ const BabyBanners = () => {
                 <Polaroid 
                   src={imgNewborn} 
                   alt="Bugyboo Newborn organic cotton baby clothes collection"
-                  loading="eager"
+                  loading="lazy"
                   className="w-full aspect-square transform -rotate-3 group-hover:rotate-0 group-hover:scale-105 transition-all duration-300 mx-auto shadow-xl" 
                 />
               </div>
