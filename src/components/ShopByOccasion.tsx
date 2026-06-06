@@ -36,7 +36,7 @@ const ShopByOccasion = () => {
         {/* Section heading - Converted to H2 for homepage SEO requirement with 100% visual parity */}
         <div className="text-center max-w-2xl mx-auto mb-10 md:mb-14">
           <h2 className="font-serif text-3xl md:text-4xl tracking-tight text-foreground">
-            Shop Trendy Kids Wear Online in India
+            What Are You Looking for?
           </h2>
         </div>
 

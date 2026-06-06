@@ -236,9 +236,9 @@ const SeasonBestsellers = () => {
               <Flame className="h-3.5 w-3.5" style={{ color: activeAccent }} />
               <span>Trending this season</span>
             </div>
-            <h2 className="sb-title">
-              Affordable Kids Fashion Designed for Comfort
-            </h2>
+             <h2 className="sb-title">
+               Season <em>Bestsellers</em>
+             </h2>
           </div>
           <Link to="/shop">
             <Button variant="ghost" className="rounded-full story-link">

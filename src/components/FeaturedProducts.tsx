@@ -170,7 +170,7 @@ const FeaturedProducts = () => {
           <div>
             <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground mb-3">Best Product For You </p>
             <h2 className="font-serif text-4xl md:text-5xl text-balance max-w-md">
-              Premium Cotton Clothing for Babies, Boys &amp; Girls
+              Our <em className="italic font-normal">Products</em>
             </h2>
           </div>
           <Link to="/shop">
