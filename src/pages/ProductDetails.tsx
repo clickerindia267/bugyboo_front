@@ -9,6 +9,7 @@ import { useCart } from "@/store/cart";
 import { useAuth } from "@/store/auth";
 import { toast } from "@/hooks/use-toast";
 import SEO from "@/components/SEO";
+import { toSlug, getProductAltText } from "@/lib/utils";
 
 const ProductDetails = () => {
   const { id } = useParams<{ id: string }>();
@@ -23,20 +24,31 @@ const ProductDetails = () => {
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null);
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
 
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ["product", id],
-    queryFn: () => getProductById(id!),
-    enabled: !!id,
-  });
-
   const { data: allProductsData } = useQuery({
     queryKey: ["products"],
     queryFn: getProducts,
   });
 
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["product", id],
+    queryFn: async () => {
+      if (!id) throw new Error("No product identifier provided");
+      const isId = /^[0-9a-fA-F]{24}$/.test(id);
+      if (isId) {
+        return getProductById(id);
+      } else {
+        const res = await getProducts();
+        const matched = res.data.find((p) => toSlug(p.name) === id);
+        if (!matched) throw new Error("Product not found by slug");
+        return getProductById(matched._id);
+      }
+    },
+    enabled: !!id,
+  });
+
   const product = data?.data;
   const related = (allProductsData?.data ?? [])
-    .filter((p) => p._id !== id && !p.isPaused)
+    .filter((p) => p._id !== product?._id && !p.isPaused)
     .slice(0, 4);
 
   // Set default selected variant when product loads
@@ -475,11 +487,11 @@ const ProductDetails = () => {
             <h2 className="font-serif text-3xl md:text-4xl mb-10 font-bold">You may also <em className="italic font-normal">love</em></h2>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
               {related.map((p) => (
-                <Link key={p._id} to={`/product/${p._id}`} className="group">
+                <Link key={p._id} to={`/product/${toSlug(p.name)}`} className="group">
                   <div className="relative overflow-hidden rounded-2xl bg-secondary aspect-[4/5] mb-3 hover-lift">
                     <img
                       src={p.images?.[0] ?? ""}
-                      alt={`${p.name} — related premium cotton kidswear`}
+                      alt={getProductAltText(p.name, p.category?.name)}
                       loading="lazy"
                       className="w-full h-full object-contain transition-transform duration-1200 ease-out group-hover:scale-110"
                     />

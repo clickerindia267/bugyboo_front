@@ -14,6 +14,7 @@ interface Slide {
   ctaLink: string;
   fitClass: string;
   bgClass: string;
+  altText: string;
 }
 
 const slides: Slide[] = [
@@ -24,6 +25,7 @@ const slides: Slide[] = [
     ctaLink: "/shop",
     fitClass: "object-cover object-top",
     bgClass: "bg-[#cbe3fc]", // Beautiful matching sky-blue background for Slide 1
+    altText: "Buy Kids Wear Online India at Bugyboo",
   },
   {
     desktopImg: heroBannerNew2Desktop,
@@ -32,6 +34,7 @@ const slides: Slide[] = [
     ctaLink: "/shop",
     fitClass: "object-cover",
     bgClass: "bg-background",
+    altText: "Premium Kids Clothing Collection India",
   },
   {
     desktopImg: heroBannerNew3Desktop,
@@ -40,6 +43,7 @@ const slides: Slide[] = [
     ctaLink: "/shop",
     fitClass: "object-cover",
     bgClass: "bg-[#e6f1fc]",
+    altText: "Stylish Kids Fashion for Boys and Girls",
   },
 ];
 
@@ -132,7 +136,7 @@ const Hero = () => {
                 <source srcSet={s.desktopImg} media="(min-width: 768px)" />
                 <img
                   src={s.desktopImg}
-                  alt={s.title}
+                  alt={s.altText}
                   loading={i === 0 ? "eager" : "lazy"}
                   {...(i === 0 ? { fetchPriority: "high" } : {})}
                   className={`w-full h-full ${s.fitClass} transition-transform duration-6000 ease-out ${

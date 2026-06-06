@@ -7,6 +7,7 @@ import { getProducts, type PublicProduct } from "@/lib/api";
 import { useCart } from "@/store/cart";
 import { useAuth } from "@/store/auth";
 import { toast } from "sonner";
+import { toSlug, getProductAltText } from "@/lib/utils";
 
 /* ─── Season config ─── */
 const seasons = [
@@ -102,10 +103,10 @@ const ProductCard = ({ p, index }: { p: PublicProduct; index: number }) => {
       className="sb-card group animate-fade-in"
       style={{ animationDelay: `${index * 100}ms` }}
     >
-      <Link to={`/product/${p._id}`}>
+      <Link to={`/product/${toSlug(p.name)}`}>
         {/* Image */}
         <div className="sb-card-img">
-          <img src={p.images?.[0] ?? ""} alt={p.name} loading="lazy" />
+          <img src={p.images?.[0] ?? ""} alt={getProductAltText(p.name, p.category?.name)} loading="lazy" />
           {discount && <span className="sb-tag">Sale</span>}
           <button
             aria-label="Add to wishlist"
@@ -134,7 +135,7 @@ const ProductCard = ({ p, index }: { p: PublicProduct; index: number }) => {
       {/* Info */}
       <div className="sb-card-info">
         <p className="text-[11px] text-muted-foreground mb-1">{p.category?.name}</p>
-        <Link to={`/product/${p._id}`}>
+        <Link to={`/product/${toSlug(p.name)}`}>
           <h3 className="sb-card-name hover:text-[#3f646f] transition-colors">{p.name}</h3>
         </Link>
         <div className="sb-price-row">
@@ -236,7 +237,7 @@ const SeasonBestsellers = () => {
               <span>Trending this season</span>
             </div>
             <h2 className="sb-title">
-              Season <em>Bestsellers</em>
+              Affordable Kids Fashion Designed for Comfort
             </h2>
           </div>
           <Link to="/shop">

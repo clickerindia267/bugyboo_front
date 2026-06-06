@@ -36,10 +36,10 @@ const fallbackProducts = [
 const staticPages = [
   {
     route: "",
-    title: "Buy Kids Wear Online India | Baby Clothes & Kids Fashion | Bugyboo",
-    description: "Discover Bugyboo, the best kids clothing brand in India. Buy kids wear online, cotton baby clothes, and trendy kids fashion. Premium and daily wear for boys & girls.",
-    keywords: "Buy Kids Wear Online India, Best Kids Clothing Brand in India, Kids Wear Online Shopping India, Cotton Kids Wear Manufacturer India",
-    h1: '<h1 class="font-serif text-3xl md:text-4xl tracking-tight text-foreground">What Are You Looking for?</h1>',
+    title: "Buy Kids Wear Online India | Frocks, Co-ord Sets & Night Suits",
+    description: "Shop premium kids wear online in India at Bugyboo. Discover stylish girls frocks, trendy co-ord sets, comfortable night suits, and soft cotton baby clothes at affordable prices with delivery across India.",
+    keywords: "Buy Kids Wear Online India, Best Kids Clothing Brand in India, Kids Wear Online Shopping India, Affordable Kids Wear Online, Premium Kids Clothing India, Kids Clothing Store Online India, Trendy Kids Fashion Online India, Buy Baby Clothes Online India, Stylish Kids Dresses Online, Girls Frocks Online India, Buy Girls Frocks Online, Kids Co-ord Sets Online India, Buy Kids Co-ord Sets Online, Kids Night Suit Online India, Cotton Kids Wear India, Organic Cotton Kids Wear India, Premium Kids Fashion for Boys & Girls, Comfortable Daily Wear for Kids, Soft Cotton Clothes for Babies, Baby Clothes Online India, Newborn Baby Clothes Online Shopping, Trendy Baby Clothes Online India, Fashionable Kids Wear Online, Kids Clothing Website India, Buy Boys Clothing Online India, Buy Girls Dresses Online India, Kids Party Wear Online, Summer Wear for Kids India, Stylish Kids Wear at Best Price, Online Kids Fashion Shopping Website",
+    h1: '<h1 class="font-serif text-3xl md:text-4xl tracking-tight text-foreground">Buy Kids Wear Online India – Premium Fashion for Babies, Boys & Girls</h1>',
     schema: [
       {
         "@context": "https://schema.org",
@@ -226,15 +226,24 @@ const runPrerender = async () => {
     prerenderRoute(templateHtml, page);
   });
 
+  const toSlug = (name) => {
+    return name
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, "")
+      .trim()
+      .replace(/\s+/g, "-");
+  };
+
   // 2. Fetch and Prerender Dynamic Product Pages
   const apiProducts = await fetchData("/products");
   const productsList = apiProducts.length > 0 ? apiProducts : fallbackProducts;
 
   productsList.forEach((product) => {
     const id = product._id || product.id;
+    const slug = toSlug(product.name);
     const title = `${product.name} | Bugyboo`;
     const description = `Shop ${product.name} online at Bugyboo. Made from premium, skin-friendly cotton fabric. Soft, breathable, and affordable clothing.`;
-    const canonicalUrl = `${PREFERRED_DOMAIN}/product/${id}`;
+    const canonicalUrl = `${PREFERRED_DOMAIN}/product/${slug}`;
 
     const productSchema = {
       "@context": "https://schema.org",
@@ -269,7 +278,7 @@ const runPrerender = async () => {
       ]
     };
 
-    const routeInfo = {
+    const routeInfoId = {
       route: `product/${id}`,
       title,
       description,
@@ -278,7 +287,17 @@ const runPrerender = async () => {
       schema: [breadcrumbSchema, productSchema]
     };
 
-    prerenderRoute(templateHtml, routeInfo);
+    const routeInfoSlug = {
+      route: `product/${slug}`,
+      title,
+      description,
+      keywords: `${product.name}, Buy ${product.name} online, premium kids clothes, cotton baby wear, Bugyboo`,
+      h1: `<h1 class="font-serif text-4xl md:text-5xl mb-4 font-bold">${product.name}</h1>`,
+      schema: [breadcrumbSchema, productSchema]
+    };
+
+    prerenderRoute(templateHtml, routeInfoId);
+    prerenderRoute(templateHtml, routeInfoSlug);
   });
 
   // 3. Fetch and Prerender Dynamic Blog Pages

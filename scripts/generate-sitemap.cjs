@@ -41,6 +41,14 @@ const fetchData = (endpoint) => {
   });
 };
 
+const toSlug = (name) => {
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .trim()
+    .replace(/\s+/g, "-");
+};
+
 const generateSitemap = async () => {
   console.log("Generating sitemap...");
   let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
@@ -63,11 +71,22 @@ const generateSitemap = async () => {
   // Dynamic Product Pages
   productsList.forEach((p) => {
     const id = p._id || p.id;
+    const slug = p.name ? toSlug(p.name) : (p.slug || id);
+
+    // Canonical Slug URL
+    xml += "  <url>\n";
+    xml += `    <loc>${PREFERRED_DOMAIN}/product/${slug}</loc>\n`;
+    xml += "    <lastmod>" + new Date().toISOString().split("T")[0] + "</lastmod>\n";
+    xml += "    <changefreq>weekly</changefreq>\n";
+    xml += "    <priority>0.80</priority>\n";
+    xml += "  </url>\n";
+
+    // Backward compatible ID URL
     xml += "  <url>\n";
     xml += `    <loc>${PREFERRED_DOMAIN}/product/${id}</loc>\n`;
     xml += "    <lastmod>" + new Date().toISOString().split("T")[0] + "</lastmod>\n";
     xml += "    <changefreq>weekly</changefreq>\n";
-    xml += "    <priority>0.80</priority>\n";
+    xml += "    <priority>0.60</priority>\n";
     xml += "  </url>\n";
   });
 

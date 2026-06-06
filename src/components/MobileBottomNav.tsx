@@ -5,6 +5,7 @@ import { useCart } from "@/store/cart";
 import { useAuth } from "@/store/auth";
 import { searchProducts, type PublicProduct } from "@/lib/api";
 import { toast } from "sonner";
+import { toSlug } from "@/lib/utils";
 
 export default function MobileBottomNav() {
   const location = useLocation();
@@ -48,9 +49,14 @@ export default function MobileBottomNav() {
 
   const handleSearchResultClick = (productId: string) => {
     setSearchOpen(false);
+    const product = searchResults.find(p => p._id === productId);
     setSearchQuery("");
     setSearchResults([]);
-    navigate(`/product/${productId}`);
+    if (product) {
+      navigate(`/product/${toSlug(product.name)}`);
+    } else {
+      navigate(`/product/${productId}`);
+    }
   };
 
   const handleWishlistClick = () => {

@@ -8,9 +8,9 @@ const routesToVerify = [
   {
     path: "index.html",
     name: "Homepage",
-    expectedTitle: "Buy Kids Wear Online India | Baby Clothes & Kids Fashion | Bugyboo",
-    expectedDesc: "Discover Bugyboo, the best kids clothing brand in India.",
-    expectedH1: "What Are You Looking for?"
+    expectedTitle: "Buy Kids Wear Online India | Frocks, Co-ord Sets & Night Suits",
+    expectedDesc: "Shop premium kids wear online in India at Bugyboo. Discover stylish girls frocks, trendy co-ord sets, comfortable night suits, and soft cotton baby clothes at affordable prices with delivery across India.",
+    expectedH1: "Buy Kids Wear Online India – Premium Fashion for Babies, Boys & Girls"
   },
   {
     path: "about/index.html",

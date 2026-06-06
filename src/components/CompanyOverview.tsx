@@ -103,7 +103,7 @@ const CompanyOverview = () => {
           <div className="co-story">
             <p className="co-eyebrow">Our Story</p>
             <h2 className="co-title">
-              Fashion that grows <em>with</em> your little ones
+              Why Choose Bugyboo for Kids Clothing Online?
             </h2>
             <p className="co-desc">
               Born from a mother's wish for clothing that's as gentle as her touch, <strong>BugyBoo</strong> is

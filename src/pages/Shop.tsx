@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { getProducts, type PublicProduct } from "@/lib/api";
 import SEO from "@/components/SEO";
+import { toSlug, getProductAltText } from "@/lib/utils";
 
 const sortOptions = [
   { v: "featured", l: "Featured" },
@@ -115,7 +116,7 @@ const Shop = () => {
     "itemListElement": filtered.map((p, idx) => ({
       "@type": "ListItem",
       "position": idx + 1,
-      "url": `${window.location.origin}/product/${p._id}`,
+      "url": `${window.location.origin}/product/${toSlug(p.name)}`,
       "name": p.name
     }))
   };
@@ -178,14 +179,14 @@ const Shop = () => {
             {!isLoading && filtered.map((p, i) => (
               <Link
                 key={p._id}
-                to={`/product/${p._id}`}
+                to={`/product/${toSlug(p.name)}`}
                 className="group animate-fade-in"
                 style={{ animationDelay: `${i * 50}ms`, animationFillMode: "backwards" }}
               >
                 <div className="relative overflow-hidden rounded-2xl bg-secondary aspect-[4/5] mb-3 hover-lift">
                   <img
                     src={p.images?.[0] ?? ""}
-                    alt={`${p.name} — ${p.category?.name || 'kids wear'}`}
+                    alt={getProductAltText(p.name, p.category?.name)}
                     loading="lazy"
                     className="w-full h-full object-contain transition-transform duration-1200 ease-out group-hover:scale-110"
                   />

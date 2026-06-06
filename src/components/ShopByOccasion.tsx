@@ -10,15 +10,15 @@ import occasionGirlsNew from "@/assets/occasion-girls.webp";
 import occasionBoysNew from "@/assets/occasion-boys.webp";
 
 const occasions = [
-  { key: "New In", label: "NEW IN!", img: occasionNewIn },
-  { key: "Birthday", label: "Birthday", img: occasionBirthday },
-  { key: "Step Out", label: "Step Out", img: occasionStepOut },
-  { key: "Vacation", label: "Vacation", img: occasionVacation },
-  { key: "Girls", label: "Girls Wardrobe", img: occasionGirls },
-  { key: "Boys", label: "Boys Wardrobe", img: occasionBoys },
-  { key: "Newborn", label: "Baby Wardrobe", img: occasionBaby },
-  { key: "Girls", label: "Girls", img: occasionGirlsNew },
-  { key: "Boys", label: "Boys", img: occasionBoysNew },
+  { key: "New In", label: "NEW IN!", img: occasionNewIn, altText: "Buy Kids Wear Online India at Bugyboo" },
+  { key: "Birthday", label: "Birthday", img: occasionBirthday, altText: "Stylish Girls Party Wear Frock" },
+  { key: "Step Out", label: "Step Out", img: occasionStepOut, altText: "Premium Kids Clothing Brand in India" },
+  { key: "Vacation", label: "Vacation", img: occasionVacation, altText: "Comfortable Baby Clothes Collection" },
+  { key: "Girls", label: "Girls Wardrobe", img: occasionGirls, altText: "Floral Cotton Frock for Girls Online" },
+  { key: "Boys", label: "Boys Wardrobe", img: occasionBoys, altText: "Cotton Co-ord Set for Kids" },
+  { key: "Newborn", label: "Baby Wardrobe", img: occasionBaby, altText: "Soft Cotton Baby Clothes Online" },
+  { key: "Girls", label: "Girls", img: occasionGirlsNew, altText: "Designer Girls Frocks Online India" },
+  { key: "Boys", label: "Boys", img: occasionBoysNew, altText: "Kids Co-ord Set Online India" },
 ];
 
 const ShopByOccasion = () => {
@@ -33,11 +33,11 @@ const ShopByOccasion = () => {
   return (
     <section className="py-16 md:py-24 bg-background">
       <div className="container mx-auto">
-        {/* Section heading - Converted to H1 for homepage visible H1 requirement with 100% visual parity */}
+        {/* Section heading - Converted to H2 for homepage SEO requirement with 100% visual parity */}
         <div className="text-center max-w-2xl mx-auto mb-10 md:mb-14">
-          <h1 className="font-serif text-3xl md:text-4xl tracking-tight text-foreground">
-            What Are You Looking for?
-          </h1>
+          <h2 className="font-serif text-3xl md:text-4xl tracking-tight text-foreground">
+            Shop Trendy Kids Wear Online in India
+          </h2>
         </div>
 
         {/* Occasion circles — Converted to crawlable Links for search engines */}
@@ -52,7 +52,7 @@ const ShopByOccasion = () => {
               <div className="relative w-20 h-20 sm:w-[5.5rem] sm:h-[5.5rem] md:w-24 md:h-24 rounded-full transition-all duration-500 ring-[2.5px] ring-[#3f646f]/50 ring-offset-[3px] ring-offset-background group-hover:ring-[#3f646f] group-hover:scale-110">
                 <img
                   src={o.img}
-                  alt={`Shop ${o.label} collection`}
+                  alt={o.altText}
                   loading="lazy"
                   width={96}
                   height={96}

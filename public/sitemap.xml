@@ -2,157 +2,229 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://bugyboo.com/</loc>
-    <lastmod>2026-05-29</lastmod>
+    <lastmod>2026-06-06</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.00</priority>
   </url>
   <url>
     <loc>https://bugyboo.com/shop</loc>
-    <lastmod>2026-05-29</lastmod>
+    <lastmod>2026-06-06</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.90</priority>
   </url>
   <url>
     <loc>https://bugyboo.com/about</loc>
-    <lastmod>2026-05-29</lastmod>
+    <lastmod>2026-06-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://bugyboo.com/contact</loc>
-    <lastmod>2026-05-29</lastmod>
+    <lastmod>2026-06-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://bugyboo.com/blog</loc>
-    <lastmod>2026-05-29</lastmod>
+    <lastmod>2026-06-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://bugyboo.com/gallery</loc>
-    <lastmod>2026-05-29</lastmod>
+    <lastmod>2026-06-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.70</priority>
   </url>
   <url>
+    <loc>https://bugyboo.com/product/little-blooms-striped-floral-frock</loc>
+    <lastmod>2026-06-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.80</priority>
+  </url>
+  <url>
     <loc>https://bugyboo.com/product/6a0809942b64fdedef37b527</loc>
-    <lastmod>2026-05-29</lastmod>
+    <lastmod>2026-06-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.60</priority>
+  </url>
+  <url>
+    <loc>https://bugyboo.com/product/little-petals-floral-frock</loc>
+    <lastmod>2026-06-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://bugyboo.com/product/6a0c57bb2b64fdedef37b75d</loc>
-    <lastmod>2026-05-29</lastmod>
+    <lastmod>2026-06-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.60</priority>
+  </url>
+  <url>
+    <loc>https://bugyboo.com/product/girls-floral-frock</loc>
+    <lastmod>2026-06-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://bugyboo.com/product/6a0c58c92b64fdedef37b762</loc>
-    <lastmod>2026-05-29</lastmod>
+    <lastmod>2026-06-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.60</priority>
+  </url>
+  <url>
+    <loc>https://bugyboo.com/product/kids-short-sleeve-pajama-set</loc>
+    <lastmod>2026-06-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://bugyboo.com/product/6a0c5c322b64fdedef37b7a5</loc>
-    <lastmod>2026-05-29</lastmod>
+    <lastmod>2026-06-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.60</priority>
+  </url>
+  <url>
+    <loc>https://bugyboo.com/product/birthday-party-kids-night-suit-set</loc>
+    <lastmod>2026-06-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://bugyboo.com/product/6a0c5e4e2b64fdedef37b862</loc>
-    <lastmod>2026-05-29</lastmod>
+    <lastmod>2026-06-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.60</priority>
+  </url>
+  <url>
+    <loc>https://bugyboo.com/product/pink-polka-bow-top-with-cherry-denim-skirtgirl-fashion-top</loc>
+    <lastmod>2026-06-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://bugyboo.com/product/6a0c5f902b64fdedef37b891</loc>
-    <lastmod>2026-05-29</lastmod>
+    <lastmod>2026-06-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.60</priority>
+  </url>
+  <url>
+    <loc>https://bugyboo.com/product/little-petals-check-cordset</loc>
+    <lastmod>2026-06-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://bugyboo.com/product/6a0d94cf2b64fdedef37ba93</loc>
-    <lastmod>2026-05-29</lastmod>
+    <lastmod>2026-06-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.60</priority>
+  </url>
+  <url>
+    <loc>https://bugyboo.com/product/little-petals-check-cordset</loc>
+    <lastmod>2026-06-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://bugyboo.com/product/6a0d95be2b64fdedef37ba97</loc>
-    <lastmod>2026-05-29</lastmod>
+    <lastmod>2026-06-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.60</priority>
+  </url>
+  <url>
+    <loc>https://bugyboo.com/product/check-co-ord-set</loc>
+    <lastmod>2026-06-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://bugyboo.com/product/6a11749f2b64fdedef37de3e</loc>
-    <lastmod>2026-05-29</lastmod>
+    <lastmod>2026-06-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.60</priority>
+  </url>
+  <url>
+    <loc>https://bugyboo.com/product/girls-frock-with-bow-attached-at-back</loc>
+    <lastmod>2026-06-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://bugyboo.com/product/6a11808d2b64fdedef37dedd</loc>
-    <lastmod>2026-05-29</lastmod>
+    <lastmod>2026-06-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.60</priority>
+  </url>
+  <url>
+    <loc>https://bugyboo.com/product/girls-check-frock</loc>
+    <lastmod>2026-06-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://bugyboo.com/product/6a11863e2b64fdedef37e106</loc>
-    <lastmod>2026-05-29</lastmod>
+    <lastmod>2026-06-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.60</priority>
+  </url>
+  <url>
+    <loc>https://bugyboo.com/product/red-gingham-layered-frock</loc>
+    <lastmod>2026-06-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://bugyboo.com/product/6a118d7b2b64fdedef37e125</loc>
-    <lastmod>2026-05-29</lastmod>
+    <lastmod>2026-06-06</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.80</priority>
+    <priority>0.60</priority>
   </url>
   <url>
     <loc>https://bugyboo.com/shop?category=frock</loc>
-    <lastmod>2026-05-29</lastmod>
+    <lastmod>2026-06-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://bugyboo.com/shop?category=night%20suit</loc>
-    <lastmod>2026-05-29</lastmod>
+    <lastmod>2026-06-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://bugyboo.com/shop?category=Kidswear%20%2F%20Co-ord%20Set</loc>
-    <lastmod>2026-05-29</lastmod>
+    <lastmod>2026-06-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
     <loc>https://bugyboo.com/blog/69f7b338ac6f8e08235a16ab</loc>
-    <lastmod>2026-05-29</lastmod>
+    <lastmod>2026-06-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.70</priority>
   </url>
   <url>
     <loc>https://bugyboo.com/blog/69f7b317ac6f8e08235a16a9</loc>
-    <lastmod>2026-05-29</lastmod>
+    <lastmod>2026-06-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.70</priority>
   </url>
   <url>
     <loc>https://bugyboo.com/blog/69f7b2e3ac6f8e08235a16a7</loc>
-    <lastmod>2026-05-29</lastmod>
+    <lastmod>2026-06-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.70</priority>
   </url>
   <url>
     <loc>https://bugyboo.com/blog/69f7b2baac6f8e08235a16a5</loc>
-    <lastmod>2026-05-29</lastmod>
+    <lastmod>2026-06-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.70</priority>
   </url>
   <url>
     <loc>https://bugyboo.com/blog/69f7b294ac6f8e08235a16a3</loc>
-    <lastmod>2026-05-29</lastmod>
+    <lastmod>2026-06-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.70</priority>
   </url>

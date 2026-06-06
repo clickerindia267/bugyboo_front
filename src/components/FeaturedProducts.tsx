@@ -7,6 +7,7 @@ import { useCart } from "@/store/cart";
 import { useAuth } from "@/store/auth";
 import { toast } from "sonner";
 import { useState } from "react";
+import { toSlug, getProductAltText } from "@/lib/utils";
 
 /* ─── Product Card ─── */
 const ProductCard = ({ p, index }: { p: PublicProduct; index: number }) => {
@@ -68,11 +69,11 @@ const ProductCard = ({ p, index }: { p: PublicProduct; index: number }) => {
       className="group animate-slide-up block"
       style={{ animationDelay: `${index * 80}ms`, animationFillMode: "backwards" }}
     >
-      <Link to={`/product/${p._id}`}>
+      <Link to={`/product/${toSlug(p.name)}`}>
         <div className="relative overflow-hidden rounded-2xl bg-secondary aspect-[3/4] mb-4 hover-lift">
           <img
             src={p.images?.[0] ?? ""}
-            alt={p.name}
+            alt={getProductAltText(p.name, p.category?.name)}
             width={800}
             height={1024}
             loading="lazy"
@@ -108,7 +109,7 @@ const ProductCard = ({ p, index }: { p: PublicProduct; index: number }) => {
       </Link>
       <div className="px-1">
         <p className="text-[11px] text-muted-foreground mb-1">{p.category?.name}</p>
-        <Link to={`/product/${p._id}`}>
+        <Link to={`/product/${toSlug(p.name)}`}>
           <h3 className="font-serif text-lg leading-tight mb-1 hover:text-[#3f646f] transition-colors">{p.name}</h3>
         </Link>
         <div className="flex items-center gap-2 mb-2">
@@ -169,7 +170,7 @@ const FeaturedProducts = () => {
           <div>
             <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground mb-3">Best Product For You </p>
             <h2 className="font-serif text-4xl md:text-5xl text-balance max-w-md">
-              Our <em className="italic font-normal">Products</em>
+              Premium Cotton Clothing for Babies, Boys &amp; Girls
             </h2>
           </div>
           <Link to="/shop">
