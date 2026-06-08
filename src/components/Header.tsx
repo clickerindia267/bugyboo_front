@@ -7,7 +7,7 @@ import { useCart } from "@/store/cart";
 import { useAuth } from "@/store/auth";
 import { logout, searchProducts, type PublicProduct } from "@/lib/api";
 import { toast } from "sonner";
-import { toSlug } from "@/lib/utils";
+import { toSlug, getProductThumbnail } from "@/lib/utils";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -326,7 +326,7 @@ const Header = () => {
                       >
                         <div className="w-12 h-12 rounded-xl overflow-hidden bg-secondary flex-shrink-0">
                           <img
-                            src={product.images?.[0] ?? ""}
+                            src={getProductThumbnail(product.images)}
                             alt={product.name}
                             className="w-full h-full object-cover"
                           />

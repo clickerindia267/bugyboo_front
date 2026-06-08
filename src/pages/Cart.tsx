@@ -8,6 +8,8 @@ import { toast } from "sonner";
 import { useAuth } from "@/store/auth";
 import { useCart } from "@/store/cart";
 
+import { getProductThumbnail } from "@/lib/utils";
+
 interface CartItemWithProduct extends CartProduct {
   product?: PublicProduct;
   loadingProduct?: boolean;
@@ -169,7 +171,7 @@ const Cart = () => {
                       <div className="w-full h-full shimmer" />
                     ) : (
                       <img
-                        src={item.product?.images?.[0] ?? ""}
+                        src={getProductThumbnail(item.product?.images)}
                         alt={item.product?.name ?? "Product"}
                         className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
                       />

@@ -7,7 +7,7 @@ import { getProducts, type PublicProduct } from "@/lib/api";
 import { useCart } from "@/store/cart";
 import { useAuth } from "@/store/auth";
 import { toast } from "sonner";
-import { toSlug, getProductAltText } from "@/lib/utils";
+import { toSlug, getProductAltText, getProductThumbnail } from "@/lib/utils";
 
 /* ─── Season config ─── */
 const seasons = [
@@ -106,7 +106,7 @@ const ProductCard = ({ p, index }: { p: PublicProduct; index: number }) => {
       <Link to={`/product/${toSlug(p.name)}`}>
         {/* Image */}
         <div className="sb-card-img">
-          <img src={p.images?.[0] ?? ""} alt={getProductAltText(p.name, p.category?.name)} loading="lazy" />
+          <img src={getProductThumbnail(p.images)} alt={getProductAltText(p.name, p.category?.name)} loading="lazy" />
           {discount && <span className="sb-tag">Sale</span>}
           <button
             aria-label="Add to wishlist"

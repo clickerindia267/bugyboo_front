@@ -22,6 +22,7 @@ import { toast } from "sonner";
 import { useAuth } from "@/store/auth";
 import ShipmentCard from "@/components/shipping/ShipmentCard";
 import ShipmentActions from "@/components/shipping/ShipmentActions";
+import { getProductThumbnail } from "@/lib/utils";
 
 
 const UserOrderDetail = () => {
@@ -138,7 +139,7 @@ const UserOrderDetail = () => {
                     <div className="w-20 h-24 rounded-2xl overflow-hidden bg-secondary flex-shrink-0">
                       {item.product?.images?.[0] ? (
                         <img 
-                          src={item.product.images[0]} 
+                          src={getProductThumbnail(item.product.images)} 
                           alt={item.product.name} 
                           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                         />

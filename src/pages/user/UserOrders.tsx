@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { getUserOrders, getUserOrder, UserOrder } from "@/lib/api";
 import { toast } from "sonner";
+import { getProductThumbnail } from "@/lib/utils";
 
 export default function UserOrders() {
   const navigate = useNavigate();
@@ -38,7 +39,7 @@ export default function UserOrders() {
   const OrderCard = ({ order }: { order: UserOrder }) => {
     const productItem = order.products?.[0];
     const productName = productItem?.product?.name ?? "Product";
-    const productImage = productItem?.product?.images?.[0] ?? "";
+    const productImage = getProductThumbnail(productItem?.product?.images) ?? "";
     const statusLabel = order.orderStatus === 'ordered' ? 'Pending' : order.orderStatus === 'completed' ? 'Delivered' : order.orderStatus === 'cancelled' ? 'Cancelled' : order.orderStatus;
 
     return (

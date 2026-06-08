@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { getProducts, type PublicProduct } from "@/lib/api";
 import SEO from "@/components/SEO";
-import { toSlug, getProductAltText } from "@/lib/utils";
+import { toSlug, getProductAltText, getProductThumbnail } from "@/lib/utils";
 
 const sortOptions = [
   { v: "featured", l: "Featured" },
@@ -124,87 +124,145 @@ const Shop = () => {
   return (
     <PageShell title="The Collection" eyebrow="Shop" subtitle="Curated little wardrobes for your little ones.">
       <SEO 
-        title={cat === "All" ? "Buy Kids Wear Online India | Baby Clothes & Kids Fashion | Bugyboo" : `${cat} | Kids Wear Online | Bugyboo`}
-        description={`Explore the ${cat === "All" ? "entire" : cat} kids clothing collection at Bugyboo. Breathable long-staple cotton, stylish casual wear, and daily wear essentials for babies, boys, and girls.`}
-        keywords={`Buy ${cat === "All" ? "kids wear" : cat} online, kids clothing brand, cotton kids wear manufacturer, Bugyboo shop ${cat}`}
+        title="Shop Premium Kids Wear Online India | Bugyboo"
+        description="Buy premium kids wear online in India. Shop our cotton clothing store featuring stylish frocks, co-ord sets, night suits, and daily wear for babies, boys and girls."
+        keywords="kids clothing store online, buy baby clothes online, premium kids fashion, kids wear online shopping"
         ogType="website"
-        schemaData={[breadcrumbSchema, collectionSchema]}
       />
 
-      <section className="container mx-auto pb-24 px-4" aria-label="Product Catalog">
-        <div className="flex items-center justify-between gap-4 mb-8 flex-wrap">
-          <p className="text-sm text-muted-foreground font-medium">
-            {isLoading ? "Loading..." : `${filtered.length} pieces`}
-          </p>
-          <div className="flex items-center gap-2">
+      <script type="application/ld+json">
+        {JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "CollectionPage",
+          "name": "Shop Premium Kids Wear Online India",
+          "description": "Buy premium kids wear online in India. Shop our cotton clothing store featuring stylish frocks, co-ord sets, night suits, and daily wear for babies, boys and girls.",
+          "url": window.location.href,
+          "hasPart": filtered.slice(0, 10).map(p => ({
+            "@type": "Product",
+            "name": p.name,
+            "image": p.images?.[0] || "",
+            "description": p.description,
+            "sku": p._id,
+            "offers": {
+              "@type": "Offer",
+              "priceCurrency": "INR",
+              "price": p.variants?.[0]?.sellPrice || 0,
+              "availability": "https://schema.org/InStock"
+            }
+          }))
+        })}
+      </script>
+
+      <div className="pt-24 md:pt-28 min-h-screen">
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex items-center justify-between mb-8">
+            <h1 className="text-3xl font-serif font-bold tracking-tight text-foreground">Our Collection</h1>
             <Button
               variant="outline"
               size="sm"
-              className="rounded-full lg:hidden"
               onClick={() => setFiltersOpen(true)}
+              className="lg:hidden rounded-xl border-border flex items-center gap-2"
             >
-              <SlidersHorizontal className="h-3.5 w-3.5 mr-2" />
-              Filters
+              <SlidersHorizontal className="h-4 w-4" /> Filters
             </Button>
-            <select
-              value={sort}
-              onChange={(e) => setSort(e.target.value)}
-              className="text-sm h-9 rounded-full px-4 bg-background border border-border focus:outline-none focus:ring-2 focus:ring-ring/30 font-medium"
-              aria-label="Sort products list"
-            >
-              {sortOptions.map((s) => (
-                <option key={s.v} value={s.v}>
-                  {s.l}
-                </option>
-              ))}
-            </select>
           </div>
-        </div>
 
-        <div className="grid lg:grid-cols-[240px_1fr] gap-10">
-          <aside className="hidden lg:block" aria-label="Sidebar Filters">{Filters}</aside>
+          <div className="flex gap-10">
+            <div className="hidden lg:block w-64 shrink-0 space-y-8">
+              <div className="space-y-4">
+                <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Categories</h2>
+                <div className="flex flex-col gap-2">
+                  {categories.map((c) => (
+                    <button
+                      key={c}
+                      onClick={() => setCat(c)}
+                      className={`text-left text-sm py-1.5 transition-colors font-sans ${
+                        cat === c ? "text-primary font-medium" : "text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      {c}
+                    </button>
+                  ))}
+                </div>
+              </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
-            {isLoading && (
-              <>
-                {[...Array(6)].map((_, i) => (
-                  <div key={i} className="animate-pulse">
-                    <div className="rounded-2xl bg-secondary aspect-[4/5] mb-3 shimmer" />
-                    <div className="h-4 w-3/4 rounded shimmer mb-2" />
-                    <div className="h-3 w-1/2 rounded shimmer" />
-                  </div>
+              <div className="space-y-4">
+                <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Sort By</h2>
+                <div className="flex flex-col gap-2">
+                  {sortOptions.map((o) => (
+                    <button
+                      key={o.v}
+                      onClick={() => setSort(o.v)}
+                      className={`text-left text-sm py-1.5 transition-colors font-sans ${
+                        sort === o.v ? "text-primary font-medium" : "text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      {o.l}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Max Price (₹)</h2>
+                <input
+                  type="range"
+                  min="0"
+                  max="10000"
+                  step="100"
+                  value={maxPrice === 50000 ? 10000 : maxPrice}
+                  onChange={(e) => setMaxPrice(Number(e.target.value))}
+                  className="w-full accent-primary"
+                />
+                <div className="flex justify-between text-xs text-muted-foreground font-sans">
+                  <span>₹0</span>
+                  <span>₹{maxPrice === 50000 ? "10,000+" : maxPrice}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex-grow">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-10 lg:gap-x-8">
+                {isLoading && (
+                  <>
+                    {[...Array(6)].map((_, i) => (
+                      <div key={i} className="space-y-4 animate-pulse">
+                        <div className="aspect-[4/5] bg-secondary rounded-2xl" />
+                        <div className="h-4 bg-secondary rounded w-2/3" />
+                        <div className="h-4 bg-secondary rounded w-1/3" />
+                      </div>
+                    ))}
+                  </>
+                )}
+                {!isLoading && filtered.map((p, i) => (
+                  <Link
+                    key={p._id}
+                    to={`/product/${toSlug(p.name)}`}
+                    className="group animate-fade-in"
+                    style={{ animationDelay: `${i * 50}ms`, animationFillMode: "backwards" }}
+                  >
+                    <div className="relative overflow-hidden rounded-2xl bg-secondary aspect-[4/5] mb-3 hover-lift">
+                      <img
+                        src={getProductThumbnail(p.images)}
+                        alt={getProductAltText(p.name, p.category?.name)}
+                        loading="lazy"
+                        className="w-full h-full object-contain transition-transform duration-1200 ease-out group-hover:scale-110"
+                      />
+                      {p.variants?.some(v => v.basePrice > v.sellPrice) && (
+                        <span className="absolute top-3 left-3 px-3 py-1 rounded-full bg-background/80 backdrop-blur text-[10px] uppercase tracking-wider font-medium">
+                          Sale
+                        </span>
+                      )}
+                    </div>
+                    <div className="px-1">
+                      <p className="text-[11px] text-rose-600 dark:text-rose-400 font-bold mb-1">{p.category?.name}</p>
+                      <h3 className="font-serif text-base leading-tight mb-1 font-bold">{p.name}</h3>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium">Starting From ₹{Math.min(...(p.variants?.map(v => v.sellPrice) || [0]))}</span>
+                      </div>
+                    </div>
+                  </Link>
                 ))}
-              </>
-            )}
-            {!isLoading && filtered.map((p, i) => (
-              <Link
-                key={p._id}
-                to={`/product/${toSlug(p.name)}`}
-                className="group animate-fade-in"
-                style={{ animationDelay: `${i * 50}ms`, animationFillMode: "backwards" }}
-              >
-                <div className="relative overflow-hidden rounded-2xl bg-secondary aspect-[4/5] mb-3 hover-lift">
-                  <img
-                    src={p.images?.[0] ?? ""}
-                    alt={getProductAltText(p.name, p.category?.name)}
-                    loading="lazy"
-                    className="w-full h-full object-contain transition-transform duration-1200 ease-out group-hover:scale-110"
-                  />
-                  {p.variants?.some(v => v.basePrice > v.sellPrice) && (
-                    <span className="absolute top-3 left-3 px-3 py-1 rounded-full bg-background/80 backdrop-blur text-[10px] uppercase tracking-wider font-medium">
-                      Sale
-                    </span>
-                  )}
-                </div>
-                <div className="px-1">
-                  <p className="text-[11px] text-rose-600 dark:text-rose-400 font-bold mb-1">{p.category?.name}</p>
-                  <h3 className="font-serif text-base leading-tight mb-1 font-bold">{p.name}</h3>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium">Starting From ₹{Math.min(...(p.variants?.map(v => v.sellPrice) || [0]))}</span>
-                  </div>
-                </div>
-              </Link>
-            ))}
             {!isLoading && filtered.length === 0 && (
               <p className="col-span-full text-center text-muted-foreground py-20 font-medium">
                 No pieces match your filters yet.
@@ -212,7 +270,9 @@ const Shop = () => {
             )}
           </div>
         </div>
-      </section>
+      </div>
+      </div>
+      </div>
 
       {filtersOpen && (
         <div

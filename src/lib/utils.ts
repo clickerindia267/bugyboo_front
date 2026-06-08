@@ -48,3 +48,18 @@ export function getProductAltText(name: string, categoryName: string): string {
   return `${name} — Buy Kids Wear Online India at Bugyboo`;
 }
 
+export function getProductThumbnail(images?: string[]): string {
+  if (!images || images.length === 0) return "";
+  const firstImg = images.find(url => {
+    const lower = url.toLowerCase();
+    return !(lower.endsWith(".mp4") || lower.endsWith(".webm") || lower.endsWith(".mov") || lower.endsWith(".avi"));
+  });
+  return firstImg || images[0] || "";
+}
+
+export function isPlaybackVideo(urlOrBlob?: string): boolean {
+  if (!urlOrBlob) return false;
+  const lowercase = urlOrBlob.toLowerCase();
+  return lowercase.endsWith(".mp4") || lowercase.endsWith(".webm") || lowercase.endsWith(".mov") || lowercase.endsWith(".avi");
+}
+

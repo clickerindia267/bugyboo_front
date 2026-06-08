@@ -436,6 +436,7 @@ const buildAdminProductFormData = (
     variants: ProductVariant[];
     isPaused: boolean;
     imageFiles?: File[];
+    existingImages?: string[];
   },
   fileField = "media",
 ) => {
@@ -453,6 +454,9 @@ const buildAdminProductFormData = (
   formData.append("gst", product.gst.toString());
   formData.append("variants", JSON.stringify(product.variants));
   formData.append("isPaused", product.isPaused ? "true" : "false");
+  if (product.existingImages) {
+    formData.append("existingImages", JSON.stringify(product.existingImages));
+  }
   if (product.imageFiles && product.imageFiles.length > 0) {
     product.imageFiles.forEach((file) => {
       formData.append(fileField, file);
@@ -481,7 +485,7 @@ export const createAdminProduct = (
 
 export const updateAdminProduct = (
   productId: string,
-  product: Partial<Omit<AdminProduct, "_id" | "id" | "createdAt" | "__v" | "images">> & { imageFiles?: File[] },
+  product: Partial<Omit<AdminProduct, "_id" | "id" | "createdAt" | "__v" | "images">> & { imageFiles?: File[]; existingImages?: string[] },
   accessToken: string,
 ) => {
   const body = product.imageFiles && product.imageFiles.length > 0 ? buildAdminProductFormData(product as any, "media") : product;

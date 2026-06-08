@@ -7,7 +7,7 @@ import { useCart } from "@/store/cart";
 import { useAuth } from "@/store/auth";
 import { toast } from "sonner";
 import { useState } from "react";
-import { toSlug, getProductAltText } from "@/lib/utils";
+import { toSlug, getProductAltText, getProductThumbnail } from "@/lib/utils";
 
 /* ─── Product Card ─── */
 const ProductCard = ({ p, index }: { p: PublicProduct; index: number }) => {
@@ -72,7 +72,7 @@ const ProductCard = ({ p, index }: { p: PublicProduct; index: number }) => {
       <Link to={`/product/${toSlug(p.name)}`}>
         <div className="relative overflow-hidden rounded-2xl bg-secondary aspect-[3/4] mb-4 hover-lift">
           <img
-            src={p.images?.[0] ?? ""}
+            src={getProductThumbnail(p.images)}
             alt={getProductAltText(p.name, p.category?.name)}
             width={800}
             height={1024}

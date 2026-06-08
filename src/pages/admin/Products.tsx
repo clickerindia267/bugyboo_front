@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Plus, Trash2, Edit, PauseCircle, PlayCircle, ImagePlus, X, Check, Crop } from "lucide-react";
 import Cropper from "react-easy-crop";
 import getCroppedImg from "@/lib/cropImage";
+import { isPlaybackVideo, getProductThumbnail } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -238,6 +239,7 @@ export default function AdminProducts() {
       gst: Number(formData.gst) || 0,
       variants: cleanedVariants,
       imageFiles: formData.imageFiles,
+      existingImages: formData.imagePreviews.filter((p) => !p.startsWith("blob:")),
       isPaused: isEditing ? existingProduct?.isPaused ?? false : false,
     };
 
@@ -293,15 +295,96 @@ export default function AdminProducts() {
     }
   };
 
+  const [isDragging, setIsDragging] = useState(false);
+
+  const getMediaType = (preview: string, index: number): "image" | "video" => {
+    if (preview.startsWith("blob:")) {
+      const blobUrlsBefore = formData.imagePreviews.slice(0, index).filter(p => p.startsWith("blob:")).length;
+      const file = formData.imageFiles[blobUrlsBefore];
+      if (file && file.type.startsWith("video/")) {
+        return "video";
+      }
+      return "image";
+    }
+    return isPlaybackVideo(preview) ? "video" : "image";
+  };
+
+  const processFiles = (files: File[]) => {
+    const validImageTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+    const validVideoTypes = ["video/mp4", "video/webm", "video/quicktime", "video/x-msvideo"];
+
+    const newFiles: File[] = [];
+    const newPreviews: string[] = [];
+
+    for (const file of files) {
+      if (file.type.startsWith("video/")) {
+        if (!validVideoTypes.includes(file.type)) {
+          toast.error(`Unsupported video format: ${file.name}`);
+          continue;
+        }
+        if (file.size > 100 * 1024 * 1024) {
+          toast.error(`Video file is too large (max 100MB): ${file.name}`);
+          continue;
+        }
+        newFiles.push(file);
+        newPreviews.push(URL.createObjectURL(file));
+      } else if (file.type.startsWith("image/")) {
+        if (!validImageTypes.includes(file.type)) {
+          toast.error(`Unsupported image format: ${file.name}`);
+          continue;
+        }
+        if (file.size > 50 * 1024 * 1024) {
+          toast.error(`Image file is too large (max 50MB): ${file.name}`);
+          continue;
+        }
+
+        // Open cropping tool for single file select
+        if (files.length === 1 && files[0] === file) {
+          const reader = new FileReader();
+          reader.addEventListener("load", () => {
+            setImageToCrop(reader.result as string);
+            setIsCropping(true);
+          });
+          reader.readAsDataURL(file);
+          return;
+        } else {
+          newFiles.push(file);
+          newPreviews.push(URL.createObjectURL(file));
+        }
+      } else {
+        toast.error(`Unsupported file type: ${file.name}`);
+      }
+    }
+
+    if (newFiles.length > 0) {
+      setFormData(prev => ({
+        ...prev,
+        imageFiles: [...prev.imageFiles, ...newFiles],
+        imagePreviews: [...prev.imagePreviews, ...newPreviews],
+      }));
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = () => {
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      processFiles(Array.from(e.dataTransfer.files));
+    }
+  };
+
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      const reader = new FileReader();
-      reader.addEventListener("load", () => {
-        setImageToCrop(reader.result as string);
-        setIsCropping(true);
-      });
-      reader.readAsDataURL(file);
+    if (e.target.files && e.target.files.length > 0) {
+      processFiles(Array.from(e.target.files));
     }
   };
 
@@ -461,28 +544,43 @@ export default function AdminProducts() {
                     </div>
                   ) : (
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                      {formData.imagePreviews.map((preview, index) => (
-                        <div key={index} className="relative aspect-[4/5] border border-border rounded-xl overflow-hidden group">
-                          <img src={preview} alt={`Preview ${index}`} className="w-full h-full object-cover" />
-                          <Button
-                            size="icon"
-                            variant="destructive"
-                            className="absolute top-1 right-1 h-6 w-6 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
-                            onClick={() => removeImage(index)}
-                          >
-                            <X className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      ))}
-                      <label className="aspect-[4/5] border-2 border-dashed border-border rounded-xl flex flex-col items-center justify-center cursor-pointer hover:bg-secondary/30 transition-colors gap-1">
+                      {formData.imagePreviews.map((preview, index) => {
+                        const isVideo = getMediaType(preview, index) === "video";
+                        return (
+                          <div key={index} className="relative aspect-[4/5] border border-border rounded-xl overflow-hidden group">
+                            {isVideo ? (
+                              <video src={preview} controls preload="metadata" className="w-full h-full object-cover" />
+                            ) : (
+                              <img src={preview} alt={`Preview ${index}`} className="w-full h-full object-cover" />
+                            )}
+                            <Button
+                              size="icon"
+                              variant="destructive"
+                              className="absolute top-1 right-1 h-6 w-6 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                              onClick={() => removeImage(index)}
+                            >
+                              <X className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        );
+                      })}
+                      <label
+                        onDragOver={handleDragOver}
+                        onDragLeave={handleDragLeave}
+                        onDrop={handleDrop}
+                        className={`aspect-[4/5] border-2 border-dashed rounded-xl flex flex-col items-center justify-center cursor-pointer transition-colors gap-1 ${
+                          isDragging ? "border-primary bg-primary/10" : "border-border hover:bg-secondary/30"
+                        }`}
+                      >
                         <div className="p-2 bg-card rounded-full shadow-sm text-muted-foreground">
                           <ImagePlus className="h-5 w-5" />
                         </div>
-                        <span className="text-[10px] font-medium text-muted-foreground">Add Image</span>
+                        <span className="text-[10px] font-medium text-muted-foreground">Add Media</span>
                         <input
                           type="file"
                           className="hidden"
-                          accept="image/*"
+                          accept="image/*,video/*"
+                          multiple
                           onChange={handleImageUpload}
                         />
                       </label>
@@ -522,7 +620,7 @@ export default function AdminProducts() {
                       <td className="px-4 lg:px-6 py-4">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-lg overflow-hidden bg-secondary flex-shrink-0">
-                            <img src={product.images?.[0] ?? ""} alt={product.name} className="w-full h-full object-cover" />
+                            <img src={getProductThumbnail(product.images)} alt={product.name} className="w-full h-full object-cover" />
                           </div>
                           <div className="min-w-0 flex-1">
                             <p className="font-medium text-foreground truncate">{product.name}</p>

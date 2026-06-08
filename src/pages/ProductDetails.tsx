@@ -9,7 +9,7 @@ import { useCart } from "@/store/cart";
 import { useAuth } from "@/store/auth";
 import { toast } from "@/hooks/use-toast";
 import SEO from "@/components/SEO";
-import { toSlug, getProductAltText } from "@/lib/utils";
+import { toSlug, getProductAltText, getProductThumbnail } from "@/lib/utils";
 
 const ProductDetails = () => {
   const { id } = useParams<{ id: string }>();
@@ -129,13 +129,20 @@ const ProductDetails = () => {
   const discount = selectedVariant ? Math.round(((selectedVariant.basePrice - selectedVariant.sellPrice) / selectedVariant.basePrice) * 100) : 0;
 
   const images = product.images ?? [];
+  const mediaList = product.media && product.media.length > 0
+    ? product.media
+    : images.map((url: string) => {
+        const lowercase = url.toLowerCase();
+        const isVideo = lowercase.endsWith(".mp4") || lowercase.endsWith(".webm") || lowercase.endsWith(".mov") || lowercase.endsWith(".avi");
+        return { url, type: isVideo ? "video" : "image" };
+      });
 
   const handlePrevImg = () => {
-    setActiveImg((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+    setActiveImg((prev) => (prev === 0 ? mediaList.length - 1 : prev - 1));
   };
 
   const handleNextImg = () => {
-    setActiveImg((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+    setActiveImg((prev) => (prev === mediaList.length - 1 ? 0 : prev + 1));
   };
 
   // Structured schemas for Google RankMath, Lighthouse compliance
@@ -257,20 +264,29 @@ const ProductDetails = () => {
                 onMouseEnter={() => setZoom(true)}
                 onMouseLeave={() => setZoom(false)}
               >
-                <img
-                  src={images[activeImg] ?? ""}
-                  alt={`${product.name} — ${product.color || 'premium'} kids wear`}
-                  className={`w-full h-full object-contain transition-transform duration-700 ${
-                    zoom ? "scale-150" : "scale-100"
-                  }`}
-                />
+                {mediaList[activeImg]?.type === "video" ? (
+                  <video
+                    src={mediaList[activeImg]?.url}
+                    controls
+                    preload="metadata"
+                    className="w-full h-full object-contain"
+                  />
+                ) : (
+                  <img
+                    src={mediaList[activeImg]?.url ?? ""}
+                    alt={`${product.name} — ${product.color || 'premium'} kids wear`}
+                    className={`w-full h-full object-contain transition-transform duration-700 ${
+                      zoom ? "scale-150" : "scale-100"
+                    }`}
+                  />
+                )}
                 {discount > 0 && (
                   <span className="absolute top-4 left-4 px-3 py-1 rounded-full bg-background/80 backdrop-blur text-[10px] uppercase tracking-wider font-medium">
                     {discount}% off
                   </span>
                 )}
                 {/* Image navigation arrows */}
-                {images.length > 1 && (
+                {mediaList.length > 1 && (
                   <>
                     <button
                       onClick={handlePrevImg}
@@ -288,7 +304,7 @@ const ProductDetails = () => {
                     </button>
                     {/* Dot indicators */}
                     <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5">
-                      {images.map((_, idx) => (
+                      {mediaList.map((_, idx) => (
                         <button
                           key={idx}
                           onClick={() => setActiveImg(idx)}
@@ -306,17 +322,26 @@ const ProductDetails = () => {
               </div>
 
               {/* Thumbnail strip */}
-              {images.length > 1 && (
+              {mediaList.length > 1 && (
                 <div className="flex gap-3 overflow-x-auto pb-1">
-                  {images.map((img, i) => (
+                  {mediaList.map((item, i) => (
                     <button
                       key={i}
                       onClick={() => setActiveImg(i)}
-                      className={`shrink-0 w-20 h-20 rounded-xl overflow-hidden border-2 transition-all ${
+                      className={`shrink-0 w-20 h-20 rounded-xl overflow-hidden border-2 transition-all relative ${
                         i === activeImg ? "border-primary ring-1 ring-primary/30" : "border-transparent opacity-60 hover:opacity-100"
                       }`}
                     >
-                      <img src={img} alt={`${product.name} thumbnail preview ${i + 1}`} loading="lazy" className="w-full h-full object-contain" />
+                      {item.type === "video" ? (
+                        <>
+                          <video src={item.url} preload="metadata" className="w-full h-full object-cover" />
+                          <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                            <span className="text-white text-xs">▶</span>
+                          </div>
+                        </>
+                      ) : (
+                        <img src={item.url} alt={`${product.name} thumbnail preview ${i + 1}`} loading="lazy" className="w-full h-full object-contain" />
+                      )}
                     </button>
                   ))}
                 </div>
@@ -490,7 +515,7 @@ const ProductDetails = () => {
                 <Link key={p._id} to={`/product/${toSlug(p.name)}`} className="group">
                   <div className="relative overflow-hidden rounded-2xl bg-secondary aspect-[4/5] mb-3 hover-lift">
                     <img
-                      src={p.images?.[0] ?? ""}
+                      src={getProductThumbnail(p.images)}
                       alt={getProductAltText(p.name, p.category?.name)}
                       loading="lazy"
                       className="w-full h-full object-contain transition-transform duration-1200 ease-out group-hover:scale-110"

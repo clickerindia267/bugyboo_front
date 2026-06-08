@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useCart } from "@/store/cart";
 import { toast } from "sonner";
+import { getProductThumbnail } from "@/lib/utils";
 
 export default function UserCart() {
   const { items, update, remove, subtotal, count, clear, loading } = useCart();
@@ -65,7 +66,7 @@ export default function UserCart() {
                 <div className="flex gap-4">
                   <Link to={`/product/${item.productId}`} className="shrink-0">
                     <img 
-                      src={item.product?.images?.[0] ?? "/placeholder.svg"} 
+                      src={getProductThumbnail(item.product?.images) || "/placeholder.svg"} 
                       alt={item.product?.name ?? "Product"} 
                       className="w-20 h-24 sm:w-24 sm:h-32 object-cover rounded-xl bg-secondary" 
                     />

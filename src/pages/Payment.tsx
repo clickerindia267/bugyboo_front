@@ -5,6 +5,7 @@ import PageShell from "@/components/PageShell";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/store/cart";
 import { toast } from "sonner";
+import { getProductThumbnail } from "@/lib/utils";
 
 const Payment = () => {
   const navigate = useNavigate();
@@ -138,7 +139,7 @@ const Payment = () => {
                 {items.map((item) => (
                   <div key={item._id} className="flex gap-3 items-center">
                     <img 
-                      src={item.product?.images?.[0] ?? "/placeholder.svg"} 
+                      src={getProductThumbnail(item.product?.images) || "/placeholder.svg"} 
                       alt={item.product?.name ?? "Product"} 
                       className="w-12 h-14 object-cover rounded-lg bg-secondary" 
                     />
