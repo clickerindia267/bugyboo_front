@@ -8,6 +8,7 @@ import { ThemeProvider } from "./components/ThemeProvider";
 import { CartProvider } from "./store/cart";
 import { AuthProvider } from "./store/auth";
 import ScrollToTop from "./components/ScrollToTop";
+import GoogleAnalytics from "./components/GoogleAnalytics";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { Loader2 } from "lucide-react";
 
@@ -55,6 +56,7 @@ const App = () => (
             <Sonner />
             <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
               <ScrollToTop />
+              <GoogleAnalytics />
               <Suspense fallback={
                 <div className="min-h-screen flex items-center justify-center bg-background">
                   <Loader2 className="h-8 w-8 animate-spin text-[#3f646f]" />
