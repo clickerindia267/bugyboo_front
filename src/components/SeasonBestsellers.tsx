@@ -305,7 +305,10 @@ const SeasonBestsellers = () => {
 
         /* ── Product Card ── */
         .sb-card {
-          display: block;
+          display: flex !important;
+          flex-direction: column !important;
+          justify-content: space-between !important;
+          height: 100% !important;
           text-decoration: none;
           color: inherit;
           animation: sb-fade-in 0.6s cubic-bezier(0.22,1,0.36,1) both;

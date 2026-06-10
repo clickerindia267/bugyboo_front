@@ -128,42 +128,42 @@ export const ProductCard = ({
 
   return (
     <div
-      className={`group block font-sans ${className}`}
+      className={`group flex flex-col h-full font-sans ${className}`}
       style={style}
     >
-      <Link to={`/product/${toSlug(p.name)}`} className="block">
-        <div className={`relative overflow-hidden rounded-2xl ${bgClass} ${aspectClass} mb-3 hover-lift`}>
-          <img
-            src={getProductThumbnail(p.images)}
-            alt={getProductAltText(p.name, p.category?.name)}
-            loading="lazy"
-            className="w-full h-full object-contain transition-transform duration-1200 ease-out group-hover:scale-110"
-          />
-          {hasDiscount && (
-            <span className="absolute top-3 left-3 px-3 py-1 rounded-full bg-background/80 backdrop-blur text-[10px] uppercase tracking-wider font-medium">
-              Sale
-            </span>
-          )}
-          {isEveryVariantOutOfStock ? (
-            <span className="absolute top-3 right-3 px-3 py-1 rounded-full bg-rose-600/90 text-white text-[10px] uppercase tracking-wider font-bold shadow-soft">
-              Out Of Stock
-            </span>
-          ) : (
-            <button
-              aria-label="Add to wishlist"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-              }}
-              className="absolute top-3 right-3 w-9 h-9 rounded-full bg-white/60 backdrop-blur border border-white/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500 hover:scale-110 hover:bg-white/90"
-            >
-              <Heart className="h-4 w-4" />
-            </button>
-          )}
-        </div>
-      </Link>
-      <div className="px-1 flex flex-col justify-between flex-grow">
-        <div>
+      <div className="flex flex-col flex-grow">
+        <Link to={`/product/${toSlug(p.name)}`} className="block">
+          <div className={`relative overflow-hidden rounded-2xl ${bgClass} ${aspectClass} mb-3 hover-lift`}>
+            <img
+              src={getProductThumbnail(p.images)}
+              alt={getProductAltText(p.name, p.category?.name)}
+              loading="lazy"
+              className="w-full h-full object-contain transition-transform duration-1200 ease-out group-hover:scale-110"
+            />
+            {hasDiscount && (
+              <span className="absolute top-3 left-3 px-3 py-1 rounded-full bg-background/80 backdrop-blur text-[10px] uppercase tracking-wider font-medium">
+                Sale
+              </span>
+            )}
+            {isEveryVariantOutOfStock ? (
+              <span className="absolute top-3 right-3 px-3 py-1 rounded-full bg-rose-600/90 text-white text-[10px] uppercase tracking-wider font-bold shadow-soft">
+                Out Of Stock
+              </span>
+            ) : (
+              <button
+                aria-label="Add to wishlist"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                }}
+                className="absolute top-3 right-3 w-9 h-9 rounded-full bg-white/60 backdrop-blur border border-white/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500 hover:scale-110 hover:bg-white/90"
+              >
+                <Heart className="h-4 w-4" />
+              </button>
+            )}
+          </div>
+        </Link>
+        <div className="px-1 flex flex-col flex-grow">
           <p className="text-[11px] text-rose-600 dark:text-rose-400 font-bold mb-1">{p.category?.name}</p>
           <Link to={`/product/${toSlug(p.name)}`}>
             <h3 className="font-serif text-base leading-tight mb-1 font-bold hover:text-primary transition-colors min-h-[40px] line-clamp-2">{p.name}</h3>
@@ -208,27 +208,27 @@ export const ProductCard = ({
             </div>
           )}
         </div>
+      </div>
 
-        {/* Action Buttons */}
-        <div className="mt-2 flex flex-col sm:flex-row gap-2">
-          <Button
-            size="sm"
-            className="flex-1 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-semibold shadow-soft h-10 transition-all active:scale-[0.98]"
-            onClick={handleAddToCart}
-            disabled={loading || isOutOfStock}
-          >
-            {loading ? "Adding..." : isOutOfStock ? "Out of Stock" : "Add To Cart"}
-          </Button>
-          <Button
-            size="sm"
-            variant="outline"
-            className="flex-1 rounded-full text-xs font-semibold border-2 hover:bg-secondary h-10 transition-all active:scale-[0.98] border-primary/20 text-primary hover:text-primary/95"
-            onClick={handleBuyNow}
-            disabled={loading || isOutOfStock}
-          >
-            Buy Now
-          </Button>
-        </div>
+      {/* Action Buttons */}
+      <div className="mt-4 px-1 flex flex-col sm:flex-row gap-2">
+        <Button
+          size="sm"
+          className="flex-1 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-semibold shadow-soft h-10 transition-all active:scale-[0.98]"
+          onClick={handleAddToCart}
+          disabled={loading || isOutOfStock}
+        >
+          {loading ? "Adding..." : isOutOfStock ? "Out of Stock" : "Add To Cart"}
+        </Button>
+        <Button
+          size="sm"
+          variant="outline"
+          className="flex-1 rounded-full text-xs font-semibold border-2 hover:bg-secondary h-10 transition-all active:scale-[0.98] border-primary/20 text-primary hover:text-primary/95"
+          onClick={handleBuyNow}
+          disabled={loading || isOutOfStock}
+        >
+          Buy Now
+        </Button>
       </div>
     </div>
   );

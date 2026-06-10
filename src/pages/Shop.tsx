@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { SlidersHorizontal, X } from "lucide-react";
 import PageShell from "@/components/PageShell";
@@ -22,6 +22,13 @@ const Shop = () => {
   const [sort, setSort] = useState("featured");
   const [maxPrice, setMaxPrice] = useState(50000);
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 9;
+
+  // Reset to page 1 when any filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [cat, sort, maxPrice]);
 
   const { data, isLoading } = useQuery({
     queryKey: ["products"],
@@ -46,6 +53,12 @@ const Shop = () => {
     if (sort === "high") list = [...list].sort((a, b) => Math.min(...(b.variants?.map(v => v.sellPrice) || [0])) - Math.min(...(a.variants?.map(v => v.sellPrice) || [0])));
     return list;
   }, [allProducts, cat, sort, maxPrice]);
+
+  const totalPages = Math.ceil(filtered.length / itemsPerPage) || 1;
+  const activePage = Math.min(currentPage, totalPages);
+  const paginatedProducts = useMemo(() => {
+    return filtered.slice((activePage - 1) * itemsPerPage, activePage * itemsPerPage);
+  }, [filtered, activePage, itemsPerPage]);
 
   const updateCat = (c: string) => {
     setCat(c);
@@ -223,7 +236,7 @@ const Shop = () => {
             </div>
 
             <div className="flex-grow">
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-10 lg:gap-x-8">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-12 lg:gap-x-8 lg:gap-y-16">
                 {isLoading && (
                   <>
                     {[...Array(6)].map((_, i) => (
@@ -235,7 +248,7 @@ const Shop = () => {
                     ))}
                   </>
                 )}
-                {!isLoading && filtered.map((p, i) => (
+                {!isLoading && paginatedProducts.map((p, i) => (
                   <ProductCard
                     key={p._id}
                     p={p}
@@ -244,15 +257,69 @@ const Shop = () => {
                     style={{ animationDelay: `${i * 50}ms`, animationFillMode: "backwards" }}
                   />
                 ))}
-            {!isLoading && filtered.length === 0 && (
-              <p className="col-span-full text-center text-muted-foreground py-20 font-medium">
-                No pieces match your filters yet.
-              </p>
-            )}
+                {!isLoading && filtered.length === 0 && (
+                  <p className="col-span-full text-center text-muted-foreground py-20 font-medium">
+                    No pieces match your filters yet.
+                  </p>
+                )}
+              </div>
+
+              {/* Pagination controls */}
+              {!isLoading && totalPages > 1 && (
+                <div className="mt-12 flex items-center justify-between gap-4 font-sans border-t border-border/40 pt-6">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setCurrentPage(prev => Math.max(prev - 1, 1));
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }}
+                    disabled={activePage === 1}
+                    className="rounded-full border-border font-medium hover:bg-secondary h-10 px-4 transition-all"
+                  >
+                    &lt; Previous
+                  </Button>
+                  <div className="flex items-center gap-1.5 overflow-x-auto max-w-[150px] sm:max-w-none">
+                    {[...Array(totalPages)].map((_, idx) => {
+                      const pNum = idx + 1;
+                      const isActive = activePage === pNum;
+                      return (
+                        <Button
+                          key={pNum}
+                          variant={isActive ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => {
+                            setCurrentPage(pNum);
+                            window.scrollTo({ top: 0, behavior: "smooth" });
+                          }}
+                          className={`h-9 w-9 rounded-full font-medium transition-all ${
+                            isActive 
+                              ? "bg-primary hover:bg-primary/90 text-primary-foreground shadow-soft" 
+                              : "border-border hover:bg-secondary"
+                          }`}
+                        >
+                          {pNum}
+                        </Button>
+                      );
+                    })}
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setCurrentPage(prev => Math.min(prev + 1, totalPages));
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }}
+                    disabled={activePage === totalPages}
+                    className="rounded-full border-border font-medium hover:bg-secondary h-10 px-4 transition-all"
+                  >
+                    Next &gt;
+                  </Button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
-      </div>
-      </div>
       </div>
 
       {filtersOpen && (
