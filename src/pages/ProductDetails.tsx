@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { ChevronRight, Heart, Minus, Plus, Truck, RefreshCw, ShieldCheck, ChevronLeft, Loader2, ChevronDown, ChevronUp } from "lucide-react";
 import PageShell from "@/components/PageShell";
@@ -9,7 +9,7 @@ import { useCart } from "@/store/cart";
 import { useAuth } from "@/store/auth";
 import { toast } from "@/hooks/use-toast";
 import SEO from "@/components/SEO";
-import { toSlug, getProductAltText, getProductThumbnail } from "@/lib/utils";
+import { toSlug, getProductAltText, getProductThumbnail, sortVariants } from "@/lib/utils";
 import { ProductCard } from "@/components/ProductCard";
 
 const ProductDetails = () => {
@@ -58,12 +58,21 @@ const ProductDetails = () => {
     .filter((p) => p._id !== product?._id && !p.isPaused)
     .slice(0, 4);
 
+  const sortedVariants = useMemo(() => {
+    return product?.variants ? sortVariants(product.variants) : [];
+  }, [product?.variants]);
+
   // Set default selected variant when product loads
   useEffect(() => {
-    if (product?.variants && product.variants.length > 0) {
-      setSelectedVariant(product.variants[0]);
+    if (sortedVariants && sortedVariants.length > 0) {
+      const exists = selectedVariant && sortedVariants.some((v: any) => v._id === selectedVariant._id);
+      if (!exists) {
+        setSelectedVariant(sortedVariants[0]);
+      }
+    } else {
+      setSelectedVariant(null);
     }
-  }, [product]);
+  }, [sortedVariants]);
 
   // Clamp quantity to selected variant's stock if managed
   useEffect(() => {
@@ -202,9 +211,9 @@ const ProductDetails = () => {
     "offers": {
       "@type": "AggregateOffer",
       "priceCurrency": "INR",
-      "lowPrice": selectedVariant ? selectedVariant.sellPrice : Math.min(...(product.variants?.map(v => v.sellPrice) || [0])),
-      "highPrice": Math.max(...(product.variants?.map(v => v.sellPrice) || [0])),
-      "offerCount": product.variants?.length || 1,
+      "lowPrice": selectedVariant ? selectedVariant.sellPrice : Math.min(...(sortedVariants?.map(v => v.sellPrice) || [0])),
+      "highPrice": Math.max(...(sortedVariants?.map(v => v.sellPrice) || [0])),
+      "offerCount": sortedVariants?.length || 1,
       "price": selectedVariant ? selectedVariant.sellPrice : 0,
       "availability": "https://schema.org/InStock",
       "seller": {
@@ -481,7 +490,7 @@ const ProductDetails = () => {
               <div className="mb-6">
                 <p className="text-sm font-medium mb-3">Select Age Group</p>
                 <div className="flex flex-wrap gap-2">
-                  {product.variants?.map((variant) => (
+                  {sortedVariants.map((variant) => (
                     <button
                       key={variant._id}
                       onClick={() => setSelectedVariant(variant)}

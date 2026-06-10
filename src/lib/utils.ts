@@ -63,3 +63,57 @@ export function isPlaybackVideo(urlOrBlob?: string): boolean {
   return lowercase.endsWith(".mp4") || lowercase.endsWith(".webm") || lowercase.endsWith(".mov") || lowercase.endsWith(".avi");
 }
 
+export function sortVariants<T extends { ageGroup: string }>(variants: T[]): T[] {
+  if (!variants || variants.length <= 1) return variants ? [...variants] : [];
+
+  const sizeHierarchy = ["xxs", "xs", "s", "m", "l", "xl", "xxl", "xxxl", "3xl", "4xl", "5xl"];
+
+  return [...variants].sort((a, b) => {
+    const valA = (a.ageGroup || "").trim();
+    const valB = (b.ageGroup || "").trim();
+
+    // Check if both are in predefined size hierarchy
+    const indexA = sizeHierarchy.indexOf(valA.toLowerCase());
+    const indexB = sizeHierarchy.indexOf(valB.toLowerCase());
+
+    if (indexA !== -1 && indexB !== -1) {
+      return indexA - indexB;
+    }
+    if (indexA !== -1) return 1;
+    if (indexB !== -1) return -1;
+
+    // Try to extract numbers (e.g. ranges "4-5", "1-2" or single numbers)
+    const numRegex = /\d+(\.\d+)?/g;
+    const matchA = valA.match(numRegex);
+    const matchB = valB.match(numRegex);
+
+    if (matchA && matchB) {
+      // Compare first number
+      const firstA = parseFloat(matchA[0]);
+      const firstB = parseFloat(matchB[0]);
+
+      if (firstA !== firstB) {
+        return firstA - firstB;
+      }
+
+      // If first numbers are equal, compare second number (if both have one)
+      if (matchA[1] && matchB[1]) {
+        const secondA = parseFloat(matchA[1]);
+        const secondB = parseFloat(matchB[1]);
+        return secondA - secondB;
+      }
+
+      // If one has a second number and the other doesn't
+      return matchA.length - matchB.length;
+    }
+
+    // If one has numbers and the other doesn't
+    if (matchA) return -1;
+    if (matchB) return 1;
+
+    // Fallback: alphabetical sort
+    return valA.localeCompare(valB, undefined, { numeric: true, sensitivity: 'base' });
+  });
+}
+
+

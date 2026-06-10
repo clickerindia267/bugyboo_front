@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/store/cart";
 import { useAuth } from "@/store/auth";
 import { toast } from "sonner";
-import { toSlug, getProductAltText, getProductThumbnail } from "@/lib/utils";
+import { toSlug, getProductAltText, getProductThumbnail, sortVariants } from "@/lib/utils";
 import type { PublicProduct } from "@/lib/api";
 
 interface ProductCardProps {
@@ -30,14 +30,30 @@ export const ProductCard = ({
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
 
+  const sortedVariants = useMemo(() => {
+    return p?.variants ? sortVariants(p.variants) : [];
+  }, [p?.variants]);
+
   // Auto-select first variant by default
-  const [selectedVariant, setSelectedVariant] = useState(
-    p?.variants?.[0] || null
-  );
+  const [selectedVariant, setSelectedVariant] = useState<any>(() => {
+    return sortedVariants[0] || null;
+  });
+
+  // Sync selected variant when sortedVariants changes
+  useEffect(() => {
+    if (sortedVariants.length > 0) {
+      const exists = selectedVariant && sortedVariants.some((v: any) => v._id === selectedVariant._id);
+      if (!exists) {
+        setSelectedVariant(sortedVariants[0]);
+      }
+    } else {
+      setSelectedVariant(null);
+    }
+  }, [sortedVariants]);
 
   const isStockManaged = selectedVariant && selectedVariant.stock !== undefined && selectedVariant.stock !== null;
   const isOutOfStock = isStockManaged && selectedVariant.stock === 0;
-  const isEveryVariantOutOfStock = p.variants && p.variants.length > 0 && p.variants.every(
+  const isEveryVariantOutOfStock = sortedVariants && sortedVariants.length > 0 && sortedVariants.every(
     v => v.stock !== undefined && v.stock !== null && v.stock === 0
   );
 
@@ -124,7 +140,7 @@ export const ProductCard = ({
     }
   };
 
-  const hasDiscount = selectedVariant ? (selectedVariant.basePrice > selectedVariant.sellPrice) : p.variants?.some(v => v.basePrice > v.sellPrice);
+  const hasDiscount = selectedVariant ? (selectedVariant.basePrice > selectedVariant.sellPrice) : sortedVariants?.some(v => v.basePrice > v.sellPrice);
 
   return (
     <div
@@ -177,16 +193,16 @@ export const ProductCard = ({
                 )}
               </>
             ) : (
-              <span className="text-sm font-medium">Starting From ₹{Math.min(...(p.variants?.map(v => v.sellPrice) || [0]))}</span>
+              <span className="text-sm font-medium">Starting From ₹{Math.min(...(sortedVariants?.map(v => v.sellPrice) || [0]))}</span>
             )}
           </div>
 
           {/* Age Group / Variant Selector */}
-          {p.variants && p.variants.length > 0 && (
+          {sortedVariants && sortedVariants.length > 0 && (
             <div className="mt-2 mb-3">
               <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1.5 font-medium">Select Size:</p>
               <div className="flex flex-wrap gap-1.5 min-h-[28px]">
-                {p.variants.map((variant) => (
+                {sortedVariants.map((variant) => (
                   <button
                     key={variant._id}
                     type="button"
