@@ -167,10 +167,10 @@ const Shop = () => {
         })}
       </script>
 
-      <div className="pt-24 md:pt-28 min-h-screen">
+      <div className="min-h-screen">
         <div className="container mx-auto px-4 py-8">
           <div className="flex items-center justify-between mb-8">
-            <h1 className="text-3xl font-serif font-bold tracking-tight text-foreground">Our Collection</h1>
+            <h2 className="text-3xl font-serif font-bold tracking-tight text-foreground">Our Collection</h2>
             <Button
               variant="outline"
               size="sm"
@@ -182,7 +182,7 @@ const Shop = () => {
           </div>
 
           <div className="flex gap-10">
-            <div className="hidden lg:block w-64 shrink-0 space-y-8">
+            <div className="hidden lg:block w-64 shrink-0 space-y-8 sticky top-36 self-start">
               <div className="space-y-4">
                 <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Categories</h2>
                 <div className="flex flex-col gap-2">
