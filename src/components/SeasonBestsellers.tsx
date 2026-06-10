@@ -41,145 +41,7 @@ const distributeProducts = (products: PublicProduct[]): Record<SeasonKey, Public
   return result;
 };
 
-/* ─── Product Card ─── */
-const ProductCard = ({ p, index }: { p: PublicProduct; index: number }) => {
-  const { add } = useCart();
-  const { isLoggedIn } = useAuth();
-  const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
-
-  // Requirement 2: Auto-select first variant by default
-  const [selectedVariant, setSelectedVariant] = useState(
-    p?.variants?.[0] || null
-  );
-
-  const quickAdd = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    if (!isLoggedIn) {
-      navigate("/login");
-      return;
-    }
-
-    // Requirement 6: Prevent add to cart if no variant selected
-    if (!selectedVariant?._id) {
-      toast.error("Please select an age group");
-      return;
-    }
-
-    setLoading(true);
-    try {
-      // Requirement 5: Update Add to Cart payload
-      await add(
-        p._id,
-        1,
-        selectedVariant.ageGroup,
-        selectedVariant.sellPrice,
-        selectedVariant,
-        selectedVariant.basePrice,
-        selectedVariant._id
-      );
-      toast.success("Added to bag!");
-    } catch (error: any) {
-      // Requirement 8: Show toast if backend response returns variantId is required
-      const isVariantReq = 
-        error?.message?.includes("variantId is required") || 
-        error?.errors?.some((err: any) => err.message?.includes("variantId is required"));
-      if (isVariantReq) {
-        toast.error("Please select an age group");
-      } else {
-        toast.error(error instanceof Error ? error.message : "Failed to add to bag");
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const discount = p.variants?.some(v => v.basePrice > v.sellPrice) ? true : false;
-
-  return (
-    <div
-      className="sb-card group animate-fade-in"
-      style={{ animationDelay: `${index * 100}ms` }}
-    >
-      <Link to={`/product/${toSlug(p.name)}`}>
-        {/* Image */}
-        <div className="sb-card-img">
-          <img src={getProductThumbnail(p.images)} alt={getProductAltText(p.name, p.category?.name)} loading="lazy" />
-          {discount && <span className="sb-tag">Sale</span>}
-          <button
-            aria-label="Add to wishlist"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-            }}
-            className="sb-wish"
-          >
-            <Heart className="h-4 w-4" />
-          </button>
-          <div className="sb-quick-add">
-            <Button
-              size="sm"
-              className="w-full rounded-full bg-[#3f646f] text-white hover:bg-[#3f646f]/90 shadow-soft"
-              onClick={quickAdd}
-              disabled={loading}
-            >
-              <ShoppingBag className="h-3.5 w-3.5 mr-2" />
-              {loading ? "Adding..." : "Add to bag"}
-            </Button>
-          </div>
-        </div>
-      </Link>
-
-      {/* Info */}
-      <div className="sb-card-info">
-        <p className="text-[11px] text-muted-foreground mb-1">{p.category?.name}</p>
-        <Link to={`/product/${toSlug(p.name)}`}>
-          <h3 className="sb-card-name hover:text-[#3f646f] transition-colors">{p.name}</h3>
-        </Link>
-        <div className="sb-price-row">
-          {selectedVariant ? (
-            <>
-              <span className="sb-price">₹{selectedVariant.sellPrice}</span>
-              {selectedVariant.basePrice > selectedVariant.sellPrice && (
-                <span className="sb-og-price">₹{selectedVariant.basePrice}</span>
-              )}
-            </>
-          ) : (
-            <span className="sb-price">Starting From ₹{Math.min(...(p.variants?.map(v => v.sellPrice) || [0]))}</span>
-          )}
-        </div>
-
-        {/* Age Group / Variant Selector */}
-        {p.variants && p.variants.length > 0 && (
-          <div className="mt-2.5">
-            <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1.5 font-medium font-sans">Select Size:</p>
-            <div className="flex flex-wrap gap-1.5">
-              {p.variants.map((variant) => (
-                <button
-                  key={variant._id}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setSelectedVariant(variant);
-                  }}
-                  className={`px-2.5 py-1 text-[11px] font-sans font-medium rounded-full border transition-all duration-300 hover:scale-105 ${
-                    selectedVariant?._id === variant._id
-                      ? "border-[#3f646f] bg-[#3f646f] text-white shadow-sm"
-                      : "border-border bg-white text-foreground hover:border-[#3f646f]/50"
-                  }`}
-                >
-                  {variant.ageGroup}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
+import { ProductCard } from "@/components/ProductCard";
 
 /* ─── Main Component ─── */
 const SeasonBestsellers = () => {
@@ -292,7 +154,14 @@ const SeasonBestsellers = () => {
           ) : (
             <div className="sb-grid" ref={scrollRef} key={activeSeason}>
               {activeData.map((p, i) => (
-                <ProductCard key={`${activeSeason}-${p._id}`} p={p} index={i} />
+                <ProductCard
+                  key={`${activeSeason}-${p._id}`}
+                  p={p}
+                  index={i}
+                  className="sb-card group animate-fade-in"
+                  aspectClass="sb-card-img"
+                  bgClass=""
+                />
               ))}
               {activeData.length === 0 && (
                 <p className="col-span-full text-center text-muted-foreground py-12">
@@ -465,7 +334,7 @@ const SeasonBestsellers = () => {
           transition: transform 1.2s ease-out;
         }
         @media (min-width: 768px) {
-          .sb-card-img img { object-fit: cover; }
+          .sb-card-img img { object-fit: contain; }
         }
         .sb-card:hover .sb-card-img img {
           transform: scale(1.08);

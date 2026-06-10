@@ -68,7 +68,7 @@ export default function UserCart() {
                     <img 
                       src={getProductThumbnail(item.product?.images) || "/placeholder.svg"} 
                       alt={item.product?.name ?? "Product"} 
-                      className="w-20 h-24 sm:w-24 sm:h-32 object-cover rounded-xl bg-secondary" 
+                      className="w-20 h-24 sm:w-24 sm:h-32 object-contain rounded-xl bg-secondary" 
                     />
                   </Link>
                   <div className="flex-1 flex flex-col">

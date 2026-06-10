@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { ChevronRight, Heart, Minus, Plus, Truck, RefreshCw, ShieldCheck, ChevronLeft, Loader2 } from "lucide-react";
+import { ChevronRight, Heart, Minus, Plus, Truck, RefreshCw, ShieldCheck, ChevronLeft, Loader2, ChevronDown, ChevronUp } from "lucide-react";
 import PageShell from "@/components/PageShell";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
@@ -10,6 +10,7 @@ import { useAuth } from "@/store/auth";
 import { toast } from "@/hooks/use-toast";
 import SEO from "@/components/SEO";
 import { toSlug, getProductAltText, getProductThumbnail } from "@/lib/utils";
+import { ProductCard } from "@/components/ProductCard";
 
 const ProductDetails = () => {
   const { id } = useParams<{ id: string }>();
@@ -23,6 +24,12 @@ const ProductDetails = () => {
   const [adding, setAdding] = useState(false);
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null);
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
+
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [hasMore, setHasMore] = useState(false);
+  const [contentHeight, setContentHeight] = useState(0);
+  const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 768);
+  const descriptionRef = useRef<HTMLDivElement>(null);
 
   const { data: allProductsData } = useQuery({
     queryKey: ["products"],
@@ -57,6 +64,40 @@ const ProductDetails = () => {
       setSelectedVariant(product.variants[0]);
     }
   }, [product]);
+
+  // Clamp quantity to selected variant's stock if managed
+  useEffect(() => {
+    if (selectedVariant && selectedVariant.stock !== undefined && selectedVariant.stock !== null) {
+      const stock = selectedVariant.stock;
+      if (stock === 0) {
+        setQty(1);
+      } else if (qty > stock) {
+        setQty(stock);
+      }
+    }
+  }, [selectedVariant, qty]);
+
+  // Measure and manage description truncation
+  useEffect(() => {
+    const checkHeight = () => {
+      setIsDesktop(window.innerWidth >= 768);
+      if (descriptionRef.current) {
+        const sh = descriptionRef.current.scrollHeight;
+        setContentHeight(sh);
+        const threshold = window.innerWidth >= 768 ? 400 : 140;
+        setHasMore(sh > threshold);
+      }
+    };
+
+    checkHeight();
+    const timer = setTimeout(checkHeight, 150);
+
+    window.addEventListener("resize", checkHeight);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("resize", checkHeight);
+    };
+  }, [product?.description]);
 
   if (isLoading) {
     return (
@@ -234,6 +275,10 @@ const ProductDetails = () => {
 
   const combinedSchema = [productSchema, breadcrumbSchema, faqSchema];
 
+  const isStockManaged = selectedVariant && selectedVariant.stock !== undefined && selectedVariant.stock !== null;
+  const stockValue = isStockManaged ? selectedVariant.stock : null;
+  const isOutOfStock = isStockManaged && stockValue === 0;
+
   return (
     <PageShell hideHeaderSpacer>
       <SEO 
@@ -366,18 +411,64 @@ const ProductDetails = () => {
                 )}
               </div>
               
-              <div className="mb-8">
-                {product.description?.includes('•') || product.description?.includes('\n') || product.description?.includes('|') ? (
-                  <ul className="space-y-3">
-                    {product.description.split(/[•\n|]/).map((point, i) => point.trim() && (
-                      <li key={i} className="flex gap-3 text-sm text-muted-foreground leading-relaxed items-start">
-                        <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0" />
-                        <span>{point.trim()}</span>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="text-muted-foreground leading-relaxed">{product.description}</p>
+              <div className="mb-8 relative">
+                <div 
+                  ref={descriptionRef}
+                  className="overflow-hidden transition-[max-height] duration-500 ease-in-out relative"
+                  style={{ maxHeight: hasMore ? (isExpanded ? `${contentHeight}px` : (isDesktop ? "400px" : "140px")) : undefined }}
+                >
+                  {product.description?.includes('•') || product.description?.includes('\n') || product.description?.includes('|') ? (
+                    <ul className="space-y-3">
+                      {product.description.split(/[•\n|]/).map((point, i) => point.trim() && (
+                        <li key={i} className="flex gap-3 text-sm text-muted-foreground leading-relaxed items-start">
+                          <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0" />
+                          <span>{point.trim()}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="text-muted-foreground leading-relaxed">{product.description}</p>
+                  )}
+                  {hasMore && (
+                    <div 
+                      className={`absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-background to-transparent pointer-events-none transition-opacity duration-300 ${
+                        isExpanded ? "opacity-0" : "opacity-100"
+                      }`}
+                    />
+                  )}
+                </div>
+
+                {hasMore && (
+                  <button
+                    onClick={() => {
+                      if (isExpanded) {
+                        setIsExpanded(false);
+                        if (descriptionRef.current) {
+                          const elementTop = descriptionRef.current.getBoundingClientRect().top + window.scrollY;
+                          const headerOffset = window.innerWidth >= 768 ? 96 : 80;
+                          window.scrollTo({
+                            top: elementTop - headerOffset,
+                            behavior: "smooth"
+                          });
+                        }
+                      } else {
+                        setIsExpanded(true);
+                      }
+                    }}
+                    className="mt-3 inline-flex items-center gap-1 text-xs font-semibold tracking-wider uppercase text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 transition-colors group cursor-pointer"
+                  >
+                    {isExpanded ? (
+                      <>
+                        <span>View Less</span>
+                        <ChevronUp className="h-3.5 w-3.5 transition-transform group-hover:-translate-y-0.5" />
+                      </>
+                    ) : (
+                      <>
+                        <span>View More</span>
+                        <ChevronDown className="h-3.5 w-3.5 transition-transform group-hover:translate-y-0.5" />
+                      </>
+                    )}
+                  </button>
                 )}
               </div>
 
@@ -404,19 +495,58 @@ const ProductDetails = () => {
                     </button>
                   ))}
                 </div>
+                {isStockManaged && (
+                  <div className="mt-3 flex items-center gap-1.5 text-xs font-semibold font-sans animate-fade-in">
+                    {stockValue! > 10 && (
+                      <span className="text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                        <span className="text-sm">✓</span> In Stock
+                      </span>
+                    )}
+                    {stockValue! >= 1 && stockValue! <= 10 && (
+                      <span className="text-amber-600 dark:text-amber-400 flex items-center gap-1">
+                        <span className="text-sm">⚠</span> Only {stockValue} Left
+                      </span>
+                    )}
+                    {stockValue! === 0 && (
+                      <span className="text-rose-600 dark:text-rose-400 flex items-center gap-1">
+                        <span className="text-sm">✕</span> Out of Stock
+                      </span>
+                    )}
+                  </div>
+                )}
               </div>
 
               {/* Qty */}
               <div className="mb-8">
                 <p className="text-sm font-medium mb-3">Quantity</p>
-                <div className="inline-flex items-center border border-border rounded-full">
-                  <button onClick={() => setQty((q) => Math.max(1, q - 1))} className="w-10 h-10 flex items-center justify-center hover:bg-secondary rounded-full" aria-label="Decrease quantity">
-                    <Minus className="h-3.5 w-3.5" />
-                  </button>
-                  <span className="w-10 text-center text-sm font-semibold">{qty}</span>
-                  <button onClick={() => setQty((q) => q + 1)} className="w-10 h-10 flex items-center justify-center hover:bg-secondary rounded-full" aria-label="Increase quantity">
-                    <Plus className="h-3.5 w-3.5" />
-                  </button>
+                <div className="flex items-center gap-4">
+                  <div className="inline-flex items-center border border-border rounded-full">
+                    <button 
+                      onClick={() => setQty((q) => Math.max(1, q - 1))} 
+                      disabled={isOutOfStock}
+                      className="w-10 h-10 flex items-center justify-center hover:bg-secondary rounded-full disabled:opacity-50" 
+                      aria-label="Decrease quantity"
+                    >
+                      <Minus className="h-3.5 w-3.5" />
+                    </button>
+                    <span className="w-10 text-center text-sm font-semibold">{qty}</span>
+                    <button 
+                      onClick={() => setQty((q) => {
+                        if (isStockManaged) return Math.min(stockValue!, q + 1);
+                        return q + 1;
+                      })} 
+                      disabled={isOutOfStock || (isStockManaged && qty >= stockValue!)}
+                      className="w-10 h-10 flex items-center justify-center hover:bg-secondary rounded-full disabled:opacity-50" 
+                      aria-label="Increase quantity"
+                    >
+                      <Plus className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                  {isStockManaged && qty >= stockValue! && stockValue! > 0 && (
+                    <span className="text-xs text-rose-500 font-medium font-sans">
+                      Only {stockValue} items available
+                    </span>
+                  )}
                 </div>
               </div>
 
@@ -426,13 +556,15 @@ const ProductDetails = () => {
                   size="lg"
                   className="rounded-full bg-primary hover:bg-primary/90 h-14 sm:h-16 px-8 flex-[2] shadow-soft text-base sm:text-lg font-semibold tracking-wide transition-all active:scale-[0.98]"
                   onClick={() => handleAdd(false)}
-                  disabled={adding}
+                  disabled={adding || isOutOfStock}
                 >
                   {adding ? (
                     <span className="flex items-center justify-center">
                       <Loader2 className="h-5 w-5 mr-3 animate-spin" />
                       Adding...
                     </span>
+                  ) : isOutOfStock ? (
+                    <span className="text-center">Out Of Stock</span>
                   ) : (
                     <span className="text-center">Add to bag · ₹{(selectedVariant?.sellPrice || 0) * qty}</span>
                   )}
@@ -442,7 +574,7 @@ const ProductDetails = () => {
                   variant="outline"
                   className="rounded-full h-14 sm:h-16 px-8 flex-1 text-base sm:text-lg font-semibold tracking-wide border-2 hover:bg-secondary transition-all active:scale-[0.98]"
                   onClick={() => handleAdd(true)}
-                  disabled={adding}
+                  disabled={adding || isOutOfStock}
                 >
                   Buy it now
                 </Button>
@@ -511,21 +643,12 @@ const ProductDetails = () => {
           <section className="container mx-auto py-24 md:py-32 px-4" aria-label="Related products">
             <h2 className="font-serif text-3xl md:text-4xl mb-10 font-bold">You may also <em className="italic font-normal">love</em></h2>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
-              {related.map((p) => (
-                <Link key={p._id} to={`/product/${toSlug(p.name)}`} className="group">
-                  <div className="relative overflow-hidden rounded-2xl bg-secondary aspect-[4/5] mb-3 hover-lift">
-                    <img
-                      src={getProductThumbnail(p.images)}
-                      alt={getProductAltText(p.name, p.category?.name)}
-                      loading="lazy"
-                      className="w-full h-full object-contain transition-transform duration-1200 ease-out group-hover:scale-110"
-                    />
-                  </div>
-                  <h3 className="font-serif text-base font-bold">{p.name}</h3>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium">Starting From ₹{Math.min(...(p.variants?.map(v => v.sellPrice) || [0]))}</span>
-                  </div>
-                </Link>
+              {related.map((p, i) => (
+                <ProductCard
+                  key={p._id}
+                  p={p}
+                  index={i}
+                />
               ))}
             </div>
           </section>

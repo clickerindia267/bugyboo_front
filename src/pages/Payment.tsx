@@ -141,7 +141,7 @@ const Payment = () => {
                     <img 
                       src={getProductThumbnail(item.product?.images) || "/placeholder.svg"} 
                       alt={item.product?.name ?? "Product"} 
-                      className="w-12 h-14 object-cover rounded-lg bg-secondary" 
+                      className="w-12 h-14 object-contain rounded-lg bg-secondary" 
                     />
                     <div className="flex-1 text-sm">
                       <p className="font-medium leading-tight truncate max-w-[150px]">{item.product?.name ?? "Product"}</p>

@@ -7,6 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getProducts, type PublicProduct } from "@/lib/api";
 import SEO from "@/components/SEO";
 import { toSlug, getProductAltText, getProductThumbnail } from "@/lib/utils";
+import { ProductCard } from "@/components/ProductCard";
 
 const sortOptions = [
   { v: "featured", l: "Featured" },
@@ -235,33 +236,13 @@ const Shop = () => {
                   </>
                 )}
                 {!isLoading && filtered.map((p, i) => (
-                  <Link
+                  <ProductCard
                     key={p._id}
-                    to={`/product/${toSlug(p.name)}`}
-                    className="group animate-fade-in"
+                    p={p}
+                    index={i}
+                    className="animate-fade-in"
                     style={{ animationDelay: `${i * 50}ms`, animationFillMode: "backwards" }}
-                  >
-                    <div className="relative overflow-hidden rounded-2xl bg-secondary aspect-[4/5] mb-3 hover-lift">
-                      <img
-                        src={getProductThumbnail(p.images)}
-                        alt={getProductAltText(p.name, p.category?.name)}
-                        loading="lazy"
-                        className="w-full h-full object-contain transition-transform duration-1200 ease-out group-hover:scale-110"
-                      />
-                      {p.variants?.some(v => v.basePrice > v.sellPrice) && (
-                        <span className="absolute top-3 left-3 px-3 py-1 rounded-full bg-background/80 backdrop-blur text-[10px] uppercase tracking-wider font-medium">
-                          Sale
-                        </span>
-                      )}
-                    </div>
-                    <div className="px-1">
-                      <p className="text-[11px] text-rose-600 dark:text-rose-400 font-bold mb-1">{p.category?.name}</p>
-                      <h3 className="font-serif text-base leading-tight mb-1 font-bold">{p.name}</h3>
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium">Starting From ₹{Math.min(...(p.variants?.map(v => v.sellPrice) || [0]))}</span>
-                      </div>
-                    </div>
-                  </Link>
+                  />
                 ))}
             {!isLoading && filtered.length === 0 && (
               <p className="col-span-full text-center text-muted-foreground py-20 font-medium">

@@ -46,7 +46,7 @@ export default function UserOrders() {
       <Card className="border-none shadow-soft rounded-2xl bg-card mb-4 overflow-hidden hover:shadow-elegant transition-shadow duration-300">
         <CardContent className="p-4 sm:p-6 font-sans">
           <div className="flex gap-4">
-            <img src={productImage} alt={productName} className="w-20 h-24 rounded-xl object-cover flex-shrink-0" />
+            <img src={productImage} alt={productName} className="w-20 h-24 rounded-xl object-contain flex-shrink-0" />
             <div className="flex-1">
               <div className="flex justify-between items-start mb-2">
                 <div>

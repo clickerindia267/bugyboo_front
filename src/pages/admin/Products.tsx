@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Plus, Trash2, Edit, PauseCircle, PlayCircle, ImagePlus, X, Check, Crop } from "lucide-react";
 import Cropper from "react-easy-crop";
 import getCroppedImg from "@/lib/cropImage";
@@ -33,6 +33,7 @@ interface FormProductVariant {
   ageGroup: string;
   basePrice: string;
   sellPrice: string;
+  stock: string;
 }
 
 interface ProductFormData {
@@ -77,6 +78,53 @@ export default function AdminProducts() {
   const [products, setProducts] = useState<AdminProduct[]>([]);
   const [categories, setCategories] = useState<AdminCategory[]>(mockCategories);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  
+  // Search, filter, sorting, and pagination states
+  const [searchQuery, setSearchQuery] = useState("");
+  const [catFilter, setCatFilter] = useState("all");
+  const [sortBy, setSortBy] = useState("name-asc");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
+  // Filter and sort products
+  const filteredProducts = useMemo(() => {
+    let result = [...products];
+
+    // 1. Search Query
+    if (searchQuery.trim() !== "") {
+      const q = searchQuery.toLowerCase();
+      result = result.filter(p => p.name.toLowerCase().includes(q));
+    }
+
+    // 2. Category Filter
+    if (catFilter !== "all") {
+      result = result.filter(p => getProductCategoryId(p.category) === catFilter);
+    }
+
+    // 3. Sorting
+    if (sortBy === "name-asc") {
+      result.sort((a, b) => a.name.localeCompare(b.name));
+    } else if (sortBy === "name-desc") {
+      result.sort((a, b) => b.name.localeCompare(a.name));
+    } else if (sortBy === "price-low") {
+      const getMinPrice = (p: AdminProduct) => p.variants && p.variants.length > 0 ? Math.min(...p.variants.map(v => v.sellPrice)) : 0;
+      result.sort((a, b) => getMinPrice(a) - getMinPrice(b));
+    } else if (sortBy === "price-high") {
+      const getMinPrice = (p: AdminProduct) => p.variants && p.variants.length > 0 ? Math.min(...p.variants.map(v => v.sellPrice)) : 0;
+      result.sort((a, b) => getMinPrice(b) - getMinPrice(a));
+    }
+
+    return result;
+  }, [products, searchQuery, catFilter, sortBy]);
+
+  // Reset to page 1 when any filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, catFilter, sortBy]);
+
+  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage) || 1;
+  const activePage = Math.min(currentPage, totalPages);
+  const paginatedProducts = filteredProducts.slice((activePage - 1) * itemsPerPage, activePage * itemsPerPage);
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isLoadingProducts, setIsLoadingProducts] = useState(false);
@@ -87,7 +135,7 @@ export default function AdminProducts() {
     color: "",
     gst: "18",
     description: "",
-    variants: [{ ageGroup: "", basePrice: "", sellPrice: "" }],
+    variants: [{ ageGroup: "", basePrice: "", sellPrice: "", stock: "" }],
     imageFiles: [],
     imagePreviews: [],
   });
@@ -106,7 +154,7 @@ export default function AdminProducts() {
       color: "",
       gst: "18",
       description: "",
-      variants: [{ ageGroup: "", basePrice: "", sellPrice: "" }],
+      variants: [{ ageGroup: "", basePrice: "", sellPrice: "", stock: "" }],
       imageFiles: [],
       imagePreviews: [],
     });
@@ -154,7 +202,8 @@ export default function AdminProducts() {
           ageGroup: v.ageGroup,
           basePrice: v.basePrice.toString(),
           sellPrice: v.sellPrice.toString(),
-        })) || [{ ageGroup: "", basePrice: "", sellPrice: "" }],
+          stock: v.stock !== undefined && v.stock !== null ? v.stock.toString() : "",
+        })) || [{ ageGroup: "", basePrice: "", sellPrice: "", stock: "" }],
         imageFiles: [],
         imagePreviews: product.images ?? [],
       });
@@ -169,7 +218,7 @@ export default function AdminProducts() {
   const handleAddVariant = () => {
     setFormData(prev => ({
       ...prev,
-      variants: [...prev.variants, { ageGroup: "", basePrice: "", sellPrice: "" }]
+      variants: [...prev.variants, { ageGroup: "", basePrice: "", sellPrice: "", stock: "" }]
     }));
   };
 
@@ -193,20 +242,25 @@ export default function AdminProducts() {
       return;
     }
 
-    const cleanedVariants = formData.variants.map((v) => ({
-      ageGroup: v.ageGroup.trim(),
-      basePrice: Number(v.basePrice) || 0,
-      sellPrice: Number(v.sellPrice) || 0,
-    }));
+    const cleanedVariants = formData.variants.map((v) => {
+      const stockVal = v.stock ? v.stock.trim() : "";
+      return {
+        ageGroup: v.ageGroup.trim(),
+        basePrice: Number(v.basePrice) || 0,
+        sellPrice: Number(v.sellPrice) || 0,
+        ...(stockVal !== "" ? { stock: Number(stockVal) } : {}),
+      };
+    });
 
     const invalidVariant = cleanedVariants.find((variant) => {
       if (!variant.ageGroup || !isValidAgeGroup(variant.ageGroup)) return true;
       if (variant.basePrice <= 0 || variant.sellPrice <= 0) return true;
+      if (variant.stock !== undefined && variant.stock < 0) return true;
       return false;
     });
 
     if (invalidVariant) {
-      toast.error("Each variant must have a valid age group like 1-3 and positive base/sell prices.");
+      toast.error("Each variant must have a valid age group like 1-3, positive base/sell prices, and non-negative stock (if provided).");
       return;
     }
 
@@ -473,55 +527,7 @@ export default function AdminProducts() {
                   <div className="space-y-2"><Label htmlFor="color">Color</Label><Input id="color" value={formData.color} onChange={(e) => setFormData({...formData, color: e.target.value})} className="rounded-xl border-border" placeholder="e.g. Blue" /></div>
                   <div className="space-y-2"><Label htmlFor="gst">GST (%)</Label><Input id="gst" type="number" value={formData.gst} onChange={(e) => setFormData({...formData, gst: e.target.value})} className="rounded-xl border-border" /></div>
                 </div>
-                <div className="space-y-4">
-                  <Label>Variants *</Label>
-                  {formData.variants.map((variant, index) => (
-                    <div key={index} className="grid grid-cols-4 gap-2 items-end">
-                      <div className="space-y-1">
-                        <Label className="text-xs">Age Group</Label>
-                        <Input
-                          value={variant.ageGroup}
-                          onChange={(e) => handleVariantChange(index, 'ageGroup', e.target.value)}
-                          placeholder="e.g. 1-3"
-                          className="rounded-lg"
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <Label className="text-xs">Base Price</Label>
-                        <Input
-                          type="number"
-                          value={variant.basePrice}
-                          onChange={(e) => handleVariantChange(index, 'basePrice', e.target.value)}
-                          placeholder="0"
-                          className="rounded-lg"
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <Label className="text-xs">Sell Price</Label>
-                        <Input
-                          type="number"
-                          value={variant.sellPrice}
-                          onChange={(e) => handleVariantChange(index, 'sellPrice', e.target.value)}
-                          placeholder="0"
-                          className="rounded-lg"
-                        />
-                      </div>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleRemoveVariant(index)}
-                        disabled={formData.variants.length === 1}
-                        className="rounded-lg"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  ))}
-                  <Button type="button" variant="outline" onClick={handleAddVariant} className="rounded-lg">
-                    <Plus className="h-4 w-4 mr-2" /> Add Variant
-                  </Button>
-                </div>
+
               </div>
               <div className="space-y-4">
                 <div className="space-y-2">
@@ -549,9 +555,9 @@ export default function AdminProducts() {
                         return (
                           <div key={index} className="relative aspect-[4/5] border border-border rounded-xl overflow-hidden group">
                             {isVideo ? (
-                              <video src={preview} controls preload="metadata" className="w-full h-full object-cover" />
+                              <video src={preview} controls preload="metadata" className="w-full h-full object-contain" />
                             ) : (
-                              <img src={preview} alt={`Preview ${index}`} className="w-full h-full object-cover" />
+                              <img src={preview} alt={`Preview ${index}`} className="w-full h-full object-contain" />
                             )}
                             <Button
                               size="icon"
@@ -590,6 +596,95 @@ export default function AdminProducts() {
                 <div className="space-y-2"><Label htmlFor="description">Description</Label><Textarea id="description" value={formData.description} onChange={(e) => setFormData({...formData, description: e.target.value})} className="rounded-xl border-border resize-none h-[100px] lg:h-[120px]" placeholder="Product details..." /></div>
               </div>
             </div>
+
+            {/* Variants section - Span Full Width! */}
+            <div className="border-t border-border/40 pt-6 mt-4 font-sans space-y-4">
+              <Label className="text-sm font-semibold text-foreground">Variants *</Label>
+              
+              {/* Header row for desktop */}
+              <div className="hidden md:grid grid-cols-12 gap-2 text-xs font-semibold text-muted-foreground px-1">
+                <div className="col-span-3">Age Group</div>
+                <div className="col-span-2">Base Price</div>
+                <div className="col-span-2">Sell Price</div>
+                <div className="col-span-3">Stock (Optional)</div>
+                <div className="col-span-2">Action</div>
+              </div>
+
+              <div className="space-y-3 max-h-[250px] overflow-y-auto pr-1">
+                {formData.variants.map((variant, index) => (
+                  <div key={index} className="grid grid-cols-1 md:grid-cols-12 gap-3 md:gap-2 items-center border-b md:border-none pb-4 md:pb-0 px-1">
+                    
+                    {/* Age Group */}
+                    <div className="space-y-1 md:space-y-0 md:col-span-3">
+                      <Label className="text-[11px] md:hidden text-muted-foreground font-medium font-sans">Age Group</Label>
+                      <Input
+                        value={variant.ageGroup}
+                        onChange={(e) => handleVariantChange(index, 'ageGroup', e.target.value)}
+                        placeholder="e.g. 1-3"
+                        className="rounded-lg text-sm"
+                      />
+                    </div>
+                    
+                    {/* Base Price */}
+                    <div className="space-y-1 md:space-y-0 md:col-span-2">
+                      <Label className="text-[11px] md:hidden text-muted-foreground font-medium font-sans">Base Price</Label>
+                      <Input
+                        type="number"
+                        value={variant.basePrice}
+                        onChange={(e) => handleVariantChange(index, 'basePrice', e.target.value)}
+                        placeholder="0"
+                        className="rounded-lg text-sm"
+                      />
+                    </div>
+
+                    {/* Sell Price */}
+                    <div className="space-y-1 md:space-y-0 md:col-span-2">
+                      <Label className="text-[11px] md:hidden text-muted-foreground font-medium font-sans">Sell Price</Label>
+                      <Input
+                        type="number"
+                        value={variant.sellPrice}
+                        onChange={(e) => handleVariantChange(index, 'sellPrice', e.target.value)}
+                        placeholder="0"
+                        className="rounded-lg text-sm"
+                      />
+                    </div>
+
+                    {/* Stock */}
+                    <div className="space-y-1 md:space-y-0 md:col-span-3">
+                      <Label className="text-[11px] md:hidden text-muted-foreground font-medium font-sans">Stock (Optional)</Label>
+                      <Input
+                        type="number"
+                        min="0"
+                        value={variant.stock}
+                        onChange={(e) => handleVariantChange(index, 'stock', e.target.value)}
+                        placeholder="Infinite"
+                        className="rounded-lg text-sm"
+                      />
+                    </div>
+
+                    {/* Remove button */}
+                    <div className="md:col-span-2 flex justify-end md:justify-start">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleRemoveVariant(index)}
+                        disabled={formData.variants.length === 1}
+                        className="rounded-lg w-full md:w-auto h-10 flex items-center justify-center border-rose-200 hover:bg-rose-50 text-rose-600 dark:text-rose-400 dark:border-rose-950 dark:hover:bg-rose-950/30"
+                      >
+                        <Trash2 className="h-4 w-4 mr-2 md:mr-0" />
+                        <span className="md:hidden">Remove Variant</span>
+                      </Button>
+                    </div>
+
+                  </div>
+                ))}
+              </div>
+
+              <Button type="button" variant="outline" onClick={handleAddVariant} className="rounded-lg">
+                <Plus className="h-4 w-4 mr-2" /> Add Variant
+              </Button>
+            </div>
             <DialogFooter className="mt-6 font-sans flex flex-col sm:flex-row gap-2">
               <Button variant="outline" onClick={() => setIsDialogOpen(false)} className="rounded-xl order-2 sm:order-1">Cancel</Button>
               <Button onClick={handleSaveProduct} disabled={isSaving} className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl order-1 sm:order-2">{isSaving ? "Saving..." : isEditing ? "Update Product" : "Save Product"}</Button>
@@ -599,6 +694,48 @@ export default function AdminProducts() {
       </div>
 
       <Card className="border-none shadow-soft rounded-2xl bg-card overflow-hidden">
+        {/* Search, Filter & Sort controls */}
+        <div className="p-4 md:p-6 border-b border-border/40 flex flex-col sm:flex-row gap-4 items-center justify-between bg-card">
+          <div className="flex-1 w-full sm:max-w-md">
+            <Input
+              placeholder="Search products..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="rounded-xl border-border h-10 w-full"
+            />
+          </div>
+          <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+            <div className="w-full sm:w-48">
+              <Select value={catFilter} onValueChange={setCatFilter}>
+                <SelectTrigger className="rounded-xl border-border h-10 w-full">
+                  <SelectValue placeholder="All Categories" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Categories</SelectItem>
+                  {categories.map((c) => (
+                    <SelectItem key={c._id ?? c.id} value={c._id ?? c.id ?? ""}>
+                      {c.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="w-full sm:w-48">
+              <Select value={sortBy} onValueChange={setSortBy}>
+                <SelectTrigger className="rounded-xl border-border h-10 w-full">
+                  <SelectValue placeholder="Sort by" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="name-asc">Name: A → Z</SelectItem>
+                  <SelectItem value="name-desc">Name: Z → A</SelectItem>
+                  <SelectItem value="price-low">Price: Low → High</SelectItem>
+                  <SelectItem value="price-high">Price: High → Low</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </div>
+
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm font-sans min-w-[600px]">
@@ -612,7 +749,7 @@ export default function AdminProducts() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
-                {products.map((product) => {
+                {paginatedProducts.map((product) => {
                   const productId = getProductId(product);
                   const productStatus = product.status ?? (product.isPaused ? "Paused" : "Active");
                   return (
@@ -620,7 +757,7 @@ export default function AdminProducts() {
                       <td className="px-4 lg:px-6 py-4">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-lg overflow-hidden bg-secondary flex-shrink-0">
-                            <img src={getProductThumbnail(product.images)} alt={product.name} className="w-full h-full object-cover" />
+                            <img src={getProductThumbnail(product.images)} alt={product.name} className="w-full h-full object-contain" />
                           </div>
                           <div className="min-w-0 flex-1">
                             <p className="font-medium text-foreground truncate">{product.name}</p>
@@ -667,6 +804,51 @@ export default function AdminProducts() {
               </tbody>
             </table>
           </div>
+
+          {/* Pagination controls */}
+          {totalPages > 1 && (
+            <div className="p-4 border-t border-border/40 flex items-center justify-between gap-4 font-sans bg-card">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                disabled={activePage === 1}
+                className="rounded-xl border-border font-medium hover:bg-secondary h-10"
+              >
+                &lt; Previous
+              </Button>
+              <div className="flex items-center gap-1.5 overflow-x-auto max-w-[150px] sm:max-w-none">
+                {[...Array(totalPages)].map((_, idx) => {
+                  const pNum = idx + 1;
+                  const isActive = activePage === pNum;
+                  return (
+                    <Button
+                      key={pNum}
+                      variant={isActive ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setCurrentPage(pNum)}
+                      className={`h-9 w-9 rounded-xl font-medium ${
+                        isActive 
+                          ? "bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm" 
+                          : "border-border hover:bg-secondary"
+                      }`}
+                    >
+                      {pNum}
+                    </Button>
+                  );
+                })}
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                disabled={activePage === totalPages}
+                className="rounded-xl border-border font-medium hover:bg-secondary h-10"
+              >
+                Next &gt;
+              </Button>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

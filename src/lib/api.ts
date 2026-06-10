@@ -97,6 +97,7 @@ export interface ProductVariant {
   ageGroup: string;
   basePrice: number;
   sellPrice: number;
+  stock?: number;
 }
 
 export interface AdminProduct {

@@ -123,6 +123,17 @@ const Cart = () => {
   const shipping = subtotal > 500 || subtotal === 0 ? 0 : 49;
   const total = subtotal + shipping;
 
+  const hasStockError = cartItems.some((item) => {
+    const matchedVariant = item.product?.variants?.find((v) => {
+      if (item.variantId) return v._id === item.variantId;
+      return v.ageGroup === (item as any).selectedAgeGroup;
+    });
+    if (matchedVariant && matchedVariant.stock !== undefined && matchedVariant.stock !== null) {
+      return item.quantity > matchedVariant.stock;
+    }
+    return false;
+  });
+
   if (isLoading) {
     return (
       <PageShell title="Your bag" eyebrow="Cart" subtitle="Loading your cart...">
@@ -155,96 +166,116 @@ const Cart = () => {
           <div className="grid lg:grid-cols-[1fr_380px] gap-10">
             {/* Cart items */}
             <div className="space-y-4">
-              {cartItems.map((item) => (
-                <div
-                  key={item._id}
-                  className={`flex gap-4 md:gap-6 p-4 md:p-5 rounded-2xl bg-card border border-border/30 transition-opacity ${
-                    updatingId === item.productId ? "opacity-60" : ""
-                  }`}
-                >
-                  {/* Product image */}
-                  <Link
-                    to={`/product/${item.productId}`}
-                    className="shrink-0 w-24 h-28 md:w-28 md:h-32 rounded-xl overflow-hidden bg-secondary"
+              {cartItems.map((item) => {
+                const matchedVariant = item.product?.variants?.find((v) => {
+                  if (item.variantId) return v._id === item.variantId;
+                  return v.ageGroup === (item as any).selectedAgeGroup;
+                });
+                const isStockManaged = matchedVariant && matchedVariant.stock !== undefined && matchedVariant.stock !== null;
+                const stockValue = isStockManaged ? matchedVariant.stock : null;
+                const isOverStock = isStockManaged && item.quantity > stockValue!;
+
+                return (
+                  <div
+                    key={item._id}
+                    className={`flex gap-4 md:gap-6 p-4 md:p-5 rounded-2xl bg-card border border-border/30 transition-opacity ${
+                      updatingId === item.productId ? "opacity-60" : ""
+                    }`}
                   >
-                    {item.loadingProduct ? (
-                      <div className="w-full h-full shimmer" />
-                    ) : (
-                      <img
-                        src={getProductThumbnail(item.product?.images)}
-                        alt={item.product?.name ?? "Product"}
-                        className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
-                      />
-                    )}
-                  </Link>
+                    {/* Product image */}
+                    <Link
+                      to={`/product/${item.productId}`}
+                      className="shrink-0 w-24 h-28 md:w-28 md:h-32 rounded-xl overflow-hidden bg-secondary"
+                    >
+                      {item.loadingProduct ? (
+                        <div className="w-full h-full shimmer" />
+                      ) : (
+                        <img
+                          src={getProductThumbnail(item.product?.images)}
+                          alt={item.product?.name ?? "Product"}
+                          className="w-full h-full object-contain hover:scale-105 transition-transform duration-500"
+                        />
+                      )}
+                    </Link>
 
-                  {/* Product details */}
-                  <div className="flex-1 min-w-0">
-                    {item.loadingProduct ? (
-                      <div className="animate-pulse space-y-2">
-                        <div className="h-4 w-3/4 rounded shimmer" />
-                        <div className="h-3 w-1/2 rounded shimmer" />
-                        <div className="h-5 w-20 rounded shimmer mt-2" />
-                      </div>
-                    ) : (
-                      <>
-                        <Link to={`/product/${item.productId}`}>
-                          <h3 className="font-serif text-base md:text-lg leading-tight hover:text-primary transition-colors">
-                            {item.product?.name ?? "Product"}
-                          </h3>
-                        </Link>
-                        <div className="flex items-center gap-3 text-xs text-muted-foreground mt-1 mb-3">
-                          {item.product?.color && <span>Color: {item.product.color}</span>}
-                          {(item as any).selectedAgeGroup && (
-                            <>
-                              {item.product?.color && <span>·</span>}
-                              <span>Age Group: {(item as any).selectedAgeGroup}</span>
-                            </>
+                    {/* Product details */}
+                    <div className="flex-1 min-w-0">
+                      {item.loadingProduct ? (
+                        <div className="animate-pulse space-y-2">
+                          <div className="h-4 w-3/4 rounded shimmer" />
+                          <div className="h-3 w-1/2 rounded shimmer" />
+                          <div className="h-5 w-20 rounded shimmer mt-2" />
+                        </div>
+                      ) : (
+                        <>
+                          <Link to={`/product/${item.productId}`}>
+                            <h3 className="font-serif text-base md:text-lg leading-tight hover:text-primary transition-colors">
+                              {item.product?.name ?? "Product"}
+                            </h3>
+                          </Link>
+                          <div className="flex items-center gap-3 text-xs text-muted-foreground mt-1 mb-3">
+                            {item.product?.color && <span>Color: {item.product.color}</span>}
+                            {(item as any).selectedAgeGroup && (
+                              <>
+                                {item.product?.color && <span>·</span>}
+                                <span>Age Group: {(item as any).selectedAgeGroup}</span>
+                              </>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2 mb-3">
+                            <span className="text-base font-medium">₹{(item as any).selectedPrice ?? item.product?.sellPrice ?? 0}</span>
+                          </div>
+                          {isStockManaged && stockValue === 0 && (
+                            <p className="text-xs text-rose-500 font-semibold font-sans mb-3 animate-fade-in">
+                              ✕ Out of Stock
+                            </p>
                           )}
-                        </div>
-                        <div className="flex items-center gap-2 mb-3">
-                          <span className="text-base font-medium">₹{(item as any).selectedPrice ?? item.product?.sellPrice ?? 0}</span>
-                        </div>
-                      </>
-                    )}
+                          {isStockManaged && stockValue! > 0 && isOverStock && (
+                            <p className="text-xs text-rose-500 font-semibold font-sans mb-3 animate-fade-in">
+                              ⚠ Only {stockValue} available
+                            </p>
+                          )}
+                        </>
+                      )}
 
-                    {/* Qty controls + remove */}
-                    <div className="flex items-center justify-between">
-                      <div className="inline-flex items-center border border-border rounded-full">
+                      {/* Qty controls + remove */}
+                      <div className="flex items-center justify-between">
+                        <div className="inline-flex items-center border border-border rounded-full">
+                          <button
+                            onClick={() => handleUpdateQty(item.productId, item.quantity - 1)}
+                            disabled={updatingId === item.productId || item.quantity <= 1}
+                            className="w-9 h-9 flex items-center justify-center hover:bg-secondary rounded-full disabled:opacity-40"
+                          >
+                            <Minus className="h-3 w-3" />
+                          </button>
+                          <span className="w-8 text-center text-sm font-medium">
+                            {updatingId === item.productId ? (
+                              <Loader2 className="h-3 w-3 animate-spin mx-auto" />
+                            ) : (
+                              item.quantity
+                            )}
+                          </span>
+                          <button
+                            onClick={() => handleUpdateQty(item.productId, item.quantity + 1)}
+                            disabled={updatingId === item.productId || (isStockManaged && item.quantity >= stockValue!)}
+                            className="w-9 h-9 flex items-center justify-center hover:bg-secondary rounded-full disabled:opacity-40"
+                          >
+                            <Plus className="h-3 w-3" />
+                          </button>
+                        </div>
                         <button
-                          onClick={() => handleUpdateQty(item.productId, item.quantity - 1)}
-                          disabled={updatingId === item.productId || item.quantity <= 1}
-                          className="w-9 h-9 flex items-center justify-center hover:bg-secondary rounded-full disabled:opacity-40"
-                        >
-                          <Minus className="h-3 w-3" />
-                        </button>
-                        <span className="w-8 text-center text-sm font-medium">
-                          {updatingId === item.productId ? (
-                            <Loader2 className="h-3 w-3 animate-spin mx-auto" />
-                          ) : (
-                            item.quantity
-                          )}
-                        </span>
-                        <button
-                          onClick={() => handleUpdateQty(item.productId, item.quantity + 1)}
+                          onClick={() => handleRemove(item.productId, item.variantId ?? "")}
                           disabled={updatingId === item.productId}
-                          className="w-9 h-9 flex items-center justify-center hover:bg-secondary rounded-full disabled:opacity-40"
+                          className="text-muted-foreground hover:text-destructive transition-colors p-2 disabled:opacity-40"
+                          aria-label="Remove item"
                         >
-                          <Plus className="h-3 w-3" />
+                          <Trash2 className="h-4 w-4" />
                         </button>
                       </div>
-                      <button
-                        onClick={() => handleRemove(item.productId, item.variantId ?? "")}
-                        disabled={updatingId === item.productId}
-                        className="text-muted-foreground hover:text-destructive transition-colors p-2 disabled:opacity-40"
-                        aria-label="Remove item"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
 
               <div className="flex items-center justify-between pt-2">
                 <Link to="/shop" className="text-sm story-link text-muted-foreground hover:text-foreground">
@@ -282,7 +313,7 @@ const Cart = () => {
                   size="lg"
                   className="w-full rounded-full mt-6 bg-primary hover:bg-primary/90 h-12 shadow-soft group"
                   onClick={() => navigate("/address")}
-                  disabled={count === 0}
+                  disabled={count === 0 || hasStockError}
                 >
                   Checkout
                   <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
