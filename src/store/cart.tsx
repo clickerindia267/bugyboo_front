@@ -30,7 +30,7 @@ type CartCtx = {
     basePrice?: number,
     variantId?: string,
   ) => Promise<void>;
-  update: (productId: string, quantity: number) => Promise<void>;
+  update: (productId: string, variantId: string, quantity: number) => Promise<void>;
   remove: (productId: string, variantId: string) => Promise<void>;
   clear: () => void;
   refreshCart: () => Promise<void>;
@@ -133,10 +133,10 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const update: CartCtx["update"] = async (productId, quantity) => {
+  const update: CartCtx["update"] = async (productId, variantId, quantity) => {
     if (!accessToken) throw new Error('Not logged in');
     try {
-      await updateCart(productId, quantity, accessToken);
+      await updateCart(productId, quantity, variantId, accessToken);
       await fetchCart(); // Refresh cart
     } catch (error) {
       console.error('Failed to update cart:', error);

@@ -666,13 +666,13 @@ export const addToCart = (
     },
   });
 
-export const updateCart = (productId: string, quantity: number, accessToken: string) =>
+export const updateCart = (productId: string, quantity: number, variantId: string, accessToken: string) =>
   request<UserCartResponse>("/cart/update", {
     method: "PATCH",
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },
-    body: { productId, quantity },
+    body: { productId, quantity, variantId },
   });
 
 export const removeFromCart = (productId: string, variantId: string, accessToken: string) =>

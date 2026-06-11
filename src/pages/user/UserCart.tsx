@@ -18,10 +18,10 @@ export default function UserCart() {
     }
   };
 
-  const handleUpdateQty = async (productId: string, newQty: number) => {
+  const handleUpdateQty = async (productId: string, variantId: string, newQty: number) => {
     if (newQty < 1) return;
     try {
-      await update(productId, newQty);
+      await update(productId, variantId, newQty);
     } catch (error) {
       toast.error("Failed to update quantity");
     }
@@ -90,7 +90,7 @@ export default function UserCart() {
                     <div className="flex items-center justify-between mt-auto">
                       <div className="inline-flex items-center border border-border rounded-full">
                         <button 
-                          onClick={() => handleUpdateQty(item.productId, item.quantity - 1)} 
+                          onClick={() => handleUpdateQty(item.productId, item.variantId ?? "", item.quantity - 1)} 
                           className="w-8 h-8 flex items-center justify-center hover:bg-secondary rounded-full transition-colors"
                           disabled={item.quantity <= 1}
                         >
@@ -98,7 +98,7 @@ export default function UserCart() {
                         </button>
                         <span className="w-8 text-center text-sm font-medium">{item.quantity}</span>
                         <button 
-                          onClick={() => handleUpdateQty(item.productId, item.quantity + 1)} 
+                          onClick={() => handleUpdateQty(item.productId, item.variantId ?? "", item.quantity + 1)} 
                           className="w-8 h-8 flex items-center justify-center hover:bg-secondary rounded-full transition-colors"
                         >
                           <Plus className="h-3 w-3" />

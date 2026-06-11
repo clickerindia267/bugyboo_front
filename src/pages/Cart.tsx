@@ -74,17 +74,17 @@ const Cart = () => {
   }, [fetchCart, fetchProductDetails]);
 
   // Update quantity via API
-  const handleUpdateQty = async (productId: string, newQty: number) => {
+  const handleUpdateQty = async (productId: string, variantId: string, newQty: number) => {
     if (!accessToken || newQty < 1) return;
     const normalizedId = normalizeProductId(productId as any);
     setUpdatingId(normalizedId);
     try {
-      const response = await updateCart(normalizedId, newQty, accessToken);
+      const response = await updateCart(normalizedId, newQty, variantId, accessToken);
       setCartData(response.data);
       // Update cart items locally
       setCartItems((prev) =>
         prev.map((item) =>
-          item.productId === normalizedId ? { ...item, quantity: newQty } : item
+          item.productId === normalizedId && item.variantId === variantId ? { ...item, quantity: newQty } : item
         )
       );
       // Sync the global cart store
@@ -242,7 +242,7 @@ const Cart = () => {
                       <div className="flex items-center justify-between">
                         <div className="inline-flex items-center border border-border rounded-full">
                           <button
-                            onClick={() => handleUpdateQty(item.productId, item.quantity - 1)}
+                            onClick={() => handleUpdateQty(item.productId, item.variantId ?? "", item.quantity - 1)}
                             disabled={updatingId === item.productId || item.quantity <= 1}
                             className="w-9 h-9 flex items-center justify-center hover:bg-secondary rounded-full disabled:opacity-40"
                           >
@@ -256,7 +256,7 @@ const Cart = () => {
                             )}
                           </span>
                           <button
-                            onClick={() => handleUpdateQty(item.productId, item.quantity + 1)}
+                            onClick={() => handleUpdateQty(item.productId, item.variantId ?? "", item.quantity + 1)}
                             disabled={updatingId === item.productId || (isStockManaged && item.quantity >= stockValue!)}
                             className="w-9 h-9 flex items-center justify-center hover:bg-secondary rounded-full disabled:opacity-40"
                           >
