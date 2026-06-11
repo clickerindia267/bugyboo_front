@@ -506,14 +506,9 @@ const ProductDetails = () => {
                 </div>
                 {isStockManaged && (
                   <div className="mt-3 flex items-center gap-1.5 text-xs font-semibold font-sans animate-fade-in">
-                    {stockValue! > 10 && (
+                    {stockValue! >= 1 && (
                       <span className="text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
                         <span className="text-sm">✓</span> In Stock
-                      </span>
-                    )}
-                    {stockValue! >= 1 && stockValue! <= 10 && (
-                      <span className="text-amber-600 dark:text-amber-400 flex items-center gap-1">
-                        <span className="text-sm">⚠</span> Only {stockValue} Left
                       </span>
                     )}
                     {stockValue! === 0 && (
@@ -553,7 +548,7 @@ const ProductDetails = () => {
                   </div>
                   {isStockManaged && qty >= stockValue! && stockValue! > 0 && (
                     <span className="text-xs text-rose-500 font-medium font-sans">
-                      Only {stockValue} items available
+                      Maximum quantity reached
                     </span>
                   )}
                 </div>

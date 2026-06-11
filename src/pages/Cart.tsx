@@ -232,7 +232,7 @@ const Cart = () => {
                           )}
                           {isStockManaged && stockValue! > 0 && isOverStock && (
                             <p className="text-xs text-rose-500 font-semibold font-sans mb-3 animate-fade-in">
-                              ⚠ Only {stockValue} available
+                              ⚠ Exceeds available stock
                             </p>
                           )}
                         </>
